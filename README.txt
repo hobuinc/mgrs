@@ -1,6 +1,6 @@
 .. _home:
 
-pymgrs: Converting to and from MGRS and Decimal Degrees
+mgrs: Converting to and from MGRS and Decimal Degrees
 ------------------------------------------------------------------------------
 
 GeoTrans_ provides C code for converting to and from MGRS, but well, it's 
