@@ -2,26 +2,14 @@ Test basic import
 
     >>> import mgrs
     
-    >>> import ctypes
-    >>> p = ctypes.create_string_buffer(1000)
-    
     >>> latitude = 42.0
     >>> longitude = -93.0
-
-    >>> mgrs.core.rt.Convert_Geodetic_To_MGRS( mgrs.core.TO_RADIANS(latitude), mgrs.core.TO_RADIANS(longitude), 5, p)
     
-    >>> c = ctypes.string_at(p)
+    >>> m = mgrs.MGRS()
+    >>> c = m.toMGRS(latitude, longitude)
     >>> c
     '15TWG0000049776'
     
-    >>> plat = ctypes.pointer(ctypes.c_double())
-    >>> plon = ctypes.pointer(ctypes.c_double())
-
-    >>> mgrs.core.rt.Convert_MGRS_To_Geodetic( c, plat, plon)
-    
-    >>> new_latitude = mgrs.core.TO_DEGREES(plat.contents.value)
-    >>> new_latitude
-    41.999997975127997
-    >>> new_longitude = mgrs.core.TO_DEGREES(plon.contents.value)
-    >>> new_longitude
-    -93.000000000000014
+    >>> d = m.toLatLon(c)
+    >>> d
+    (41.999997975127997, -93.000000000000014)

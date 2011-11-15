@@ -24,8 +24,8 @@ class MGRS:
         c = ctypes.string_at(MGRS)
         core.rt.Convert_MGRS_To_Geodetic( c, plat, plon)
         if inDegrees:
-            lat = mgrs.core.TO_DEGREES(plat.contents.value)
-            lon = mgrs.core.TO_DEGREES(plon.contents.value)
+            lat = core.TO_DEGREES(plat.contents.value)
+            lon = core.TO_DEGREES(plon.contents.value)
         else:
             lat = plat.contents.value
             lon = plon.contents.value

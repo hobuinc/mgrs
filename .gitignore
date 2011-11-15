@@ -1,1 +1,4 @@
 *.pyc
+build/
+libmgrs.so
+mgrs.egg-info/
