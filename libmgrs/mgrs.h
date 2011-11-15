@@ -1,16 +1,8 @@
 #ifndef MGRS_H
   #define MGRS_H
 
-/***************************************************************************
- * $Id: mgrs.h 10645 2007-01-18 02:22:39Z warmerdam $
- *
- * Project:  MGRS Converter
- * Purpose:  Geotrans declarations for MGRS translation (slightly adapted)
- * Author:   Unknown (NIMA)
- *
- ***************************************************************************
- ***************************************************************************
- * RSC IDENTIFIER:  MGRS
+/***************************************************************************/
+/* RSC IDENTIFIER:  MGRS
  *
  * ABSTRACT
  *
@@ -99,6 +91,7 @@
   #define MGRS_NORTHING_ERROR          0x0080
   #define MGRS_ZONE_ERROR              0x0100
   #define MGRS_HEMISPHERE_ERROR        0x0200
+  #define MGRS_LAT_WARNING             0x0400
 
 
 /***************************************************************************/

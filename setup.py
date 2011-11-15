@@ -2,7 +2,13 @@
 from glob import glob
 from setuptools import setup, Extension
 
-sources = ['libmgrs/mgrs.c']
+sources = ['libmgrs/mgrs.c',
+           'libmgrs/utm.c',
+           'libmgrs/ups.c',
+           'libmgrs/tranmerc.c',
+           'libmgrs/polarst.c']
+
+
 mgrs = Extension('libmgrs',
                  sources = sources,
                  define_macros = None,
