@@ -1,0 +1,3 @@
+Test basic import
+
+    >>> import mgrs
