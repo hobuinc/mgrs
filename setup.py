@@ -1,6 +1,13 @@
 
 from glob import glob
-from setuptools import setup, Extension
+from setuptools import setup
+
+import os
+
+if os.name == 'nt':
+    from setuptools import Library as Extension
+else:
+    from setuptools import Extension
 
 sources = ['libmgrs/mgrs.c',
            'libmgrs/utm.c',
