@@ -25,7 +25,7 @@ mgrs = Extension('libmgrs',
                  )
 
 # Get text from README.txt
-readme_text = file('./README.txt', 'rb').read()
+readme_text = file('./README.rst', 'rb').read()
 
 
 import os

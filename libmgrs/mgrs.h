@@ -1,6 +1,14 @@
 #ifndef MGRS_H
   #define MGRS_H
 
+
+#ifdef _WIN32
+#   define USE_DLL   __declspec(dllexport)
+#else
+#   define USE_DLL
+#endif
+
+
 /***************************************************************************/
 /* RSC IDENTIFIER:  MGRS
  *
@@ -105,7 +113,7 @@ extern "C" {
   #endif
 
 
-  long Set_MGRS_Parameters(double a,
+  long USE_DLL Set_MGRS_Parameters(double a,
                            double f,
                            char   *Ellipsoid_Code);
 /*
@@ -119,7 +127,7 @@ extern "C" {
  */
 
 
-  void Get_MGRS_Parameters(double *a,
+  void USE_DLL Get_MGRS_Parameters(double *a,
                            double *f,
                            char   *Ellipsoid_Code);
 /*
@@ -132,7 +140,7 @@ extern "C" {
  */
 
 
-  long Convert_Geodetic_To_MGRS (double Latitude,
+  long USE_DLL Convert_Geodetic_To_MGRS (double Latitude,
                                  double Longitude,
                                  long   Precision,
                                  char *MGRS);
@@ -150,7 +158,7 @@ extern "C" {
  */
 
 
-  long Convert_MGRS_To_Geodetic (char *MGRS,
+  long USE_DLL Convert_MGRS_To_Geodetic (char *MGRS,
                                  double *Latitude,
                                  double *Longitude);
 /*
@@ -165,7 +173,7 @@ extern "C" {
  */
 
 
-  long Convert_UTM_To_MGRS (long Zone,
+  long USE_DLL Convert_UTM_To_MGRS (long Zone,
                             char Hemisphere,
                             double Easting,
                             double Northing,
@@ -186,7 +194,7 @@ extern "C" {
  */
 
 
-  long Convert_MGRS_To_UTM (char   *MGRS,
+  long USE_DLL Convert_MGRS_To_UTM (char   *MGRS,
                             long   *Zone,
                             char   *Hemisphere,
                             double *Easting,
@@ -207,7 +215,7 @@ extern "C" {
 
 
 
-  long Convert_UPS_To_MGRS ( char   Hemisphere,
+  long USE_DLL Convert_UPS_To_MGRS ( char   Hemisphere,
                              double Easting,
                              double Northing,
                              long Precision,
@@ -228,7 +236,7 @@ extern "C" {
  */
 
 
-  long Convert_MGRS_To_UPS ( char   *MGRS,
+  long USE_DLL Convert_MGRS_To_UPS ( char   *MGRS,
                              char   *Hemisphere,
                              double *Easting,
                              double *Northing);
