@@ -17,6 +17,10 @@ mgrs = Extension('libmgrs',
                  library_dirs = None
                  )
 
+# Get text from README.txt
+readme_text = file('./README.txt', 'rb').read()
+
+
 import os
 
     
@@ -29,8 +33,8 @@ setup(name          = 'mgrs',
       author_email  = 'hobu.inc@gmail.com',
       maintainer        = 'Howard Butler',
       maintainer_email  = 'hobu@hobu.net',
-      url   = 'http://pypi.python.org/pypy/mgrs',
-      # long_description = readme_text,
+      url   = 'https://github.com/hobu/pymgrs',
+      long_description = readme_text,
       ext_modules      = [mgrs],
       packages      = ['mgrs'],
       install_requires = ['setuptools'],
