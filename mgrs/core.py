@@ -27,10 +27,7 @@ elif os.name == 'posix':
     platform = os.uname()[0]
     lib_name = 'libmgrs.so'
     local_library_path = os.path.abspath(os.path.dirname(__file__) + "/..")
-    if platform == 'Darwin':
-        free = ctypes.CDLL(find_library('libc')).free
-    else:
-        free = ctypes.CDLL(find_library('libc.so.6')).free
+    free = ctypes.CDLL(find_library('c')).free
     rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
 else:
     raise RTreeError('Unsupported OS "%s"' % os.name)
