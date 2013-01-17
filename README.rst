@@ -32,6 +32,14 @@ In a nutshell::
     >>> d = m.toLatLon(c)
     >>> d
     (41.999997975127997, -93.000000000000014)
+    
+    >>> y = '321942.29N'
+    >>> yd = m.dmstodd(y)
+    32.328414
+    
+    >>> d, m, s = m.ddtodms(32.328414)
+    >>> d, m, s
+    (32.0, 19.0, 42.290400)
 
 You can also control the precision of the MGRS grid with the MGRSPrecision 
 arguments in .toMGRS().  Other than that, there isn't too much to it.

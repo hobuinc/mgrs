@@ -32,7 +32,7 @@ import os
 
     
 setup(name          = 'mgrs',
-      version       = '1.0.1',
+      version       = '1.1.0',
       description   = 'MGRS coordinate conversion for Python',
       license       = 'MIT',
       keywords      = 'gis coordinate conversion',
@@ -40,7 +40,7 @@ setup(name          = 'mgrs',
       author_email  = 'hobu.inc@gmail.com',
       maintainer        = 'Howard Butler',
       maintainer_email  = 'hobu@hobu.net',
-      url   = 'https://github.com/hobu/pymgrs',
+      url   = 'https://github.com/hobu/mgrs',
       long_description = readme_text,
       ext_modules      = [mgrs],
       packages      = ['mgrs'],
