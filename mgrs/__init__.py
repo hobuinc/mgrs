@@ -93,3 +93,21 @@ class MGRS:
             lat = plat.contents.value
             lon = plon.contents.value
         return (lat, lon)
+
+    def MGRSToUTM (self, MGRS) :
+        mgrs       = ctypes.string_at(MGRS)
+        zone       = ctypes.pointer(ctypes.c_long())
+        hemisphere = ctypes.pointer(ctypes.c_char())
+        easting    = ctypes.pointer(ctypes.c_double())
+        northing   = ctypes.pointer(ctypes.c_double())
+
+        core.rt.Convert_MGRS_To_UTM(mgrs, zone, hemisphere, easting, northing)
+
+        return zone.contents.value, hemisphere.contents.value, easting.contents.value, northing.contents.value
+
+    def UTMToMGRS (self, zone, hemisphere, easting, northing) :
+        mgrs = ctypes.create_string_buffer(80)
+
+        core.rt.Convert_UTM_To_MGRS(zone, ctypes.c_char(hemisphere), ctypes.c_double(easting), ctypes.c_double(northing), 5, mgrs)
+
+        return mgrs.value

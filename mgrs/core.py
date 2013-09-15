@@ -103,3 +103,40 @@ rt.Convert_Geodetic_To_MGRS.errcheck = check_error
 rt.Convert_MGRS_To_Geodetic.argtypes = [ctypes.c_char_p, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
 rt.Convert_MGRS_To_Geodetic.restype = ctypes.c_long
 rt.Convert_MGRS_To_Geodetic.errcheck = check_error
+
+
+# /*
+#  * The function Convert_UTM_To_MGRS converts UTM (zone, easting, and
+#  * northing) coordinates to an MGRS coordinate string, according to the 
+#  * current ellipsoid parameters.  If any errors occur, the error code(s) 
+#  * are returned by the  function, otherwise MGRS_NO_ERROR is returned.
+#  *
+#  *    Zone       : UTM zone                         (input)
+#  *    Hemisphere : North or South hemisphere        (input)
+#  *    Easting    : Easting (X) in meters            (input)
+#  *    Northing   : Northing (Y) in meters           (input)
+#  *    Precision  : Precision level of MGRS string   (input)
+#  *    MGRS       : MGRS coordinate string           (output)
+#  */
+
+rt.Convert_UTM_To_MGRS.argtype = [ctypes.c_long, ctypes.c_char, ctypes.c_double, ctypes.c_double, ctypes.c_long, ctypes.c_char_p]
+rt.Convert_UTM_To_MGRS.restype = ctypes.c_long
+rt.Convert_UTM_To_MGRS.errcheck = check_error
+
+# /*
+#  * The function Convert_MGRS_To_UTM converts an MGRS coordinate string
+#  * to UTM projection (zone, hemisphere, easting and northing) coordinates 
+#  * according to the current ellipsoid parameters.  If any errors occur, 
+#  * the error code(s) are returned by the function, otherwise UTM_NO_ERROR 
+#  * is returned.
+#  *
+#  *    MGRS       : MGRS coordinate string           (input)
+#  *    Zone       : UTM zone                         (output)
+#  *    Hemisphere : North or South hemisphere        (output)
+#  *    Easting    : Easting (X) in meters            (output)
+#  *    Northing   : Northing (Y) in meters           (output)
+#  */
+
+rt.Convert_MGRS_To_UTM.argtype = [ctypes.c_char_p, ctypes.POINTER(ctypes.c_long), ctypes.POINTER(ctypes.c_char), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
+rt.Convert_MGRS_To_UTM.restype = ctypes.c_long
+rt.Convert_MGRS_To_UTM.errcheck = check_error
