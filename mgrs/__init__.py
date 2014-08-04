@@ -3,6 +3,8 @@ from core import rt
 import ctypes
 import re
 
+__version__='1.2.1'
+
 class MGRS:
     def __init__(self):
         pass
