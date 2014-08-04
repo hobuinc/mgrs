@@ -7,7 +7,7 @@ Test basic import
     
     >>> m = mgrs.MGRS()
     >>> c = m.toMGRS(latitude, longitude)
-    >>> c
+    >>> str(c.decode("ascii"))
     '15TWG0000049776'
     
     >>> lat, lon = m.toLatLon(c)

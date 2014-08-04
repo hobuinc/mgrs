@@ -1,9 +1,9 @@
-from core import rt
+from . core import rt
 
 import ctypes
 import re
 
-__version__='1.2.1'
+__version__='1.3.0'
 
 class MGRS:
     def __init__(self):
@@ -50,7 +50,15 @@ class MGRS:
                 is_negative = True
         
         if is_annotated:
-             dms = dms.translate(None, letters)
+            bletters = letters.encode(encoding='utf-8')
+            bdms = dms.encode(encoding = 'utf-8')
+            dms = bdms.translate(None, bletters).decode('ascii')
+
+            # bletters = bytes(letters, encoding='utf-8')
+            # bdms = bytes(dms, encoding='utf-8')
+            # dms = bdms.translate(None, bletters).decode('ascii')
+            
+            # dms = dms.translate(None, letters) # Python 2.x version
 
         pieces = dms.split(".")
         D = 0.0
@@ -62,7 +70,7 @@ class MGRS:
             M = dms[2:-2]
             D = dms[:-4]
         else:
-            S = '%s.%s' % (pieces[0][-2:], pieces[1])
+            S = '{0:s}.{1:s}'.format (pieces[0][-2:], pieces[1])
             M = pieces[0][2:-2]
             D = pieces[0][:-4]
 

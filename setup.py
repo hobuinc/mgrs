@@ -25,14 +25,18 @@ mgrs = Extension('libmgrs',
                  )
 
 # Get text from README.txt
-readme_text = file('./README.rst', 'rb').read()
+# readme_text = open('./README.rst', encoding='utf-8').read()
 
+import codecs
+
+with codecs.open('./README.rst', encoding="utf-8") as f:
+    readme_text = f.read()
 
 import os
 
     
 setup(name          = 'mgrs',
-      version       = '1.2.1',
+      version       = '1.3.0',
       description   = 'MGRS coordinate conversion for Python',
       license       = 'MIT',
       keywords      = 'gis coordinate conversion',
