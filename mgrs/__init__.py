@@ -115,9 +115,9 @@ class MGRS:
 
         return zone.contents.value, hemisphere.contents.value, easting.contents.value, northing.contents.value
 
-    def UTMToMGRS (self, zone, hemisphere, easting, northing) :
+    def UTMToMGRS (self, zone, hemisphere, easting, northing, MGRSPrecision=5) :
         mgrs = ctypes.create_string_buffer(80)
 
-        core.rt.Convert_UTM_To_MGRS(zone, ctypes.c_char(hemisphere), ctypes.c_double(easting), ctypes.c_double(northing), 5, mgrs)
+        core.rt.Convert_UTM_To_MGRS(zone, ctypes.c_char(hemisphere), ctypes.c_double(easting), ctypes.c_double(northing), MGRSPrecision, mgrs)
 
         return mgrs.value
