@@ -252,7 +252,8 @@ extern "C" {
  *    Northing      : Northing/Y in meters             (output)
  */
 
-
+  void initlibmgrs();
+  void PyInit_libmgrs();
 
   #ifdef __cplusplus
 }

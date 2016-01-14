@@ -10,12 +10,16 @@ class RTreeError(Exception):
     pass
     
 if os.name == 'nt':
-    lib_name = 'libmgrs.dll'
     try:
-        local_dlls = os.path.abspath(os.__file__ + "../../../DLLs")
+        local_dlls = sys.path
         original_path = os.environ['PATH']
-        os.environ['PATH'] = "%s;%s" % (local_dlls, original_path)
-        rt = ctypes.PyDLL(lib_name)
+        os.environ['PATH'] = "%s;%s" % (';'.join(local_dlls), original_path)
+        try:
+            # Python 2
+            rt = ctypes.PyDLL('libmgrs.pyd')
+        except OSError:
+            # Python 3
+            rt = ctypes.PyDLL('libmgrs.cp35-win32.pyd')
         def free(m):
             try:
                 free = ctypes.cdll.msvcrt.free(m)

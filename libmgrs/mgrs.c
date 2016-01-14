@@ -1341,5 +1341,5 @@ long Convert_MGRS_To_UPS ( char   *MGRS,
   return (error_code);
 } /* Convert_MGRS_To_UPS */
 
-
-
+void initlibmgrs() {}
+void PyInit_libmgrs() {}
