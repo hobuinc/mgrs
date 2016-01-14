@@ -2,7 +2,6 @@ import atexit, os, re, sys
 import ctypes
 from ctypes.util import find_library
 
-import six
 import ctypes
 import math
 
@@ -15,10 +14,10 @@ if os.name == 'nt':
         local_dlls = sys.path
         original_path = os.environ['PATH']
         os.environ['PATH'] = "%s;%s" % (';'.join(local_dlls), original_path)
-        if six.PY2:
+        try:
             # Python 2
             rt = ctypes.PyDLL('libmgrs.pyd')
-        else:
+        except OSError:
             # Python 3
             rt = ctypes.PyDLL('libmgrs.cp35-win32.pyd')
         def free(m):
