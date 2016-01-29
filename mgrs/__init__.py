@@ -3,13 +3,13 @@ from . core import rt
 import ctypes
 import re
 
-__version__='1.3.0'
+__version__='1.3.2'
 
 class MGRS:
     def __init__(self):
         pass
-    
-    
+
+
     def ddtodms(self, dd):
         """Take in dd string and convert to dms"""
         negative = dd < 0
@@ -24,13 +24,13 @@ class MGRS:
             else:
                 seconds = -seconds
         return (degrees,minutes,seconds)
-    
+
     def dmstodd(self, dms):
         """ convert dms to dd"""
         size = len(dms)
         letters = 'WENS'
         is_annotated = False
-        
+
         try:
             float(dms)
         except ValueError:
@@ -48,7 +48,7 @@ class MGRS:
         else:
             if dms < 0:
                 is_negative = True
-        
+
         if is_annotated:
             bletters = letters.encode(encoding='utf-8')
             bdms = dms.encode(encoding = 'utf-8')
@@ -57,7 +57,7 @@ class MGRS:
             # bletters = bytes(letters, encoding='utf-8')
             # bdms = bytes(dms, encoding='utf-8')
             # dms = bdms.translate(None, bletters).decode('ascii')
-            
+
             # dms = dms.translate(None, letters) # Python 2.x version
 
         pieces = dms.split(".")
@@ -77,7 +77,7 @@ class MGRS:
         DD = float(D) + float(M)/60.0 + float(S)/divisor
         if is_negative:
             DD = DD * -1.0
-        return DD            
+        return DD
 
     def toMGRS(self, latitude, longitude, inDegrees=True, MGRSPrecision=5):
         if inDegrees:
@@ -86,11 +86,11 @@ class MGRS:
         else:
             lat = latitude
             lon = longitude
-        
+
         p = ctypes.create_string_buffer(80)
         core.rt.Convert_Geodetic_To_MGRS( lat, lon, MGRSPrecision, p)
         return ctypes.string_at(p)
-    
+
     def toLatLon(self, MGRS, inDegrees=True):
         plat = ctypes.pointer(ctypes.c_double())
         plon = ctypes.pointer(ctypes.c_double())
