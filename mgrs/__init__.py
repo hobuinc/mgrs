@@ -67,11 +67,11 @@ class MGRS:
         divisor = 3600.0
         if len(pieces) == 1:
             S = dms[-2:]
-            M = dms[2:-2]
+            M = dms[-4:-2]
             D = dms[:-4]
         else:
             S = '{0:s}.{1:s}'.format (pieces[0][-2:], pieces[1])
-            M = pieces[0][2:-2]
+            M = pieces[0][-4:-2]
             D = pieces[0][:-4]
 
         DD = float(D) + float(M)/60.0 + float(S)/divisor
