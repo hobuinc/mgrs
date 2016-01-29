@@ -16,6 +16,11 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.3.2
+
+* Better Windows support
+* Bug fix for 3 digit longitudes
+
 1.3.1
 
 * Python 3.x support

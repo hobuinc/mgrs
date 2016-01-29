@@ -33,7 +33,7 @@ import os
 
 
 setup(name          = 'mgrs',
-      version       = '1.3.1',
+      version       = '1.3.2',
       description   = 'MGRS coordinate conversion for Python',
       license       = 'MIT',
       keywords      = 'gis coordinate conversion',
