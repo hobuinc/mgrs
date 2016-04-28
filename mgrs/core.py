@@ -1,14 +1,13 @@
 import atexit, os, re, sys
 import ctypes
 from ctypes.util import find_library
-
-import ctypes
+import sysconfig
 import math
 
 class RTreeError(Exception):
     "RTree exception, indicates a RTree-related error."
     pass
-    
+
 if os.name == 'nt':
     try:
         local_dlls = sys.path
@@ -29,7 +28,11 @@ if os.name == 'nt':
         raise
 elif os.name == 'posix':
     platform = os.uname()[0]
-    lib_name = 'libmgrs.so'
+    soabi = sysconfig.get_config_var('SOABI')
+    if soabi:
+        lib_name = 'libmgrs.{}.so'.format(soabi)
+    else:
+        lib_name = 'libmgrs.so'
     local_library_path = os.path.abspath(os.path.dirname(__file__) + "/..")
     free = ctypes.CDLL(find_library('c')).free
     rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
@@ -54,7 +57,7 @@ def get_errors(value):
         if key & value:
             output += errors[key] + " & "
     return output[:-2]
-    
+
 def TO_RADIANS(degrees):
     return (float(degrees) * math.pi/180.0)
 
@@ -76,33 +79,33 @@ def check_error(result, func, cargs):
 #                                  char *MGRS);
 # /*
 #  * The function Convert_Geodetic_To_MGRS converts geodetic (latitude and
-#  * longitude) coordinates to an MGRS coordinate string, according to the 
-#  * current ellipsoid parameters.  If any errors occur, the error code(s) 
+#  * longitude) coordinates to an MGRS coordinate string, according to the
+#  * current ellipsoid parameters.  If any errors occur, the error code(s)
 #  * are returned by the  function, otherwise MGRS_NO_ERROR is returned.
 #  *
 #  *    Latitude   : Latitude in radians              (input)
 #  *    Longitude  : Longitude in radians             (input)
 #  *    Precision  : Precision level of MGRS string   (input)
 #  *    MGRS       : MGRS coordinate string           (output)
-#  *  
+#  *
 #  */
 
-rt.Convert_Geodetic_To_MGRS.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_long, ctypes.c_char_p] 
+rt.Convert_Geodetic_To_MGRS.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_long, ctypes.c_char_p]
 rt.Convert_Geodetic_To_MGRS.restype = ctypes.c_long
 rt.Convert_Geodetic_To_MGRS.errcheck = check_error
 
-# 
+#
 # /*
 #  * This function converts an MGRS coordinate string to Geodetic (latitude
-#  * and longitude in radians) coordinates.  If any errors occur, the error 
-#  * code(s) are returned by the  function, otherwise MGRS_NO_ERROR is returned.  
+#  * and longitude in radians) coordinates.  If any errors occur, the error
+#  * code(s) are returned by the  function, otherwise MGRS_NO_ERROR is returned.
 #  *
 #  *    MGRS       : MGRS coordinate string           (input)
 #  *    Latitude   : Latitude in radians              (output)
 #  *    Longitude  : Longitude in radians             (output)
-#  *  
+#  *
 #  */
-# 
+#
 
 rt.Convert_MGRS_To_Geodetic.argtypes = [ctypes.c_char_p, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
 rt.Convert_MGRS_To_Geodetic.restype = ctypes.c_long
@@ -111,8 +114,8 @@ rt.Convert_MGRS_To_Geodetic.errcheck = check_error
 
 # /*
 #  * The function Convert_UTM_To_MGRS converts UTM (zone, easting, and
-#  * northing) coordinates to an MGRS coordinate string, according to the 
-#  * current ellipsoid parameters.  If any errors occur, the error code(s) 
+#  * northing) coordinates to an MGRS coordinate string, according to the
+#  * current ellipsoid parameters.  If any errors occur, the error code(s)
 #  * are returned by the  function, otherwise MGRS_NO_ERROR is returned.
 #  *
 #  *    Zone       : UTM zone                         (input)
@@ -129,9 +132,9 @@ rt.Convert_UTM_To_MGRS.errcheck = check_error
 
 # /*
 #  * The function Convert_MGRS_To_UTM converts an MGRS coordinate string
-#  * to UTM projection (zone, hemisphere, easting and northing) coordinates 
-#  * according to the current ellipsoid parameters.  If any errors occur, 
-#  * the error code(s) are returned by the function, otherwise UTM_NO_ERROR 
+#  * to UTM projection (zone, hemisphere, easting and northing) coordinates
+#  * according to the current ellipsoid parameters.  If any errors occur,
+#  * the error code(s) are returned by the function, otherwise UTM_NO_ERROR
 #  * is returned.
 #  *
 #  *    MGRS       : MGRS coordinate string           (input)
