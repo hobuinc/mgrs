@@ -16,6 +16,12 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.3.3
+
+* SOABI support #10 https://github.com/hobu/mgrs/pull/10
+* Clean up some compilation warnings
+* Travis builds https://travis-ci.org/hobu/mgrs
+
 1.3.2
 
 * Better Windows support
