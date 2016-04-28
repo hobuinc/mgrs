@@ -3,24 +3,24 @@
  *
  * ABSTRACT
  *
- *    This component converts between geodetic coordinates (latitude and 
- *    longitude) and Military Grid Reference System (MGRS) coordinates. 
+ *    This component converts between geodetic coordinates (latitude and
+ *    longitude) and Military Grid Reference System (MGRS) coordinates.
  *
  * ERROR HANDLING
  *
  *    This component checks parameters for valid values.  If an invalid value
- *    is found, the error code is combined with the current error code using 
+ *    is found, the error code is combined with the current error code using
  *    the bitwise or.  This combining allows multiple error codes to be
  *    returned. The possible error codes are:
  *
  *          MGRS_NO_ERROR          : No errors occurred in function
- *          MGRS_LAT_ERROR         : Latitude outside of valid range 
+ *          MGRS_LAT_ERROR         : Latitude outside of valid range
  *                                    (-90 to 90 degrees)
  *          MGRS_LON_ERROR         : Longitude outside of valid range
  *                                    (-180 to 360 degrees)
  *          MGRS_STR_ERROR         : An MGRS string error: string too long,
  *                                    too short, or badly formed
- *          MGRS_PRECISION_ERROR   : The precision must be between 0 and 5 
+ *          MGRS_PRECISION_ERROR   : The precision must be between 0 and 5
  *                                    inclusive.
  *          MGRS_A_ERROR           : Semi-major axis less than or equal to zero
  *          MGRS_INV_F_ERROR       : Inverse flattening outside of valid range
@@ -68,7 +68,7 @@
  *    ----              -----------
  *    16-11-94          Original Code
  *    15-09-99          Reengineered upper layers
- *    02-05-03          Corrected latitude band bug in GRID_UTM 
+ *    02-05-03          Corrected latitude band bug in GRID_UTM
  *    08-20-03          Reengineered lower layers
  */
 
@@ -154,7 +154,7 @@ double MGRS_f = 1 / 298.257223563; /* Flattening of ellipsoid           */
 char   MGRS_Ellipsoid_Code[3] = {'W','E',0};
 
 
-/* 
+/*
  *    CLARKE_1866 : Ellipsoid code for CLARKE_1866
  *    CLARKE_1880 : Ellipsoid code for CLARKE_1880
  *    BESSEL_1841 : Ellipsoid code for BESSEL_1841
@@ -169,14 +169,14 @@ const char* BESSEL_1841_NAMIBIA = "BN";
 typedef struct Latitude_Band_Value
 {
   long letter;            /* letter representing latitude band  */
-  double min_northing;    /* minimum northing for latitude band */       
+  double min_northing;    /* minimum northing for latitude band */
   double north;           /* upper latitude for latitude band   */
   double south;           /* lower latitude for latitude band   */
   double northing_offset; /* latitude band northing offset      */
-} Latitude_Band; 
+} Latitude_Band;
 
-static const Latitude_Band Latitude_Band_Table[20] = 
-  {{LETTER_C, 1100000.0, -72.0, -80.5, 0.0}, 
+static const Latitude_Band Latitude_Band_Table[20] =
+  {{LETTER_C, 1100000.0, -72.0, -80.5, 0.0},
   {LETTER_D, 2000000.0, -64.0, -72.0, 2000000.0},
   {LETTER_E, 2800000.0, -56.0, -64.0, 2000000.0},
   {LETTER_F, 3700000.0, -48.0, -56.0, 2000000.0},
@@ -197,7 +197,7 @@ static const Latitude_Band Latitude_Band_Table[20] =
   {LETTER_W, 7000000.0, 72.0, 64.0, 6000000.0},
   {LETTER_X, 7900000.0, 84.5, 72.0, 6000000.0}};
 
- 
+
 typedef struct UPS_Constant_Value
 {
   long letter;            /* letter representing latitude band      */
@@ -206,9 +206,9 @@ typedef struct UPS_Constant_Value
   long ltr3_high_value;   /* 3rd letter range - high number (UPS)   */
   double false_easting;   /* False easting based on 2nd letter      */
   double false_northing;  /* False northing based on 3rd letter     */
-} UPS_Constant; 
+} UPS_Constant;
 
-static const UPS_Constant UPS_Constant_Table[4] = 
+static const UPS_Constant UPS_Constant_Table[4] =
   {{LETTER_A, LETTER_J, LETTER_Z, LETTER_Z, 800000.0, 800000.0},
   {LETTER_B, LETTER_A, LETTER_R, LETTER_Z, 2000000.0, 800000.0},
   {LETTER_Y, LETTER_J, LETTER_Z, LETTER_P, 800000.0, 1300000.0},
@@ -216,7 +216,7 @@ static const UPS_Constant UPS_Constant_Table[4] =
 
 /***************************************************************************/
 /*
- *                              FUNCTIONS     
+ *                              FUNCTIONS
  */
 
 long Get_Latitude_Band_Min_Northing(long letter, double* min_northing, double* northing_offset)
@@ -256,7 +256,7 @@ long Get_Latitude_Band_Min_Northing(long letter, double* min_northing, double* n
 long Get_Latitude_Range(long letter, double* north, double* south)
 /*
  * The function Get_Latitude_Range receives a latitude band letter
- * and uses the Latitude_Band_Table to determine the latitude band 
+ * and uses the Latitude_Band_Table to determine the latitude band
  * boundaries for that latitude band letter.
  *
  *   letter   : Latitude band letter                        (input)
@@ -291,7 +291,7 @@ long Get_Latitude_Range(long letter, double* north, double* south)
 long Get_Latitude_Letter(double latitude, int* letter)
 /*
  * The function Get_Latitude_Letter receives a latitude value
- * and uses the Latitude_Band_Table to determine the latitude band 
+ * and uses the Latitude_Band_Table to determine the latitude band
  * letter for that latitude.
  *
  *   latitude   : Latitude              (input)
@@ -323,7 +323,7 @@ long Check_Zone(char* MGRS, long* zone_exists)
  * is returned.
  *
  *   MGRS           : MGRS coordinate string        (input)
- *   zone_exists    : TRUE if a zone is given, 
+ *   zone_exists    : TRUE if a zone is given,
  *                    FALSE if a zone is not given  (output)
  */
 { /* Check_Zone */
@@ -332,9 +332,9 @@ long Check_Zone(char* MGRS, long* zone_exists)
   int num_digits = 0;
   long error_code = MGRS_NO_ERROR;
 
-  /* skip any leading blanks */  
+  /* skip any leading blanks */
   while (MGRS[i] == ' ')
-    i++;  
+    i++;
   j = i;
   while (isdigit(MGRS[i]))
     i++;
@@ -353,7 +353,7 @@ long Check_Zone(char* MGRS, long* zone_exists)
 
 long Round_MGRS (double value)
 /*
- * The function Round_MGRS rounds the input value to the 
+ * The function Round_MGRS rounds the input value to the
  * nearest integer, using the standard engineering rule.
  * The rounded integer value is then returned.
  *
@@ -370,14 +370,14 @@ long Round_MGRS (double value)
 } /* Round_MGRS */
 
 
-long Make_MGRS_String (char* MGRS, 
-                       long Zone, 
-                       int Letters[MGRS_LETTERS], 
-                       double Easting, 
+long Make_MGRS_String (char* MGRS,
+                       long Zone,
+                       int Letters[MGRS_LETTERS],
+                       double Easting,
                        double Northing,
                        long Precision)
 /*
- * The function Make_MGRS_String constructs an MGRS string 
+ * The function Make_MGRS_String constructs an MGRS string
  * from its component parts.
  *
  *   MGRS           : MGRS coordinate string          (output)
@@ -409,12 +409,12 @@ long Make_MGRS_String (char* MGRS,
   if (Easting >= 99999.5)
     Easting = 99999.0;
   east = (long)(Easting/divisor);
-  i += sprintf (MGRS+i, "%*.*ld", Precision, Precision, east);
+  i += sprintf (MGRS+i, "%*.*ld", (int)Precision, (int)Precision, east);
   Northing = fmod (Northing, 100000.0);
   if (Northing >= 99999.5)
     Northing = 99999.0;
   north = (long)(Northing/divisor);
-  i += sprintf (MGRS+i, "%*.*ld", Precision, Precision, north);
+  i += sprintf (MGRS+i, "%*.*ld", (int)Precision, (int)Precision, north);
   return (error_code);
 } /* Make_MGRS_String */
 
@@ -426,7 +426,7 @@ long Break_MGRS_String (char* MGRS,
                         double* Northing,
                         long* Precision)
 /*
- * The function Break_MGRS_String breaks down an MGRS  
+ * The function Break_MGRS_String breaks down an MGRS
  * coordinate string into its component parts.
  *
  *   MGRS           : MGRS coordinate string          (input)
@@ -456,7 +456,7 @@ long Break_MGRS_String (char* MGRS,
       /* get zone */
       strncpy (zone_string, MGRS+j, 2);
       zone_string[2] = 0;
-      sscanf (zone_string, "%ld", Zone);  
+      sscanf (zone_string, "%ld", Zone);
       if ((*Zone < 1) || (*Zone > 60))
         error_code |= MGRS_STRING_ERROR;
     }
@@ -524,15 +524,15 @@ long Break_MGRS_String (char* MGRS,
 } /* Break_MGRS_String */
 
 
-void Get_Grid_Values (long zone, 
-                      long* ltr2_low_value, 
-                      long* ltr2_high_value, 
+void Get_Grid_Values (long zone,
+                      long* ltr2_low_value,
+                      long* ltr2_high_value,
                       double *pattern_offset)
 /*
- * The function getGridValues sets the letter range used for 
- * the 2nd letter in the MGRS coordinate string, based on the set 
+ * The function getGridValues sets the letter range used for
+ * the 2nd letter in the MGRS coordinate string, based on the set
  * number of the utm zone. It also sets the pattern offset using a
- * value of A for the second letter of the grid square, based on 
+ * value of A for the second letter of the grid square, based on
  * the grid pattern and set number of the utm zone.
  *
  *    zone            : Zone number             (input)
@@ -549,7 +549,7 @@ void Get_Grid_Values (long zone,
   if (!set_number)
     set_number = 6;
 
-  if (!strcmp(MGRS_Ellipsoid_Code,CLARKE_1866) || !strcmp(MGRS_Ellipsoid_Code, CLARKE_1880) || 
+  if (!strcmp(MGRS_Ellipsoid_Code,CLARKE_1866) || !strcmp(MGRS_Ellipsoid_Code, CLARKE_1880) ||
       !strcmp(MGRS_Ellipsoid_Code,BESSEL_1841) || !strcmp(MGRS_Ellipsoid_Code,BESSEL_1841_NAMIBIA))
     aa_pattern = FALSE;
   else
@@ -591,11 +591,11 @@ void Get_Grid_Values (long zone,
 
 long UTM_To_MGRS (long Zone,
                   char Hemisphere,
-                  double Longitude, 
+                  double Longitude,
                   double Latitude,
                   double Easting,
                   double Northing,
-                  long Precision, 
+                  long Precision,
                   char *MGRS)
 /*
  * The function UTM_To_MGRS calculates an MGRS coordinate string
@@ -664,20 +664,20 @@ long UTM_To_MGRS (long Zone,
   Get_Grid_Values(Zone, &ltr2_low_value, &ltr2_high_value, &pattern_offset);
 
   error_code = Get_Latitude_Letter(Latitude, &letters[0]);
-   
+
   if (!error_code)
   {
     grid_northing = Northing;
 
     while (grid_northing >= TWOMIL)
     {
-      grid_northing = grid_northing - TWOMIL; 
+      grid_northing = grid_northing - TWOMIL;
     }
     grid_northing = grid_northing + pattern_offset;
     if(grid_northing >= TWOMIL)
       grid_northing = grid_northing - TWOMIL;
 
-    letters[2] = (long)(grid_northing / ONEHT); 
+    letters[2] = (long)(grid_northing / ONEHT);
     if (letters[2] > LETTER_H)
       letters[2] = letters[2] + 1;
 
@@ -688,7 +688,7 @@ long UTM_To_MGRS (long Zone,
     if (((letters[0] == LETTER_V) && (Zone == 31)) && (grid_easting == 500000.0))
       grid_easting = grid_easting - 1.0; /* SUBTRACT 1 METER */
 
-    letters[1] = ltr2_low_value + ((long)(grid_easting / ONEHT) -1); 
+    letters[1] = ltr2_low_value + ((long)(grid_easting / ONEHT) -1);
     if ((ltr2_low_value == LETTER_J) && (letters[1] > LETTER_N))
       letters[1] = letters[1] + 1;
 
@@ -758,15 +758,15 @@ long Convert_Geodetic_To_MGRS (double Latitude,
                                char* MGRS)
 /*
  * The function Convert_Geodetic_To_MGRS converts Geodetic (latitude and
- * longitude) coordinates to an MGRS coordinate string, according to the 
- * current ellipsoid parameters.  If any errors occur, the error code(s) 
+ * longitude) coordinates to an MGRS coordinate string, according to the
+ * current ellipsoid parameters.  If any errors occur, the error code(s)
  * are returned by the function, otherwise MGRS_NO_ERROR is returned.
  *
  *    Latitude   : Latitude in radians              (input)
  *    Longitude  : Longitude in radians             (input)
  *    Precision  : Precision level of MGRS string   (input)
  *    MGRS       : MGRS coordinate string           (output)
- *  
+ *
  */
 { /* Convert_Geodetic_To_MGRS */
   long zone;
@@ -851,20 +851,20 @@ long Convert_Geodetic_To_MGRS (double Latitude,
 } /* Convert_Geodetic_To_MGRS */
 
 
-long Convert_MGRS_To_Geodetic (char* MGRS, 
-                               double *Latitude, 
+long Convert_MGRS_To_Geodetic (char* MGRS,
+                               double *Latitude,
                                double *Longitude)
 /*
  * The function Convert_MGRS_To_Geodetic converts an MGRS coordinate string
- * to Geodetic (latitude and longitude) coordinates 
- * according to the current ellipsoid parameters.  If any errors occur, 
- * the error code(s) are returned by the function, otherwise UTM_NO_ERROR 
+ * to Geodetic (latitude and longitude) coordinates
+ * according to the current ellipsoid parameters.  If any errors occur,
+ * the error code(s) are returned by the function, otherwise UTM_NO_ERROR
  * is returned.
  *
  *    MGRS       : MGRS coordinate string           (input)
  *    Latitude   : Latitude in radians              (output)
  *    Longitude  : Longitude in radians             (output)
- *  
+ *
  */
 { /* Convert_MGRS_To_Geodetic */
   long zone;
@@ -877,6 +877,7 @@ long Convert_MGRS_To_Geodetic (char* MGRS,
 
   error_code = Check_Zone(MGRS, &zone_exists);
   if (!error_code)
+  {
     if (zone_exists)
     {
       error_code |= Convert_MGRS_To_UTM (MGRS, &zone, &hemisphere, &easting, &northing);
@@ -935,6 +936,7 @@ long Convert_MGRS_To_Geodetic (char* MGRS,
         }
       }
     }
+  }
   return (error_code);
 } /* END OF Convert_MGRS_To_Geodetic */
 
@@ -947,8 +949,8 @@ long Convert_UTM_To_MGRS (long Zone,
                           char* MGRS)
 /*
  * The function Convert_UTM_To_MGRS converts UTM (zone, easting, and
- * northing) coordinates to an MGRS coordinate string, according to the 
- * current ellipsoid parameters.  If any errors occur, the error code(s) 
+ * northing) coordinates to an MGRS coordinate string, according to the
+ * current ellipsoid parameters.  If any errors occur, the error code(s)
  * are returned by the function, otherwise MGRS_NO_ERROR is returned.
  *
  *    Zone       : UTM zone                         (input)
@@ -1001,9 +1003,9 @@ long Convert_MGRS_To_UTM (char   *MGRS,
                           double *Northing)
 /*
  * The function Convert_MGRS_To_UTM converts an MGRS coordinate string
- * to UTM projection (zone, hemisphere, easting and northing) coordinates 
- * according to the current ellipsoid parameters.  If any errors occur, 
- * the error code(s) are returned by the function, otherwise UTM_NO_ERROR 
+ * to UTM projection (zone, hemisphere, easting and northing) coordinates
+ * according to the current ellipsoid parameters.  If any errors occur,
+ * the error code(s) are returned by the function, otherwise UTM_NO_ERROR
  * is returned.
  *
  *    MGRS       : MGRS coordinate string           (input)
@@ -1049,7 +1051,7 @@ long Convert_MGRS_To_UTM (char   *MGRS,
         Get_Grid_Values(*Zone, &ltr2_low_value, &ltr2_high_value, &pattern_offset);
 
         /* Check that the second letter of the MGRS string is within
-         * the range of valid second letter values 
+         * the range of valid second letter values
          * Also check that the third letter is valid */
         if ((letters[1] < ltr2_low_value) || (letters[1] > ltr2_high_value) || (letters[2] > LETTER_V))
           error_code |= MGRS_STRING_ERROR;
@@ -1065,7 +1067,7 @@ long Convert_MGRS_To_UTM (char   *MGRS,
             row_letter_northing = row_letter_northing - ONEHT;
 
           if (letters[2] > LETTER_I)
-            row_letter_northing = row_letter_northing - ONEHT; 
+            row_letter_northing = row_letter_northing - ONEHT;
 
           if (row_letter_northing >= TWOMIL)
             row_letter_northing = row_letter_northing - TWOMIL;
@@ -1076,7 +1078,7 @@ long Convert_MGRS_To_UTM (char   *MGRS,
             grid_northing = row_letter_northing - pattern_offset;
             if(grid_northing < 0)
               grid_northing += TWOMIL;
-            
+
             grid_northing += northing_offset;
 
             if(grid_northing < min_northing)
@@ -1134,10 +1136,10 @@ long Convert_UPS_To_MGRS (char   Hemisphere,
                           long   Precision,
                           char*  MGRS)
 /*
- *  The function Convert_UPS_To_MGRS converts UPS (hemisphere, easting, 
- *  and northing) coordinates to an MGRS coordinate string according to 
+ *  The function Convert_UPS_To_MGRS converts UPS (hemisphere, easting,
+ *  and northing) coordinates to an MGRS coordinate string according to
  *  the current ellipsoid parameters.  If any errors occur, the error
- *  code(s) are returned by the function, otherwise UPS_NO_ERROR is 
+ *  code(s) are returned by the function, otherwise UPS_NO_ERROR is
  *  returned.
  *
  *    Hemisphere    : Hemisphere either 'N' or 'S'     (input)
@@ -1174,7 +1176,7 @@ long Convert_UPS_To_MGRS (char   Hemisphere,
     if (Hemisphere == 'N')
     {
       if (Easting >= TWOMIL)
-        letters[0] = LETTER_Z; 
+        letters[0] = LETTER_Z;
       else
         letters[0] = LETTER_Y;
 
@@ -1207,26 +1209,26 @@ long Convert_UPS_To_MGRS (char   Hemisphere,
 
     grid_easting = Easting;
     grid_easting = grid_easting - false_easting;
-    letters[1] = ltr2_low_value + ((long)(grid_easting / ONEHT)); 
+    letters[1] = ltr2_low_value + ((long)(grid_easting / ONEHT));
 
     if (Easting < TWOMIL)
     {
       if (letters[1] > LETTER_L)
-        letters[1] = letters[1] + 3; 
+        letters[1] = letters[1] + 3;
 
       if (letters[1] > LETTER_U)
-        letters[1] = letters[1] + 2; 
+        letters[1] = letters[1] + 2;
     }
     else
     {
       if (letters[1] > LETTER_C)
-        letters[1] = letters[1] + 2; 
+        letters[1] = letters[1] + 2;
 
       if (letters[1] > LETTER_H)
         letters[1] = letters[1] + 1;
-      
+
       if (letters[1] > LETTER_L)
-        letters[1] = letters[1] + 3; 
+        letters[1] = letters[1] + 3;
     }
 
     Make_MGRS_String (MGRS, 0, letters, Easting, Northing, Precision);
@@ -1241,8 +1243,8 @@ long Convert_MGRS_To_UPS ( char   *MGRS,
                            double *Northing)
 /*
  *  The function Convert_MGRS_To_UPS converts an MGRS coordinate string
- *  to UPS (hemisphere, easting, and northing) coordinates, according 
- *  to the current ellipsoid parameters. If any errors occur, the error 
+ *  to UPS (hemisphere, easting, and northing) coordinates, according
+ *  to the current ellipsoid parameters. If any errors occur, the error
  *  code(s) are returned by the function, otherwide UPS_NO_ERROR is returned.
  *
  *    MGRS          : MGRS coordinate string           (input)
@@ -1294,7 +1296,7 @@ long Convert_MGRS_To_UPS ( char   *MGRS,
       }
 
       /* Check that the second letter of the MGRS string is within
-       * the range of valid second letter values 
+       * the range of valid second letter values
        * Also check that the third letter is valid */
       if ((letters[1] < ltr2_low_value) || (letters[1] > ltr2_high_value) ||
           ((letters[1] == LETTER_D) || (letters[1] == LETTER_E) ||
@@ -1305,14 +1307,14 @@ long Convert_MGRS_To_UPS ( char   *MGRS,
 
       if (!error_code)
       {
-        grid_northing = (double)letters[2] * ONEHT + false_northing; 
+        grid_northing = (double)letters[2] * ONEHT + false_northing;
         if (letters[2] > LETTER_I)
           grid_northing = grid_northing - ONEHT;
 
         if (letters[2] > LETTER_O)
           grid_northing = grid_northing - ONEHT;
 
-        grid_easting = (double)((letters[1]) - ltr2_low_value) * ONEHT + false_easting; 
+        grid_easting = (double)((letters[1]) - ltr2_low_value) * ONEHT + false_easting;
         if (ltr2_low_value != LETTER_A)
         {
           if (letters[1] > LETTER_L)
