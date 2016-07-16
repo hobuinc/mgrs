@@ -351,25 +351,6 @@ long Check_Zone(char* MGRS, long* zone_exists)
 } /* Check_Zone */
 
 
-long Round_MGRS (double value)
-/*
- * The function Round_MGRS rounds the input value to the
- * nearest integer, using the standard engineering rule.
- * The rounded integer value is then returned.
- *
- *   value           : Value to be rounded  (input)
- */
-{ /* Round_MGRS */
-  double ivalue;
-  long ival;
-  double fraction = modf (value, &ivalue);
-  ival = (long)(ivalue);
-  if ((fraction > 0.5) || ((fraction == 0.5) && (ival%2 == 1)))
-    ival++;
-  return (ival);
-} /* Round_MGRS */
-
-
 long Make_MGRS_String (char* MGRS,
                        long Zone,
                        int Letters[MGRS_LETTERS],
@@ -617,16 +598,12 @@ long UTM_To_MGRS (long Zone,
   long ltr2_low_value;        /* 2nd letter range - low number               */
   long ltr2_high_value;       /* 2nd letter range - high number              */
   int letters[MGRS_LETTERS];  /* Number location of 3 letters in alphabet    */
-  double divisor;
-  double rounded_easting;
   long temp_error_code = MGRS_NO_ERROR;
   long error_code = MGRS_NO_ERROR;
 
-	divisor = pow (10.0, (5 - Precision));
-	rounded_easting = Round_MGRS (Easting/divisor) * divisor;
 
 	/* Special check for rounding to (truncated) eastern edge of zone 31V */
-	if ((Zone == 31) && (((Latitude >= 56.0 * DEG_TO_RAD) && (Latitude < 64.0 * DEG_TO_RAD)) && ((Longitude >= 3.0 * DEG_TO_RAD) || (rounded_easting >= 500000.0))))
+	if ((Zone == 31) && (((Latitude >= 56.0 * DEG_TO_RAD) && (Latitude < 64.0 * DEG_TO_RAD)) && ((Longitude >= 3.0 * DEG_TO_RAD) || (Easting >= 500000.0))))
 	{ /* Reconvert to UTM zone 32 */
     Set_UTM_Parameters (MGRS_a, MGRS_f, 32);
     temp_error_code = Convert_Geodetic_To_UTM (Latitude, Longitude, &Zone, &Hemisphere, &Easting, &Northing);
@@ -645,15 +622,7 @@ long UTM_To_MGRS (long Zone,
 
       return error_code;
     }
-    else
-	    /* Round easting value using new easting */
-	    Easting = Round_MGRS (Easting/divisor) * divisor;
-	}
-  else
-	  Easting = rounded_easting;
-
-	/* Round northing values */
-	Northing = Round_MGRS (Northing/divisor) * divisor;
+  }
 
   if( Latitude <= 0.0 && Northing == 1.0e7)
   {
@@ -1155,7 +1124,6 @@ long Convert_UPS_To_MGRS (char   Hemisphere,
   double grid_northing;       /* Northing used to derive 3rd letter of MGRS   */
   long ltr2_low_value;        /* 2nd letter range - low number                */
   int letters[MGRS_LETTERS];  /* Number location of 3 letters in alphabet     */
-  double divisor;
   int index = 0;
   long error_code = MGRS_NO_ERROR;
 
@@ -1169,9 +1137,6 @@ long Convert_UPS_To_MGRS (char   Hemisphere,
     error_code |= MGRS_PRECISION_ERROR;
   if (!error_code)
   {
-    divisor = pow (10.0, (5 - Precision));
-    Easting = Round_MGRS (Easting/divisor) * divisor;
-    Northing = Round_MGRS (Northing/divisor) * divisor;
 
     if (Hemisphere == 'N')
     {

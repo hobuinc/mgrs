@@ -42,3 +42,15 @@ Test basic import
     >>> d, m, s = m.ddtodms(32.328414)
     >>> (d, m,'%.6f' % s)
     (32.0, 19.0, '42.290400')
+
+    >>> m = mgrs.MGRS()
+    >>> washingtondc = (38.9072, -77.0369)
+    >>> c = m.toMGRS(*washingtondc)
+    >>> str(c.decode("ascii"))
+    '18SUJ2338308450'
+
+    >>> philadelphia = (39.9526, -75.1652)
+    >>> c = m.toMGRS(*philadelphia)
+    >>> str(c.decode("ascii"))
+    '18SVK8588822509'
+
