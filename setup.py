@@ -1,10 +1,8 @@
 
 from glob import glob
-from setuptools import setup
+from setuptools import setup, Extension
 
 import os
-
-from setuptools import Extension
 
 sources = ['libmgrs/mgrs.c',
            'libmgrs/utm.c',
@@ -21,16 +19,13 @@ mgrs = Extension('libmgrs',
                  library_dirs = None
                  )
 
-# Get text from README.txt
-# readme_text = open('./README.rst', encoding='utf-8').read()
-
 import codecs
 
 with codecs.open('./README.rst', encoding="utf-8") as f:
     readme_text = f.read()
 
 setup(name          = 'mgrs',
-      version       = '1.3.4',
+      version       = '1.3.5',
       description   = 'MGRS coordinate conversion for Python',
       license       = 'MIT',
       keywords      = 'gis coordinate conversion',
@@ -42,9 +37,8 @@ setup(name          = 'mgrs',
       long_description = readme_text,
       ext_modules      = [mgrs],
       packages      = ['mgrs'],
-      install_requires = ['setuptools'],
+      install_requires = ['setuptools', 'wheel'],
       test_suite = 'tests.test_suite',
-      # data_files = data_files,
       zip_safe = False,
       classifiers   = [
         'Development Status :: 4 - Beta',

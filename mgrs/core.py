@@ -8,17 +8,26 @@ class RTreeError(Exception):
     "RTree exception, indicates a RTree-related error."
     pass
 
+
+def get_windows_platform_name():
+    libname = 'libmgrs'
+    try:
+        import wheel.pep425tags
+        name = wheel.pep425tags.get_abbr_impl() + \
+			   wheel.pep425tags.get_impl_ver() + \
+			   '-' + wheel.pep425tags.get_platform()
+        return libname + '.' + name + '.pyd'
+    except ImportError:
+        return libname + '.pyd'
+        
 if os.name == 'nt':
     try:
         local_dlls = sys.path
         original_path = os.environ['PATH']
         os.environ['PATH'] = "%s;%s" % (';'.join(local_dlls), original_path)
-        try:
-            # Python 2
-            rt = ctypes.PyDLL('libmgrs.pyd')
-        except OSError:
-            # Python 3
-            rt = ctypes.PyDLL('libmgrs.cp35-win32.pyd')
+        # Python
+        platform = get_windows_platform_name()
+        rt = ctypes.PyDLL(platform)
         def free(m):
             try:
                 free = ctypes.cdll.msvcrt.free(m)
