@@ -21,6 +21,11 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.3.6
+
+* required positional argument for wheel.425tags.get_platform()
+  https://github.com/hobu/mgrs/pull/24
+
 1.3.4
 
 * Truncate, don't round results https://github.com/hobu/mgrs/pull/15
