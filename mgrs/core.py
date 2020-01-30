@@ -15,7 +15,7 @@ def get_windows_platform_name():
         import wheel.pep425tags
         name = wheel.pep425tags.get_abbr_impl() + \
 			   wheel.pep425tags.get_impl_ver() + \
-			   '-' + wheel.pep425tags.get_platform()
+			   '-' + wheel.pep425tags.get_platform(None)
         return libname + '.' + name + '.pyd'
     except ImportError:
         return libname + '.pyd'
