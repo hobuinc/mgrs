@@ -6,8 +6,8 @@ import sysconfig
 import math
 
 
-class RTreeError(Exception):
-    "RTree exception, indicates a RTree-related error."
+class MGRSError(Exception):
+    "MGRS exception, indicates a MGRS-related error."
     pass
 
 
@@ -79,7 +79,7 @@ elif os.name == 'posix':
     free = ctypes.CDLL(find_library('c')).free
 
 else:
-    raise RTreeError('Unsupported OS "%s"' % os.name)
+    raise MGRSError('Unsupported OS "%s"' % os.name)
 
 errors = {0x0001: "Latitude Error",
           0x0002: "Longitude Error",
@@ -114,7 +114,7 @@ def check_error(result, func, cargs):
     "Error checking proper value returns"
     if result != 0:
         msg = 'Error in "%s": %s' % (func.__name__, get_errors(result))
-        raise RTreeError(msg)
+        raise MGRSError(msg)
     return
 
 

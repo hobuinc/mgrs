@@ -38,7 +38,7 @@ class MGRS:
                     break
             if not is_annotated:
                 msg = "unable to parse '%s' to decimal degrees" % dms
-                raise core.RTreeError(msg)
+                raise core.MGRSError(msg)
         is_negative = False
         if is_annotated:
             dms_upper = dms.upper()
