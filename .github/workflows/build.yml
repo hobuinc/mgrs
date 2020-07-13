@@ -68,7 +68,7 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        python3 -e .
+        python3 -m pip install -e .
     - name: Lint with flake8
       shell: bash -l {0}
       run: |
