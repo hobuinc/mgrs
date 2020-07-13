@@ -86,17 +86,13 @@ if os.name == 'nt':
 
 elif os.name == 'posix':
 
-    platform = os.uname()[0]
     soabi = sysconfig.get_config_var('SOABI')
     lib_name = 'libmgrs.so'
     if soabi:
         lib_name = 'libmgrs.{}.so'.format(soabi)
 
-        local_library_path = os.path.abspath(os.path.dirname(__file__) + "/..")
-        free = ctypes.CDLL(find_library('c')).free
-        rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
-        if not rt:
-            raise FileNotFoundError("%s not loaded" % lib_name)
+    local_library_path = os.path.abspath(os.path.dirname(__file__) + "/..")
+    rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
 
     if not rt:
         raise OSError("Could not load mgrs library")

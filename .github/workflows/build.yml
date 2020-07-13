@@ -68,7 +68,7 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        python3 -m pip install --user .
+        python3 -e .
     - name: Lint with flake8
       shell: bash -l {0}
       run: |
@@ -78,7 +78,7 @@ jobs:
       shell: bash -l {0}
       run: |
         export PATH=$PATH:/home/runner/.local/bin
-        tox
+        pytest
 
 
         #  linux-wheel:
