@@ -67,7 +67,8 @@ jobs:
       shell: bash -l {0}
       run: |
         python3 -m pip install --user .
-        ls /home/runner/work/mgrs/
+        ls /home/runner/work/mgrs/mgrs/
+        echo 'local installs'
         ls /home/runner/.local/bin
     - name: Lint with flake8
       shell: bash -l {0}
