@@ -63,7 +63,7 @@ jobs:
       shell: bash -l {0}
       run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install setuptools flake8 pytest
+          python3 -m pip install setuptools flake8 pytest tox
 
     - name: Build
       shell: bash -l {0}
@@ -78,7 +78,7 @@ jobs:
       shell: bash -l {0}
       run: |
         export PATH=$PATH:/home/runner/.local/bin
-        python3 -m pytest --doctest-modules tests
+        tox
 
 
         #  linux-wheel:
