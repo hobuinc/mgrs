@@ -53,13 +53,28 @@ if os.name == 'nt':
         return None
 
     try:
-        local_dlls = sys.path
-        original_path = os.environ['PATH']
-        os.environ['PATH'] = "%s;%s" % (';'.join(local_dlls), original_path)
-        # Python
-        platform = get_windows_platform_name()
-        rt = ctypes.PyDLL(platform)
+        lib_name = get_windows_platform_name()
+        rt = None
+        # try wheel location
+        if not rt:
+            lib_path = os.path.abspath(os.path.join(
+                           os.path.dirname(__file__), ".."))
+            import pdb;pdb.set_trace()
+            rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
+        # try conda location
+        if not rt:
+            if 'conda' in sys.version:
+                lib_path = os.path.join(sys.prefix, "Library", "bin")
+                rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
+                import pdb;pdb.set_trace()
 
+        if not rt:
+            rt = _load_library(lib_name, ctypes.cdll.LoadLibrary)
+           
+        if not rt:
+            raise MGRSError("Unable to load %s" % lib_name)
+
+        
         free = None
 
         def free(m):
