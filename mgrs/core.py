@@ -59,22 +59,20 @@ if os.name == 'nt':
         if not rt:
             lib_path = os.path.abspath(os.path.join(
                            os.path.dirname(__file__), ".."))
-            import pdb;pdb.set_trace()
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
         # try conda location
         if not rt:
             if 'conda' in sys.version:
                 lib_path = os.path.join(sys.prefix, "Library", "bin")
-                rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
-                import pdb;pdb.set_trace()
+                rt = _load_library(lib_name, ctypes.cdll.LoadLibrary,
+                                   (lib_path,))
 
         if not rt:
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary)
-           
+
         if not rt:
             raise MGRSError("Unable to load %s" % lib_name)
 
-        
         free = None
 
         def free(m):
