@@ -24,6 +24,34 @@ def get_windows_platform_name():
 
 
 if os.name == 'nt':
+    def _load_library(dllname, loadfunction, dllpaths=('', )):
+        """Load a DLL via ctypes load function. Return None on failure.
+        Try loading the DLL from the current package directory first,
+        then from the Windows DLL search path.
+        """
+        try:
+            dllpaths = (os.path.abspath(os.path.dirname(__file__)),
+                        ) + dllpaths
+        except NameError:
+            pass  # no __file__ attribute on PyPy and some frozen distributions
+        for path in dllpaths:
+            if path:
+                # temporarily add the path to the PATH environment variable
+                # so Windows can find additional DLL dependencies.
+                try:
+                    oldenv = os.environ['PATH']
+                    os.environ['PATH'] = path + ';' + oldenv
+                except KeyError:
+                    oldenv = None
+            try:
+                return loadfunction(os.path.join(path, dllname))
+            except (WindowsError, OSError):
+                pass
+            finally:
+                if path and oldenv is not None:
+                    os.environ['PATH'] = oldenv
+        return None
+
     try:
         local_dlls = sys.path
         original_path = os.environ['PATH']
