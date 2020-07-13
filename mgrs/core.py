@@ -44,15 +44,40 @@ if os.name == 'nt':
         raise
 
 elif os.name == 'posix':
+
     platform = os.uname()[0]
     soabi = sysconfig.get_config_var('SOABI')
+    lib_name = 'libmgrs.so'
     if soabi:
         lib_name = 'libmgrs.{}.so'.format(soabi)
-    else:
-        lib_name = 'libmgrs.so'
-    local_library_path = os.path.abspath(os.path.dirname(__file__) + "/..")
+
+    try:
+        # try loading libmgrs from the wheel location
+        # inside the package
+
+        lib_path = os.path.abspath(os.path.join(
+                   os.path.dirname(__file__), "lib"))
+        old_dir = os.getcwd()
+        os.chdir(lib_path)
+        full_path = os.path.join(lib_path, lib_name)
+        rt = ctypes.cdll.LoadLibrary(full_path)
+
+        # Switch back to the original working directory
+        os.chdir(old_dir)
+        if not rt:
+            raise FileNotFoundError("%s not loaded" % full_path)
+    except FileNotFoundError:
+        local_library_path = os.path.abspath(os.path.dirname(__file__) + "/..")
+        free = ctypes.CDLL(find_library('c')).free
+        rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
+        if not rt:
+            raise FileNotFoundError("%s not loaded" % full_path)
+
+    if not rt:
+        raise OSError("Could not load mgrs library")
+
     free = ctypes.CDLL(find_library('c')).free
-    rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
+
 else:
     raise RTreeError('Unsupported OS "%s"' % os.name)
 
