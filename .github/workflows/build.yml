@@ -33,7 +33,8 @@ jobs:
     - name: List directories
       shell: bash -l {0}
       run: |
-        dir c:\miniconda\envs\test\lib\site-packages
+        dir 'c:\miniconda\envs\test\lib\site-packages'
+
       if: matrix.os == 'windows-latest'
     - name: Lint with flake8
       shell: bash -l {0}
