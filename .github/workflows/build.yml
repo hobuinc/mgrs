@@ -210,8 +210,14 @@ jobs:
           path: dist
         name: Download artifacts
 
-      - name: build
+      - name: Unpack
         run: |
+          ls dist
+          for f in dist/-whl
+          do
+              unzip $f
+          done;
+          rm dist/*-whl
           ls dist
 
       - uses: pypa/gh-action-pypi-publish@master
