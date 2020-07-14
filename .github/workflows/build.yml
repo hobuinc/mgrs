@@ -215,18 +215,20 @@ jobs:
         run: |
           cd dist
           pwd
-          ls
+          ls -alh --group-directories-first
           for f in *.zip
           do
+            ls -al "./$f/"
+            cd "$f"
+            ls -alh
             pwd
-            cp "$f/*.whl" .
-            ls -al "./$f"
+            cp "*.whl" ..
             echo "filename $f"
 
 
           done;
           rm -rf ".zip"
-          ls
+          ls -alh --group-directories-first
 
       - uses: pypa/gh-action-pypi-publish@master
         name: Publish package
