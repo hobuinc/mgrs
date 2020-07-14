@@ -109,10 +109,9 @@ jobs:
       run: |
           ./ci/test-wheel-linux.sh ${{ matrix.python-version }}
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
-        name: manylinux-${{ matrix.python-version }}-whl
-        path: wheelhouse
+        path: wheelhouse/*.whl
 
   windows-wheel:
     name: Win64 ${{ matrix.python-version }} Wheel
@@ -148,10 +147,9 @@ jobs:
       run: |
         call .\ci\test-wheel.bat
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
-        name: win64-${{matrix.python-version}}-whl
-        path: dist
+        path: dist\*.whl
 
   osx-wheel:
     name: OSX ${{ matrix.python-version }} Wheel
@@ -181,10 +179,9 @@ jobs:
       run: |
         ./ci/test-wheel-osx.sh
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
-        name: osx-${{matrix.python-version}}-whl
-        path: wheels
+        path: dist/*.whl
 
   collect-artifacts:
     name: Package and push release
@@ -208,7 +205,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           path: dist
-        name: Download artifactsion
+        name: Download artifacts
 
       - name: build
         run: |
