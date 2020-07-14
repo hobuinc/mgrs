@@ -219,11 +219,13 @@ jobs:
           for f in *.zip
           do
             pwd
+            cp "$f/*.whl" .
             ls -al "./$f"
             echo "filename $f"
 
-              unzip "./$f"
+
           done;
+          rm -rf ".zip"
           ls
 
       - uses: pypa/gh-action-pypi-publish@master
