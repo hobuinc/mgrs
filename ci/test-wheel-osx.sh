@@ -9,4 +9,7 @@ do
     python -m pip install $f
 done;
 
-cd tests; pytest
+ls
+cd tests;
+ls
+pytest

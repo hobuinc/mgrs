@@ -1,9 +1,7 @@
 
 call conda activate test
 
-pushd "%~dp0"
 
-cd
 dir dist
 dir dist\mgrs*.whl
 
@@ -13,5 +11,6 @@ pip install pytest numpy
 pip install %wheel%
 
 cd mgrs\test
+pytest
 
 
