@@ -111,7 +111,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: manylinux-${{ matrix.python-version }}-whl
+        name: manylinux-${{ matrix.python-version }}-whl.zip
         path: wheelhouse/*.whl
 
   windows-wheel:
@@ -150,7 +150,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: win64-${{matrix.python-version}}-whl
+        name: win64-${{matrix.python-version}}-whl.zip
         path: dist\*.whl
 
   osx-wheel:
@@ -183,7 +183,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: osx-${{matrix.python-version}}-whl
+        name: osx-${{matrix.python-version}}-whl.zip
         path: dist/*.whl
 
   collect-artifacts:
@@ -213,11 +213,11 @@ jobs:
       - name: Unpack
         run: |
           ls dist
-          for f in dist/-whl
+          for f in dist/*.zip
           do
               unzip $f
           done;
-          rm dist/*-whl
+          rm "dist/*.zip"
           ls dist
 
       - uses: pypa/gh-action-pypi-publish@master
