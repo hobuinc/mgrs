@@ -210,22 +210,23 @@ jobs:
           path: dist
         name: Download artifacts
 
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: dist
+
       - name: Unpack
         shell: bash -l {0}
+        working-directory: dist
         run: |
-          cd dist
           pwd
           ls -alh --group-directories-first
           for f in *whl
           do
-            ls -al "./$f/"
+            echo "dirname: $f"
             cd "$f"
-            ls -alh
             pwd
-            cp "*.whl" ..
             ls -al "./$f/"
-            echo "filename $f"
-
+            cp "*" ..
           done;
           ls
 
