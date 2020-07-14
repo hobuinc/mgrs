@@ -1,2 +1,2 @@
-include README.rst pyproject.yml
+include README.rst pyproject.toml
 recursive-include libmgrs *.h
