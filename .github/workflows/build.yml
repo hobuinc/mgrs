@@ -68,7 +68,7 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        pip3 install --no-deps .
+        pip3 install --no-deps . -t .
     - name: Lint with flake8
       shell: bash -l {0}
       run: |
