@@ -1,2 +1,3 @@
 include README.rst pyproject.toml
-recursive-include libmgrs *.h
+recursive-include tests *.txt *.py
+recursive-include libmgrs *.h *.c
