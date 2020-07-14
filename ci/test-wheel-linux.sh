@@ -4,10 +4,10 @@
 
 python -m pip install pytest numpy
 
-for f in dist/*.whl
+for f in wheelhouse/*.whl
 do
 
     python -m pip install $f
 done;
 
-pytest
+cd tests; pytest

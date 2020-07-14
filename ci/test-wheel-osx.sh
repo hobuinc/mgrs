@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-python -m pip install pytest numpy
+python -m pip install pytest
 
 for f in dist/*.whl
 do
@@ -9,4 +9,4 @@ do
     python -m pip install $f
 done;
 
-pytest
+cd tests; pytest
