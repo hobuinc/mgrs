@@ -18,6 +18,7 @@ fi
 echo "PYTHONROOT: " $PYTHONROOT
 
 cd /src
+$PYTHONROOT/bin/python setup.py build
 $PYTHONROOT/bin/python setup.py bdist_wheel
 
 
