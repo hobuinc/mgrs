@@ -10,7 +10,7 @@ PREFIX=$(pwd)
 
 cd /src
 pwd
-python setup.py build
+python -m pip install . -t .
 python setup.py bdist_wheel
 
 delocate-wheel -w wheels -v dist/*.whl

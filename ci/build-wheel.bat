@@ -4,5 +4,5 @@ call conda activate test
 where python
 
 
-python setup.py build
+python -m pip install . -t .
 python setup.py bdist_wheel
