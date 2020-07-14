@@ -219,7 +219,8 @@ jobs:
           for f in *.zip
           do
             pwd
-              unzip $f
+            ls "$f"
+              unzip "$f"
           done;
           ls
 
