@@ -21,6 +21,10 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.3.7
+
+* automated building of osx, linux and win64 wheels
+
 1.3.6
 
 * required positional argument for wheel.425tags.get_platform()
