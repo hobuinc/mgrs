@@ -111,6 +111,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
+        name: manylinux-${{ matrix.python-version }}-whl
         path: wheelhouse/*.whl
 
   windows-wheel:
@@ -149,6 +150,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
+        name: win64-${{matrix.python-version}}-whl
         path: dist\*.whl
 
   osx-wheel:
@@ -181,6 +183,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
+        name: osx-${{matrix.python-version}}-whl
         path: dist/*.whl
 
   collect-artifacts:
