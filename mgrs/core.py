@@ -95,7 +95,11 @@ elif os.name == 'posix':
     rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
 
     if not rt:
-        raise OSError("Could not load mgrs library")
+        local_library_path = os.path.abspath(os.path.dirname(__file__))
+        rt = ctypes.CDLL(os.path.join(local_library_path, lib_name))
+
+        if not rt:
+            raise OSError("Could not load mgrs library")
 
     free = ctypes.CDLL(find_library('c')).free
 
