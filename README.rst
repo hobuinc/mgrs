@@ -24,6 +24,9 @@ ChangeLog
 1.3.7
 
 * automated building of osx, linux and win64 wheels
+* Migrate from TravisCI => GitHub Actions
+* Warnings cleanup
+* flake8 validation
 
 1.3.6
 
