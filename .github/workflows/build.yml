@@ -219,8 +219,10 @@ jobs:
           for f in *.zip
           do
             pwd
-            ls "$f"
-              unzip "$f"
+            ls -al "./$f"
+            echo "filename $f"
+
+              unzip "./$f"
           done;
           ls
 
