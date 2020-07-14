@@ -218,11 +218,11 @@ jobs:
           ls -alh --group-directories-first
           for f in *.zip
           do
-            ls -al "./$f/"
+            ls -al "./$f"
             cd "$f"
             ls -alh
             pwd
-            cp "*.whl" ..
+            mv "*" ..
             echo "filename $f"
 
 
