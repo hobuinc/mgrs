@@ -211,14 +211,16 @@ jobs:
         name: Download artifacts
 
       - name: Unpack
+        shell: bash -l {0}
         run: |
           cd dist
+          pwd
           ls
           for f in *.zip
           do
+            pwd
               unzip $f
           done;
-          rm *.zip
           ls
 
       - uses: pypa/gh-action-pypi-publish@master
