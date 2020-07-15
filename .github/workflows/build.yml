@@ -228,6 +228,7 @@ jobs:
             pwd
             cp *.whl ..
           done;
+          rm -rf *\-whl
           ls
 
       - uses: pypa/gh-action-pypi-publish@master
