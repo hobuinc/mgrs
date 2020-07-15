@@ -224,9 +224,9 @@ jobs:
           do
             echo "dirname: $f"
             cd "$f"
+            ls -al
             pwd
-            ls -al "./$f/"
-            cp "*" ..
+            cp *.whl ..
           done;
           ls
 
