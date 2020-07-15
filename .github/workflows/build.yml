@@ -227,6 +227,7 @@ jobs:
             ls -al
             pwd
             cp *.whl ..
+            cd ..
           done;
           rm -rf *\-whl
           ls
