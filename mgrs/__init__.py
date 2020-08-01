@@ -1,21 +1,20 @@
-from . core import rt
+from . import core
 
 import ctypes
-import re
 
 __version__ = '1.3.8'
+
 
 class MGRS:
     def __init__(self):
         pass
 
-
     def ddtodms(self, dd):
         """Take in dd string and convert to dms"""
         negative = dd < 0
         dd = abs(dd)
-        minutes,seconds = divmod(dd*3600,60)
-        degrees,minutes = divmod(minutes,60)
+        minutes, seconds = divmod(dd * 3600, 60)
+        degrees, minutes = divmod(minutes, 60)
         if negative:
             if degrees > 0:
                 degrees = -degrees
@@ -23,11 +22,10 @@ class MGRS:
                 minutes = -minutes
             else:
                 seconds = -seconds
-        return (degrees,minutes,seconds)
+        return (degrees, minutes, seconds)
 
     def dmstodd(self, dms):
         """ convert dms to dd"""
-        size = len(dms)
         letters = 'WENS'
         is_annotated = False
 
@@ -39,7 +37,8 @@ class MGRS:
                     is_annotated = True
                     break
             if not is_annotated:
-                raise core.RTreeError("unable to parse '%s' to decimal degrees" % dms)
+                msg = "unable to parse '%s' to decimal degrees" % dms
+                raise core.MGRSError(msg)
         is_negative = False
         if is_annotated:
             dms_upper = dms.upper()
@@ -51,7 +50,7 @@ class MGRS:
 
         if is_annotated:
             bletters = letters.encode(encoding='utf-8')
-            bdms = dms.encode(encoding = 'utf-8')
+            bdms = dms.encode(encoding='utf-8')
             dms = bdms.translate(None, bletters).decode('ascii')
 
             # bletters = bytes(letters, encoding='utf-8')
@@ -70,7 +69,7 @@ class MGRS:
             M = dms[-4:-2]
             D = dms[:-4]
         else:
-            S = '{0:s}.{1:s}'.format (pieces[0][-2:], pieces[1])
+            S = '{0:s}.{1:s}'.format(pieces[0][-2:], pieces[1])
             M = pieces[0][-4:-2]
             D = pieces[0][:-4]
 
@@ -91,6 +90,7 @@ class MGRS:
         core.rt.Convert_Geodetic_To_MGRS(lat, lon, MGRSPrecision, p)
         c = ctypes.string_at(p)
         return c.decode('utf-8')
+
 
     def toLatLon(self, MGRS, inDegrees=True):
         plat = ctypes.pointer(ctypes.c_double())
@@ -122,8 +122,8 @@ class MGRS:
         mgrs = ctypes.string_at(mgrs)
         zone = ctypes.pointer(ctypes.c_long())
         hemisphere = ctypes.pointer(ctypes.c_char())
-        easting    = ctypes.pointer(ctypes.c_double())
-        northing   = ctypes.pointer(ctypes.c_double())
+        easting = ctypes.pointer(ctypes.c_double())
+        northing = ctypes.pointer(ctypes.c_double())
 
         core.rt.Convert_MGRS_To_UTM(mgrs, zone, hemisphere, easting, northing)
 
@@ -132,12 +132,12 @@ class MGRS:
         easting.contents.value,
         northing.contents.value)
 
-    def UTMToMGRS (self, zone, hemisphere, easting, northing, MGRSPrecision=5) :
+
+    def UTMToMGRS(self, zone, hemisphere, easting, northing, MGRSPrecision=5):
         mgrs = ctypes.create_string_buffer(80)
 
         if type(hemisphere) is str:
             hemisphere = hemisphere.encode('utf-8')
-
 
         hemisphere = ctypes.c_char(hemisphere)
         core.rt.Convert_UTM_To_MGRS(zone,

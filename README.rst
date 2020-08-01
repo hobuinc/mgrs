@@ -21,7 +21,6 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
-=======
 1.3.8
 
 * UTF-8 encoding for all strings.

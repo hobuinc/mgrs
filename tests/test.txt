@@ -1,5 +1,4 @@
 >>> import mgrs
-
 >>> latitude = 42.0
 >>> longitude = -93.0
 
