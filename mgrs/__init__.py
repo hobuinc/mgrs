@@ -91,7 +91,6 @@ class MGRS:
         c = ctypes.string_at(p)
         return c.decode('utf-8')
 
-
     def toLatLon(self, MGRS, inDegrees=True):
         plat = ctypes.pointer(ctypes.c_double())
         plon = ctypes.pointer(ctypes.c_double())
@@ -118,7 +117,6 @@ class MGRS:
         else:
             mgrs = MGRS
 
-
         mgrs = ctypes.string_at(mgrs)
         zone = ctypes.pointer(ctypes.c_long())
         hemisphere = ctypes.pointer(ctypes.c_char())
@@ -128,10 +126,9 @@ class MGRS:
         core.rt.Convert_MGRS_To_UTM(mgrs, zone, hemisphere, easting, northing)
 
         return (zone.contents.value,
-        hemisphere.contents.value.decode('utf-8'),
-        easting.contents.value,
-        northing.contents.value)
-
+                hemisphere.contents.value.decode('utf-8'),
+                easting.contents.value,
+                northing.contents.value)
 
     def UTMToMGRS(self, zone, hemisphere, easting, northing, MGRSPrecision=5):
         mgrs = ctypes.create_string_buffer(80)
