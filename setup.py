@@ -25,7 +25,11 @@ with codecs.open('./README.rst', encoding="utf-8") as f:
     readme_text = f.read()
 
 setup(name          = 'mgrs',
+<<<<<<< Updated upstream
       version       = '1.3.6',
+=======
+      version       = '1.3.8',
+>>>>>>> Stashed changes
       description   = 'MGRS coordinate conversion for Python',
       license       = 'MIT',
       keywords      = 'gis coordinate conversion',

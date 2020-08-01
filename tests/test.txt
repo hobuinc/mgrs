@@ -1,56 +1,65 @@
-Test basic import
+>>> import mgrs
 
-    >>> import mgrs
-    
-    >>> latitude = 42.0
-    >>> longitude = -93.0
-    
-    >>> m = mgrs.MGRS()
-    >>> c = m.toMGRS(latitude, longitude)
-    >>> str(c.decode("ascii"))
-    '15TWG0000049776'
-    
-    >>> lat, lon = m.toLatLon(c)
-    >>> '%.6f' % lat
-    '41.999998'
+>>> latitude = 42.0
+>>> longitude = -93.0
 
-    >>> '%.6f' % lon
-    '-93.000000'
-    
-    >>> yp = '321942N'
-    >>> yd = m.dmstodd(yp)
-    >>> '%.6f' % yd
-    '32.328333'
+>>> m = mgrs.MGRS()
+>>> c = m.toMGRS(latitude, longitude)
+>>> print(c)
+15TWG0000049776
+
+>>> lat, lon = m.toLatLon(c)
+>>> '%.6f' % lat
+'41.999998'
+
+>>> '%.6f' % lon
+'-93.000000'
+
+>>> yp = '321942N'
+>>> yd = m.dmstodd(yp)
+>>> '%.6f' % yd
+'32.328333'
 
 
-    >>> y = '321942.29N'
-    >>> yd = m.dmstodd(y)
-    >>> '%.6f' % yd
-    '32.328414'
-    
+>>> y = '321942.29N'
+>>> yd = m.dmstodd(y)
+>>> '%.6f' % yd
+'32.328414'
 
-    >>> x = '671328.35W'
-    >>> yd = m.dmstodd(x)
-    >>> '%.6f' % yd
-    '-67.224542'    
 
-    >>> y = '321942.29S'
-    >>> yd = m.dmstodd(y)
-    >>> '%.6f' % yd
-    '-32.328414'
-    
-    >>> d, m, s = m.ddtodms(32.328414)
-    >>> (d, m,'%.6f' % s)
-    (32.0, 19.0, '42.290400')
+>>> x = '671328.35W'
+>>> yd = m.dmstodd(x)
+>>> '%.6f' % yd
+'-67.224542'
 
-    >>> m = mgrs.MGRS()
-    >>> washingtondc = (38.9072, -77.0369)
-    >>> c = m.toMGRS(*washingtondc)
-    >>> str(c.decode("ascii"))
-    '18SUJ2338308450'
+>>> y = '321942.29S'
+>>> yd = m.dmstodd(y)
+>>> '%.6f' % yd
+'-32.328414'
 
-    >>> philadelphia = (39.9526, -75.1652)
-    >>> c = m.toMGRS(*philadelphia)
-    >>> str(c.decode("ascii"))
-    '18SVK8588822509'
+>>> d, m, s = m.ddtodms(32.328414)
+>>> (d, m,'%.6f' % s)
+(32.0, 19.0, '42.290400')
 
+>>> m = mgrs.MGRS()
+>>> washingtondc = (38.9072, -77.0369)
+>>> c = m.toMGRS(*washingtondc)
+>>> str(c)
+'18SUJ2338308450'
+
+>>> philadelphia = (39.9526, -75.1652)
+>>> c = m.toMGRS(*philadelphia)
+>>> str(c)
+'18SVK8588822509'
+
+>>> convert = mgrs.MGRS()
+>>> coords = u"15SWC8081751205"
+
+>>> convert.toLatLon(coords)
+(38.40542615377341, -92.07439526029498)
+
+>>> convert.MGRSToUTM(coords)
+(15, 'N', 580817.0, 4251205.0)
+
+>>> convert.UTMToMGRS(15,'N',580817,4251205)
+'15SWC8081751205'

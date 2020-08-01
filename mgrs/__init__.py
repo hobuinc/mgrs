@@ -3,7 +3,7 @@ from . core import rt
 import ctypes
 import re
 
-__version__='1.3.6'
+__version__ = '1.3.8'
 
 class MGRS:
     def __init__(self):
@@ -88,14 +88,21 @@ class MGRS:
             lon = longitude
 
         p = ctypes.create_string_buffer(80)
-        core.rt.Convert_Geodetic_To_MGRS( lat, lon, MGRSPrecision, p)
-        return ctypes.string_at(p)
+        core.rt.Convert_Geodetic_To_MGRS(lat, lon, MGRSPrecision, p)
+        c = ctypes.string_at(p)
+        return c.decode('utf-8')
 
     def toLatLon(self, MGRS, inDegrees=True):
         plat = ctypes.pointer(ctypes.c_double())
         plon = ctypes.pointer(ctypes.c_double())
-        c = ctypes.string_at(MGRS)
-        core.rt.Convert_MGRS_To_Geodetic( c, plat, plon)
+
+        if type(MGRS) is str:
+            mgrs = MGRS.encode('utf-8')
+        else:
+            mgrs = MGRS
+        c = ctypes.string_at(mgrs)
+        core.rt.Convert_MGRS_To_Geodetic(c, plat, plon)
+
         if inDegrees:
             lat = core.TO_DEGREES(plat.contents.value)
             lon = core.TO_DEGREES(plon.contents.value)
@@ -104,20 +111,39 @@ class MGRS:
             lon = plon.contents.value
         return (lat, lon)
 
-    def MGRSToUTM (self, MGRS) :
-        mgrs       = ctypes.string_at(MGRS)
-        zone       = ctypes.pointer(ctypes.c_long())
+    def MGRSToUTM(self, MGRS, encoding='utf-8'):
+
+        if type(MGRS) is str:
+            mgrs = MGRS.encode(encoding)
+        else:
+            mgrs = MGRS
+
+
+        mgrs = ctypes.string_at(mgrs)
+        zone = ctypes.pointer(ctypes.c_long())
         hemisphere = ctypes.pointer(ctypes.c_char())
         easting    = ctypes.pointer(ctypes.c_double())
         northing   = ctypes.pointer(ctypes.c_double())
 
         core.rt.Convert_MGRS_To_UTM(mgrs, zone, hemisphere, easting, northing)
 
-        return zone.contents.value, hemisphere.contents.value, easting.contents.value, northing.contents.value
+        return (zone.contents.value,
+        hemisphere.contents.value.decode('utf-8'),
+        easting.contents.value,
+        northing.contents.value)
 
     def UTMToMGRS (self, zone, hemisphere, easting, northing, MGRSPrecision=5) :
         mgrs = ctypes.create_string_buffer(80)
 
-        core.rt.Convert_UTM_To_MGRS(zone, ctypes.c_char(hemisphere), ctypes.c_double(easting), ctypes.c_double(northing), MGRSPrecision, mgrs)
+        if type(hemisphere) is str:
+            hemisphere = hemisphere.encode('utf-8')
 
-        return mgrs.value
+
+        hemisphere = ctypes.c_char(hemisphere)
+        core.rt.Convert_UTM_To_MGRS(zone,
+                                    hemisphere,
+                                    ctypes.c_double(easting),
+                                    ctypes.c_double(northing),
+                                    MGRSPrecision, mgrs)
+
+        return mgrs.value.decode('utf-8')
