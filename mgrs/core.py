@@ -1,4 +1,5 @@
 import ctypes
+import glob
 import importlib
 import math
 import os
@@ -18,18 +19,31 @@ def get_windows_platform_name():
 
     libname = 'libmgrs'
     try:
-        # detects which lib contains pep425tags without first importing them
+        conda_env = os.environ.get('CONDA_PREFIX', None)
+        if conda_env:
+            site_packages_dir = os.path.join(conda_env, 'Lib', 'site-packages')
+            os.chdir(site_packages_dir)
+            pyd_name_list = glob.glob(f'{libname}.*.pyd')
+            if not pyd_name_list:
+                raise ImportError
+            elif len(pyd_name_list) > 1:
+                raise ImportError(f'more than on libmgrs pyd was found \n{pyd_name_list}')
+            else:
+                return pyd_name_list[-1]
         if importlib.util.find_spec("wheel.pep425tags") is not None:
+            print('wheel')
             import wheel.pep425tags as pep425tags
         elif importlib.util.find_spec("pip._internal.pep425tags") is not None:
+            print('pip')
             import pip._internal.pep425tags as pep425tags
         else:
             raise ImportError
         name = pep425tags.get_abbr_impl() + \
-            pep425tags.get_impl_ver() + \
-            '-' + pep425tags.get_platform()
+               pep425tags.get_impl_ver() + \
+               '-' + pep425tags.get_platform()
         return libname + '.' + name + '.pyd'
     except ImportError:
+        print('nope')
         return libname + '.pyd'
 
 
@@ -72,8 +86,9 @@ if os.name == 'nt':
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
         # try conda location
         if not rt:
-            if 'conda' in sys.version:
-                lib_path = os.path.join(sys.prefix, "Library", "bin")
+            conda_env = os.environ.get('CONDA_PREFIX', None)
+            if conda_env:
+                lib_path = os.path.join(conda_env, "Library", "bin")
                 rt = _load_library(lib_name, ctypes.cdll.LoadLibrary,
                                    (lib_path,))
 
