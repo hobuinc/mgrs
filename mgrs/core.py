@@ -100,7 +100,7 @@ if os.name == 'nt':
                                    (lib_path,))
             elif 'conda' in sys.version:
                 print(
-                        f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+                        f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
                         f'^^^^^^^^^^^^^^^^^^^^\ndetects '
                         f'miniconda{sys.version}\n'
                 )
