@@ -60,15 +60,10 @@ jobs:
       fail-fast: true
       matrix:
         os: ['ubuntu-16.04', 'ubuntu-18.04']
-        python-version: ['3.6','3.7','3.8']
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Python
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install packages
+    - name: Setup
       shell: bash -l {0}
       run: |
           python3 -m pip install --upgrade pip
@@ -76,21 +71,15 @@ jobs:
 
     - name: Build
       shell: bash -l {0}
-      with:
-        python-version: ${{ matrix.python-version }}
       run: |
         pip3 install --no-deps . -t .
     - name: Lint with flake8
       shell: bash -l {0}
-      with:
-        python-version: ${{ matrix.python-version }}
       run: |
         export PATH=$PATH:/home/runner/.local/bin
         flake8 mgrs/
     - name: Test with pytest
       shell: bash -l {0}
-      with:
-        python-version: ${{ matrix.python-version }}
       run: |
         export PATH=$PATH:/home/runner/.local/bin
         tox
