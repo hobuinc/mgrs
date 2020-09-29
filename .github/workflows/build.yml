@@ -60,12 +60,20 @@ jobs:
       fail-fast: true
       matrix:
         os: ['ubuntu-16.04', 'ubuntu-18.04']
+        python-version: ['3.6','3.7','3.8']
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
+
+    - name: Setup dependencies
       shell: bash -l {0}
       run: |
+          python3 --version
           python3 -m pip install --upgrade pip
           python3 -m pip install setuptools flake8 pytest tox
 
