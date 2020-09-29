@@ -31,19 +31,14 @@ def get_windows_platform_name():
             else:
                 return pyd_name_list[-1]
         if importlib.util.find_spec("wheel.pep425tags") is not None:
-            print('wheel')
             import wheel.pep425tags as pep425tags
         elif importlib.util.find_spec("pip._internal.pep425tags") is not None:
-            print('pip')
             import pip._internal.pep425tags as pep425tags
         else:
             raise ImportError
-        name = pep425tags.get_abbr_impl() + \
-               pep425tags.get_impl_ver() + \
-               '-' + pep425tags.get_platform()
+        name = f'{pep425tags.get_abbr_impl()}{pep425tags.get_impl_ver()}-{pep425tags.get_platform()}'
         return libname + '.' + name + '.pyd'
     except ImportError:
-        print('nope')
         return libname + '.pyd'
 
 
