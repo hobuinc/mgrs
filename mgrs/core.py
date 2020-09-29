@@ -111,6 +111,11 @@ if os.name == 'nt':
         if not rt:
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary)
 
+        print(
+                f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+                f'\nno checks caught mini conda\n'
+        )
+
         if not rt:
             raise MGRSError(f'Unable to load {lib_name}')
 
