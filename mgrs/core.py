@@ -49,7 +49,8 @@ def get_windows_platform_name():
             f'{pep425tags.get_platform()}'
         )
         return libname + '.' + name + '.pyd'
-    except ImportError:
+    except ImportError as E:
+        print ("failed to import: %s" % E)
         return libname + '.pyd'
 
 
