@@ -50,7 +50,7 @@ def get_windows_platform_name():
         )
         return libname + '.' + name + '.pyd'
     except ImportError as E:
-        print ("failed to import: %s" % E)
+        print("failed to import: %s" % E)
         return libname + '.pyd'
 
 
