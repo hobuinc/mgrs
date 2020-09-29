@@ -3,7 +3,6 @@ import glob
 import importlib
 import math
 import os
-import sys
 import sysconfig
 
 from ctypes.util import find_library
@@ -21,13 +20,21 @@ def get_windows_platform_name():
     try:
         conda_env = os.environ.get('CONDA_PREFIX', None)
         if conda_env:
-            site_packages_dir = os.path.join(conda_env, 'Lib', 'site-packages')
+            site_packages_dir = os.path.join(
+                    conda_env,
+                    'Lib',
+                    'site-packages'
+            )
             os.chdir(site_packages_dir)
-            pyd_name_list = glob.glob(f'{libname}.*.pyd')
+            glob_name = f'{libname}.*.pyd'
+            pyd_name_list = glob.glob(glob_name)
             if not pyd_name_list:
                 raise ImportError
             elif len(pyd_name_list) > 1:
-                raise ImportError(f'more than on libmgrs pyd was found \n{pyd_name_list}')
+                raise ImportError(
+                        f'more than on libmgrs pyd was found'
+                        f'\n{pyd_name_list}'
+                )
             else:
                 return pyd_name_list[-1]
         if importlib.util.find_spec("wheel.pep425tags") is not None:
@@ -36,7 +43,11 @@ def get_windows_platform_name():
             import pip._internal.pep425tags as pep425tags
         else:
             raise ImportError
-        name = f'{pep425tags.get_abbr_impl()}{pep425tags.get_impl_ver()}-{pep425tags.get_platform()}'
+        name = (
+            f'{pep425tags.get_abbr_impl()}'
+            f'{pep425tags.get_impl_ver()}-'
+            f'{pep425tags.get_platform()}'
+        )
         return libname + '.' + name + '.pyd'
     except ImportError:
         return libname + '.pyd'
