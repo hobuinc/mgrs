@@ -107,7 +107,7 @@ if os.name == 'nt':
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary)
 
         if not rt:
-            raise MGRSError("Unable to load %s" % lib_name)
+            raise MGRSError(f'Unable to load {lib_name}')
 
         free = None
 
