@@ -95,16 +95,7 @@ if os.name == 'nt':
         if not rt:
             conda_env = os.environ.get('CONDA_PREFIX', None)
             if conda_env:
-                print(
-                        f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
-                        f'^^^^^^^^^^^^^^^^^^^^^\ndetects '
-                        f'miniconda{sys.version}\n'
-                )
                 lib_path = os.path.join(conda_env, "Library", "bin")
-                rt = _load_library(lib_name, ctypes.cdll.LoadLibrary,
-                                   (lib_path,))
-            elif 'conda' in sys.version:
-                lib_path = os.path.join(sys.prefix, "Library", "bin")
                 rt = _load_library(lib_name, ctypes.cdll.LoadLibrary,
                                    (lib_path,))
 
