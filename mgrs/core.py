@@ -14,10 +14,10 @@ class MGRSError(Exception):
 def get_windows_platform_name():
     libname = 'libmgrs'
     try:
-        import wheel.pep425tags
-        name = wheel.pep425tags.get_abbr_impl() + \
-            wheel.pep425tags.get_impl_ver() + \
-            '-' + wheel.pep425tags.get_platform(None)
+        import pip._internal.pep425tags
+        name = pip._internal.pep425tags.get_abbr_impl() + \
+            pip._internal.pep425tags.get_impl_ver() + \
+            '-' + pip._internal.pep425tags.get_platform()
         return libname + '.' + name + '.pyd'
     except ImportError:
         return libname + '.pyd'
