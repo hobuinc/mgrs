@@ -1,9 +1,11 @@
+import ctypes
+import importlib
+import math
 import os
 import sys
-import ctypes
-from ctypes.util import find_library
 import sysconfig
-import math
+
+from ctypes.util import find_library
 
 
 class MGRSError(Exception):
@@ -12,12 +14,20 @@ class MGRSError(Exception):
 
 
 def get_windows_platform_name():
+    """Constructs libmgrs pyd filename based on Windows platform"""
+
     libname = 'libmgrs'
     try:
-        import pip._internal.pep425tags
-        name = pip._internal.pep425tags.get_abbr_impl() + \
-            pip._internal.pep425tags.get_impl_ver() + \
-            '-' + pip._internal.pep425tags.get_platform()
+        # detects which lib contains pep425tags without first importing them
+        if importlib.util.find_spec("wheel.pep425tags") is not None:
+            import wheel.pep425tags as pep425tags
+        elif importlib.util.find_spec("pip._internal.pep425tags") is not None:
+            import pip._internal.pep425tags as pep425tags
+        else:
+            raise ImportError
+        name = pep425tags.get_abbr_impl() + \
+            pep425tags.get_impl_ver() + \
+            '-' + pep425tags.get_platform()
         return libname + '.' + name + '.pyd'
     except ImportError:
         return libname + '.pyd'
