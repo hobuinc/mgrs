@@ -101,7 +101,7 @@ if os.name == 'nt':
             elif 'conda' in sys.version:
                 print(
                         f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
-                        f'^^^^^^^^^^^^^^^^^^^^\ndetects '
+                        f'^^^^^^^^^^^^^^^^^^^^^\ndetects '
                         f'miniconda{sys.version}\n'
                 )
 
