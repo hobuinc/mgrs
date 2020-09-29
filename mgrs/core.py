@@ -100,7 +100,7 @@ if os.name == 'nt':
                                    (lib_path,))
             elif 'conda' in sys.version:
                 print(f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ndetects miniconda{sys.version}\n')
-                
+
                 lib_path = os.path.join(sys.prefix, "Library", "bin")
                 rt = _load_library(lib_name, ctypes.cdll.LoadLibrary,
                                    (lib_path,))

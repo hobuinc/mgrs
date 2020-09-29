@@ -67,7 +67,7 @@ jobs:
       shell: bash -l {0}
       run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install setuptools flake8 pytest tox
+          python3 -m pip install setuptools flake8>=3.2.1 pytest tox
 
     - name: Build
       shell: bash -l {0}
