@@ -60,6 +60,7 @@ jobs:
       fail-fast: true
       matrix:
         os: ['ubuntu-16.04', 'ubuntu-18.04']
+        python-version: ['3.6','3.7','3.8']
 
     steps:
     - uses: actions/checkout@v2
@@ -67,7 +68,7 @@ jobs:
       shell: bash -l {0}
       run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install setuptools flake8>=3.2.1 pytest tox
+          python3 -m pip install setuptools flake8 pytest tox
 
     - name: Build
       shell: bash -l {0}
