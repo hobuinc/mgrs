@@ -101,7 +101,8 @@ if os.name == 'nt':
             elif 'conda' in sys.version:
                 print(
                         f'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
-                        f'^^^^^^^^^^^^^^^^^^^^\ndetects miniconda{sys.version}\n'
+                        f'^^^^^^^^^^^^^^^^^^^^\ndetects '
+                        f'miniconda{sys.version}\n'
                 )
 
                 lib_path = os.path.join(sys.prefix, "Library", "bin")
