@@ -17,41 +17,41 @@ def get_windows_platform_name():
     """Constructs libmgrs pyd filename based on Windows platform"""
 
     libname = 'libmgrs'
-    try:
-        conda_env = os.environ.get('CONDA_PREFIX', None)
-        if conda_env:
-            site_packages_dir = os.path.join(
-                    conda_env,
-                    'Lib',
-                    'site-packages'
-            )
-            os.chdir(site_packages_dir)
-            glob_name = f'{libname}.*.pyd'
-            pyd_name_list = glob.glob(glob_name)
-            if not pyd_name_list:
-                raise ImportError
-            elif len(pyd_name_list) > 1:
-                raise ImportError(
-                        f'more than on libmgrs pyd was found'
-                        f'\n{pyd_name_list}'
-                )
-            else:
-                return pyd_name_list[-1]
-        if importlib.util.find_spec("wheel.pep425tags") is not None:
-            import wheel.pep425tags as pep425tags
-        elif importlib.util.find_spec("pip._internal.pep425tags") is not None:
-            import pip._internal.pep425tags as pep425tags
-        else:
-            raise ImportError
-        name = (
-            f'{pep425tags.get_abbr_impl()}'
-            f'{pep425tags.get_impl_ver()}-'
-            f'{pep425tags.get_platform()}'
+#     try:
+    conda_env = os.environ.get('CONDA_PREFIX', None)
+    if conda_env:
+        site_packages_dir = os.path.join(
+                conda_env,
+                'Lib',
+                'site-packages'
         )
-        return libname + '.' + name + '.pyd'
-    except ImportError as E:
-        print("failed to import: %s" % E)
-        return libname + '.pyd'
+        os.chdir(site_packages_dir)
+        glob_name = f'{libname}.*.pyd'
+        pyd_name_list = glob.glob(glob_name)
+        if not pyd_name_list:
+            raise ImportError
+        elif len(pyd_name_list) > 1:
+            raise ImportError(
+                    f'more than on libmgrs pyd was found'
+                    f'\n{pyd_name_list}'
+            )
+        else:
+            return pyd_name_list[-1]
+    if importlib.util.find_spec("wheel.pep425tags") is not None:
+        import wheel.pep425tags as pep425tags
+    elif importlib.util.find_spec("pip._internal.pep425tags") is not None:
+        import pip._internal.pep425tags as pep425tags
+    else:
+        raise ImportError
+    name = (
+        f'{pep425tags.get_abbr_impl()}'
+        f'{pep425tags.get_impl_ver()}-'
+        f'{pep425tags.get_platform()}'
+    )
+    return libname + '.' + name + '.pyd'
+#     except ImportError as E:
+#         print("failed to import: %s" % E)
+#         return libname + '.pyd'
 
 
 if os.name == 'nt':
