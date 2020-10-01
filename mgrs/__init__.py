@@ -2,7 +2,7 @@ from . import core
 
 import ctypes
 
-__version__ = '1.3.9'
+__version__ = '1.4.0'
 
 
 class MGRS:
