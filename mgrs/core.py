@@ -1,16 +1,71 @@
 import ctypes
-import glob
-import importlib
 import math
 import os
-import sysconfig
 import packaging.tags
+import sysconfig
 
 from ctypes.util import find_library
 
 
+class DeprecatedClassMeta(type):
+    """
+    Meta class that warns that a given class, or any of its sublasses have been deprecated
+    and will call a new class decalred with _DeprecatedClassMeta__alias instead
+
+    Credit: https://stackoverflow.com/a/52087847/9469244
+    """
+
+    def __new__(cls, name, bases, classdict, *args, **kwargs):
+        from warnings import warn
+        alias = classdict.get('_DeprecatedClassMeta__alias')
+
+        if alias is not None:
+            def new(cls, *args, **kwargs):
+                alias = getattr(cls, '_DeprecatedClassMeta__alias')
+
+                if alias is not None:
+                    warn("{} has is deprecated. Please use {} instead".format(cls.__name__,
+                             alias.__name__), DeprecationWarning, stacklevel=2)
+
+                return alias(*args, **kwargs)
+
+            classdict['__new__'] = new
+            classdict['_DeprecatedClassMeta__alias'] = alias
+
+        fixed_bases = []
+
+        for b in bases:
+            alias = getattr(b, '_DeprecatedClassMeta__alias', None)
+
+            if alias is not None:
+                warn("{} has is deprecated. Please use {} instead".format(b.__name__,
+                         alias.__name__), DeprecationWarning, stacklevel=2)
+
+            # Avoid duplicate base classes.
+            b = alias or b
+            if b not in fixed_bases:
+                fixed_bases.append(b)
+
+        fixed_bases = tuple(fixed_bases)
+
+        return super().__new__(
+                cls,
+                name,
+                fixed_bases,
+                classdict,
+                *args,
+                **kwargs
+        )
+
+
 class MGRSError(Exception):
-    "MGRS exception, indicates a MGRS-related error."
+    """MGRS exception, indicates a MGRS-related error."""
+    pass
+
+
+class RTreeError(Exception, metaclass=DeprecatedClassMeta):
+    """RTree exception, indicates a RTree-related error."""
+    _DeprecatedClassMeta__alias = MGRSError
     pass
 
 
@@ -18,33 +73,6 @@ def get_windows_platform_name():
     """Constructs libmgrs pyd filename based on Windows platform"""
 
     libname = 'libmgrs'
-# #     try:
-    # conda_env = os.environ.get('CONDA_PREFIX', None)
-    # if conda_env:
-        # site_packages_dir = os.path.join(
-                # conda_env,
-                # 'Lib',
-                # 'site-packages'
-        # )
-        # os.chdir(site_packages_dir)
-        # glob_name = f'{libname}.*.pyd'
-        # pyd_name_list = glob.glob(glob_name)
-        # if not pyd_name_list:
-            # raise ImportError
-        # elif len(pyd_name_list) > 1:
-            # raise ImportError(
-                    # f'more than on libmgrs pyd was found'
-                    # f'\n{pyd_name_list}'
-            # )
-        # else:
-            # return pyd_name_list[-1]
-    # if importlib.util.find_spec("wheel.pep425tags") is not None:
-        # import wheel.pep425tags as pep425tags
-    # elif importlib.util.find_spec("pip._internal.pep425tags") is not None:
-        # import pip._internal.pep425tags as pep425tags
-    # else:
-        # raise ImportError
-    
     tags = list(packaging.tags.cpython_tags())
     t = tags[0]
     name = (
@@ -52,7 +80,6 @@ def get_windows_platform_name():
         f'{t.platform}'
     )
     return libname + '.' + name + '.pyd'
-
 
 
 if os.name == 'nt':
