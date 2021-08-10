@@ -21,6 +21,10 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.4.1
+
+* Fix install requirements #34
+
 1.4.0
 
 * Alias and deprecate RTreeError #33
