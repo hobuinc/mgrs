@@ -20,6 +20,9 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 
 ChangeLog
 ------------------------------------------------------------------------------
+1.4.2
+
+* GitHub Action builders needed to be changed to push release
 
 1.4.1
 
