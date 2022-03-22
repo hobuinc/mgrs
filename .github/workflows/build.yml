@@ -126,7 +126,7 @@ jobs:
     name: Package and push release
 
     #needs: [windows-wheel, linux-wheel, osx-wheel, conda, ubuntu]
-    needs: [wheels, wheels-aarch64]
+    needs: [wheels, wheels_aarch64]
 
     runs-on: 'ubuntu-latest'
     strategy:
