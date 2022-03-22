@@ -26,7 +26,7 @@ with codecs.open("./README.rst", encoding="utf-8") as f:
 
 setup(
     name="mgrs",
-    version="1.4.2",
+    version="1.4.3",
     description="MGRS coordinate conversion for Python",
     license="MIT",
     keywords="gis coordinate conversion",
@@ -36,9 +36,9 @@ setup(
     maintainer_email="howard@hobu.co",
     url="https://github.com/hobu/mgrs",
     long_description=readme_text,
+    long_description_content_type="text/x-rst",
     ext_modules=[mgrs],
     packages=["mgrs"],
-    install_requires=["packaging"],
     test_suite="tests.test_suite",
     zip_safe=False,
     classifiers=[
