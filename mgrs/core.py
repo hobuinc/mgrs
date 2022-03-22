@@ -61,12 +61,8 @@ class DeprecatedClassMeta(type):
 
         fixed_bases = tuple(fixed_bases)
 
-        return super().__new__(cls,
-                               name,
-                               fixed_bases,
-                               classdict,
-                               *args,
-                               **kwargs)
+        s = super()
+        return s.__new__(cls, name, fixed_bases, classdict, *args, **kwargs)
 
 
 class MGRSError(Exception):
