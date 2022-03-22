@@ -12,14 +12,16 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`ctypes`: http://docs.python.org/library/ctypes.html
 
-|travisstatus|
-
-.. |travisstatus| image:: https://travis-ci.org/hobu/mgrs.png?branch=master
-   :target: https://travis-ci.org/hobu/mgrs
 
 
 ChangeLog
 ------------------------------------------------------------------------------
+
+1.4.3
+
+* Wheels
+* black, flake8, and isort linters
+
 1.4.2
 
 * GitHub Action builders needed to be changed to push release
