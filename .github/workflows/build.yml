@@ -92,7 +92,7 @@ jobs:
       CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
       CIBW_ARCHS_MACOS: "x86_64 arm64"
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
-      CIBW_BEFORE_BUILD_LINUX: "pip install cmake; bash {project}/ci/install_libspatialindex.bash"
+      CIBW_BEFORE_BUILD_LINUX: ""
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
