@@ -1,6 +1,6 @@
-from . import core
-
 import ctypes
+
+from . import core
 
 __version__ = "1.4.2"
 

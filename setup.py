@@ -1,6 +1,6 @@
-from setuptools import setup, Extension
 import codecs
 
+from setuptools import Extension, setup
 
 sources = [
     "libmgrs/mgrs.c",

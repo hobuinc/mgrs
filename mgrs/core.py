@@ -1,10 +1,10 @@
 import ctypes
 import math
 import os
-import packaging.tags
 import sysconfig
-
 from ctypes.util import find_library
+
+import packaging.tags
 
 
 class DeprecatedClassMeta(type):
