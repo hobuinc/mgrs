@@ -9,8 +9,9 @@ from ctypes.util import find_library
 
 class DeprecatedClassMeta(type):
     """
-    Meta class that warns that a given class, or any of its sublasses have been deprecated
-    and will call a new class decalred with _DeprecatedClassMeta__alias instead
+    Meta class that warns that a given class, or any of its sublasses have been
+    deprecated and will call a new class decalred with
+    _DeprecatedClassMeta__alias instead
 
     Credit: https://stackoverflow.com/a/52087847/9469244
     """
@@ -60,7 +61,12 @@ class DeprecatedClassMeta(type):
 
         fixed_bases = tuple(fixed_bases)
 
-        return super().__new__(cls, name, fixed_bases, classdict, *args, **kwargs)
+        return super().__new__(cls,
+                               name,
+                               fixed_bases,
+                               classdict,
+                               *args,
+                               **kwargs)
 
 
 class MGRSError(Exception):
@@ -120,14 +126,15 @@ if os.name == "nt":
         rt = None
         # try wheel location
         if not rt:
-            lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+            p = os.path.join(os.path.dirname(__file__), "..")
+            lib_path = os.path.abspath(p)
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
         # try conda location
         if not rt:
             conda_env = os.environ.get("CONDA_PREFIX", None)
             if conda_env:
-                lib_path = os.path.join(conda_env, "Library", "bin")
-                rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (lib_path,))
+                p = os.path.join(conda_env, "Library", "bin")
+                rt = _load_library(lib_name, ctypes.cdll.LoadLibrary, (p,))
 
         if not rt:
             rt = _load_library(lib_name, ctypes.cdll.LoadLibrary)

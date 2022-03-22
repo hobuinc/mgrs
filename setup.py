@@ -1,7 +1,6 @@
-from glob import glob
 from setuptools import setup, Extension
+import codecs
 
-import os
 
 sources = [
     "libmgrs/mgrs.c",
@@ -21,7 +20,6 @@ mgrs = Extension(
     library_dirs=None,
 )
 
-import codecs
 
 with codecs.open("./README.rst", encoding="utf-8") as f:
     readme_text = f.read()
