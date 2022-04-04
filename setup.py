@@ -2,6 +2,7 @@ import codecs
 
 from setuptools import Extension, setup
 
+
 sources = [
     "libmgrs/mgrs.c",
     "libmgrs/utm.c",
@@ -38,6 +39,7 @@ setup(
     long_description=readme_text,
     long_description_content_type="text/x-rst",
     ext_modules=[mgrs],
+    install_requires=["packaging"],
     packages=["mgrs"],
     test_suite="tests.test_suite",
     zip_safe=False,
