@@ -26,7 +26,7 @@ with codecs.open("./README.rst", encoding="utf-8") as f:
 
 setup(
     name="mgrs",
-    version="1.4.3",
+    version="1.4.5",
     description="MGRS coordinate conversion for Python",
     license="MIT",
     keywords="gis coordinate conversion",
