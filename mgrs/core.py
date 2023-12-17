@@ -140,7 +140,7 @@ if os.name == "nt":
 
         free = None
 
-        def free(m):
+        def free(m):  # noqa: F811
             global free
             try:
                 free = ctypes.cdll.msvcrt.free(m)
@@ -151,7 +151,6 @@ if os.name == "nt":
         raise
 
 elif os.name == "posix":
-
     soabi = sysconfig.get_config_var("SOABI")
     lib_name = "libmgrs.so"
     if soabi:
