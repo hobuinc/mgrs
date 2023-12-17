@@ -111,7 +111,6 @@ class MGRS:
         return (lat, lon)
 
     def MGRSToUTM(self, MGRS, encoding="utf-8"):
-
         if type(MGRS) is str:
             mgrs = MGRS.encode(encoding)
         else:

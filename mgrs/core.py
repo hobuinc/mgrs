@@ -151,7 +151,6 @@ if os.name == "nt":
         raise
 
 elif os.name == "posix":
-
     soabi = sysconfig.get_config_var("SOABI")
     lib_name = "libmgrs.so"
     if soabi:
