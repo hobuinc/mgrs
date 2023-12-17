@@ -140,7 +140,7 @@ if os.name == "nt":
 
         free = None
 
-        def free(m):
+        def free(m):  # noqa: F811
             global free
             try:
                 free = ctypes.cdll.msvcrt.free(m)
