@@ -16,9 +16,7 @@ mgrs = Extension(
 )
 
 setup_args = dict(
-    ext_modules = [
-        mgrs
-    ]
+    ext_modules=[mgrs]
 )
 
 setup(**setup_args)

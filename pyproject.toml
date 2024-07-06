@@ -3,7 +3,7 @@ name = "mgrs"
 description = "MGRS coordinate conversion for Python"
 readme = "README.rst"
 requires-python = ">=3.9"
-license = {file = "LICENSE.txt"}
+license = {file = "LICENSE"}
 keywords = ["gis", "coordinate", "conversion"]
 authors = [
   {email = "howard@hobu.co"},
