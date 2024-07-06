@@ -1,6 +1,59 @@
+[project]
+name = "mgrs"
+description = "MGRS coordinate conversion for Python"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = {file = "LICENSE.txt"}
+keywords = ["gis", "coordinate", "conversion"]
+authors = [
+  {email = "howard@hobu.co"},
+  {name = "Howard Butler"}
+]
+maintainers = [
+  {name = "Howard Butler", email = "howard@hobu.co"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["libmgrs",
+            "mgrs",
+            "libmgrs.Exception",
+            "libmgrs.Enumerations",
+            "libmgrs.CoordinateTuples",
+            "libmgrs.CoordinateSystemParameters",
+            "libmgrs.CoordinateSystem.utm",
+            "libmgrs.CoordinateSystem.ups",
+            "libmgrs.CoordinateSystem.tranmerc",
+            "libmgrs.CoordinateSystem.polarst",
+            "libmgrs.CoordinateSystem.mgrs",
+            "libmgrs.CoordinateSystem.misc"
+            ]
+
+
+[tool.setuptools.dynamic]
+version = {attr = "mgrs.__version__"}
+readme = {file = ["README.rst"]}
+
+[project.urls]
+repository = "https://github.com/hobuinc/mgrs/"
+changelog = "https://github.com/hobuinc/mgrs/commits/main/"
+
 [build-system]
-requires = [ "wheel", "setuptools" ]
+requires = ["wheel", "setuptools"]
 build-backend = "setuptools.build_meta"
+
 
 [tool.cibuildwheel]
 test-requires = "pytest"
