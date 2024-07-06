@@ -24,7 +24,9 @@ jobs:
     - name: Setup
       run: pip install black
     - name: Lint with black
-      run: black --check --diff .
+      run: |
+        black --version
+        black --check --diff .
   flake8:
     name: flake8
     runs-on: ubuntu-latest
@@ -36,7 +38,9 @@ jobs:
     - name: Setup
       run: pip install flake8
     - name: Lint with flake8
-      run: flake8
+      run: |
+        flake8 --version
+        flake8
   isort:
     name: isort
     runs-on: ubuntu-latest
@@ -52,6 +56,7 @@ jobs:
 
   ubuntu:
     name: Ubuntu Python ${{ matrix.python-version }}
+    needs: [isort, black, flake8]
     defaults:
       run:
         shell: bash -l {0}
