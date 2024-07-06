@@ -15,8 +15,6 @@ mgrs = Extension(
     include_dirs=["./libmgrs"],
 )
 
-setup_args = dict(
-    ext_modules=[mgrs]
-)
+setup_args = dict(ext_modules=[mgrs])
 
 setup(**setup_args)
