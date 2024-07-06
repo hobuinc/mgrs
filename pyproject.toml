@@ -29,16 +29,6 @@ dynamic = ["version"]
 [tool.setuptools]
 packages = ["libmgrs",
             "mgrs",
-            "libmgrs.Exception",
-            "libmgrs.Enumerations",
-            "libmgrs.CoordinateTuples",
-            "libmgrs.CoordinateSystemParameters",
-            "libmgrs.CoordinateSystem.utm",
-            "libmgrs.CoordinateSystem.ups",
-            "libmgrs.CoordinateSystem.tranmerc",
-            "libmgrs.CoordinateSystem.polarst",
-            "libmgrs.CoordinateSystem.mgrs",
-            "libmgrs.CoordinateSystem.misc"
             ]
 
 
