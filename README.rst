@@ -17,6 +17,11 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.5.0
+
+* Wheels
+* pyproject.toml-based metadata
+
 1.4.3
 
 * Wheels
