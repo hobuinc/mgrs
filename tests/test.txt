@@ -54,8 +54,12 @@
 >>> convert = mgrs.MGRS()
 >>> coords = u"15SWC8081751205"
 
->>> convert.toLatLon(coords)
-(38.40542615377341, -92.07439526029498)
+>>> lat, lon = convert.toLatLon(coords)
+>>> '%.10f' % lat
+'38.4054261538'
+
+>>> '%.10f' % lon
+'-92.0743952603'
 
 >>> convert.MGRSToUTM(coords)
 (15, 'N', 580817.0, 4251205.0)
