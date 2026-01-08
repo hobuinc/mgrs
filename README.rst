@@ -17,6 +17,11 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.5.1
+
+* Wheels
+* fix broken test with fixed precision comparison
+
 1.5.0
 
 * Wheels
