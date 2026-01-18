@@ -84,7 +84,7 @@ def get_windows_platform_name():
     libname = "libmgrs"
     tags = list(packaging.tags.cpython_tags())
     t = tags[0]
-    name = f"{t.interpreter}-" f"{t.platform}"
+    name = f"{t.abi}-" f"{t.platform}"
     return libname + "." + name + ".pyd"
 
 
