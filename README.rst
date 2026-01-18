@@ -17,6 +17,10 @@ This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 ChangeLog
 ------------------------------------------------------------------------------
 
+1.5.3
+
+* Fix busted auto-release
+
 1.5.2
 
 * Use ABI name for finding DLL
