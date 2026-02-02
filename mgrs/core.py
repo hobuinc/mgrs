@@ -203,7 +203,7 @@ def TO_DEGREES(radians):
 
 def check_error(result, func, cargs):
     "Error checking proper value returns"
-    if result != 0:
+    if result in errors:
         msg = 'Error in "%s": %s' % (func.__name__, get_errors(result))
         raise MGRSError(msg)
     return

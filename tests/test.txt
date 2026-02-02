@@ -66,3 +66,14 @@
 
 >>> convert.UTMToMGRS(15,'N',580817,4251205)
 '15SWC8081751205'
+
+>>> # These two MGRS coordinates produce a warning in libmgrs (see issue #45)
+>>> convert = mgrs.MGRS()
+
+>>> coords = "50TMK5045027900"
+>>> convert.toLatLon(coords)
+(39.999832750881616, 116.41951845782629)
+
+>>> coords = "32TNK0000000000"
+>>> convert.toLatLon(coords)
+(39.7499075191044, 9.0)
