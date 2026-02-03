@@ -72,8 +72,12 @@
 
 >>> coords = "50TMK5045027900"
 >>> convert.toLatLon(coords)
+/usr/local/lib/python3.11/site-packages/oms/mgrs/__init__.py:103: RuntimeWarning: Warning in "Convert_MGRS_To_Geodetic": Latitude Warning using args: (b'50TMK5045027900', <oms.mgrs.core.LP_c_double object at 0x7fc7e9a6cf80>, <oms.mgrs.core.LP_c_double object at 0x7fc7e9a6d2e0>)
+  core.rt.Convert_MGRS_To_Geodetic(c, plat, plon)
 (39.999832750881616, 116.41951845782629)
 
 >>> coords = "32TNK0000000000"
 >>> convert.toLatLon(coords)
+/usr/local/lib/python3.11/site-packages/oms/mgrs/__init__.py:103: RuntimeWarning: Warning in "Convert_MGRS_To_Geodetic": Latitude Warning using args: (b'32TNK0000000000', <oms.mgrs.core.LP_c_double object at 0x7fc7e9a6d2e0>, <oms.mgrs.core.LP_c_double object at 0x7fc7e9a6cf80>)
+  core.rt.Convert_MGRS_To_Geodetic(c, plat, plon)
 (39.7499075191044, 9.0)
