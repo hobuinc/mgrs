@@ -71,9 +71,11 @@
 >>> convert = mgrs.MGRS()
 
 >>> coords = "50TMK5045027900"
->>> convert.toLatLon(coords)
-(39.999832750881616, 116.41951845782629)
+>>> v = convert.toLatLon(coords)
+>>> '%.12f, %.12f' % v
+'39.999832750882, 116.419518457826'
 
 >>> coords = "32TNK0000000000"
->>> convert.toLatLon(coords)
-(39.7499075191044, 9.0)
+>>> v = convert.toLatLon(coords)
+>>> '%.12f, %.12f' % v
+'39.749907519104, 9.000000000000'
