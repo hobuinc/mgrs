@@ -18,7 +18,7 @@ class DeprecatedClassMeta(type):
     """
 
     def __new__(cls, name, bases, classdict, *args, **kwargs):
-        
+
         alias = classdict.get("_DeprecatedClassMeta__alias")
 
         if alias is not None:
@@ -188,12 +188,14 @@ warnings = {
     0x0400: "Latitude Warning",
 }
 
+
 def get_errors(value):
     output = []
     for key in errors.keys():
         if key & value:
             output.append(errors[key])
     return " & ".join(output)
+
 
 def get_warnings(value):
     output = []
@@ -211,22 +213,24 @@ def TO_DEGREES(radians):
     return float(radians) * 180.0 / math.pi
 
 
-# Report all runtime warnings from this module, not only the first time (default)
+# Report all runtime warnings from this module, not only the first (default)
 filterwarnings("always", category=RuntimeWarning, module="mgrs")
+
 
 def check_error(result, func, cargs):
     "Error checking proper value returns"
-    if result != 0:
-        _errors = get_errors(result)
-        if _errors:
-            raise MGRSError(f'Error in "{func.__name__}": {_errors}')
-        _warnings = get_warnings(result)
-        if _warnings:
-            warn(
-                f'Warning in "{func.__name__}": {_warnings} using args: {cargs}',
-                category=RuntimeWarning,
-                stacklevel=2,
-            )
+    if result == 0:
+        return
+    _errors = get_errors(result)
+    if _errors:
+        raise MGRSError(f'Error in "{func.__name__}": {_errors}')
+    _warnings = get_warnings(result)
+    if _warnings:
+        warn(
+            f'Warning in "{func.__name__}": {_warnings} using args: {cargs}',
+            category=RuntimeWarning,
+            stacklevel=2,
+        )
     return
 
 
