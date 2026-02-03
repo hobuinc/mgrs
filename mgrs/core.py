@@ -3,6 +3,7 @@ import math
 import os
 import sysconfig
 from ctypes.util import find_library
+from warnings import filterwarnings, warn
 
 import packaging.tags
 
@@ -17,7 +18,6 @@ class DeprecatedClassMeta(type):
     """
 
     def __new__(cls, name, bases, classdict, *args, **kwargs):
-        from warnings import warn
 
         alias = classdict.get("_DeprecatedClassMeta__alias")
 
@@ -184,13 +184,25 @@ errors = {
     0x0200: "Hemisphere Error",
 }
 
+warnings = {
+    0x0400: "Latitude Warning",
+}
+
 
 def get_errors(value):
-    output = "MGRS Errors: "
+    output = []
     for key in errors.keys():
         if key & value:
-            output += errors[key] + " & "
-    return output[:-2]
+            output.append(errors[key])
+    return " & ".join(output)
+
+
+def get_warnings(value):
+    output = []
+    for key in warnings.keys():
+        if key & value:
+            output.append(warnings[key])
+    return " & ".join(output)
 
 
 def TO_RADIANS(degrees):
@@ -201,11 +213,24 @@ def TO_DEGREES(radians):
     return float(radians) * 180.0 / math.pi
 
 
+# Report all runtime warnings from this module, not only the first (default)
+filterwarnings("always", category=RuntimeWarning, module="mgrs")
+
+
 def check_error(result, func, cargs):
     "Error checking proper value returns"
-    if result != 0:
-        msg = 'Error in "%s": %s' % (func.__name__, get_errors(result))
-        raise MGRSError(msg)
+    if result == 0:
+        return
+    _errors = get_errors(result)
+    if _errors:
+        raise MGRSError(f'Error in "{func.__name__}": {_errors}')
+    _warnings = get_warnings(result)
+    if _warnings:
+        warn(
+            f'Warning in "{func.__name__}": {_warnings} using args: {cargs}',
+            category=RuntimeWarning,
+            stacklevel=2,
+        )
     return
 
 
