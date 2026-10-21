@@ -307,6 +307,14 @@ def environment(source_root=None):
     }
 
 
+def native_library(module):
+    """Locate either the extension or a historical ctypes library."""
+    native = getattr(module, "_native", None)
+    if native is not None:
+        return native.__file__
+    return module.core.rt._name
+
+
 def compare_results(current, baseline, max_regression):
     if baseline.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("unsupported baseline schema")
@@ -460,7 +468,7 @@ def main(argv=None):
             },
             "environment": environment(source_root),
             "mgrs_version": mgrs.__version__,
-            "native_library_sha256": sha256_file(mgrs.core.rt._name),
+            "native_library_sha256": sha256_file(native_library(mgrs)),
             "validation": validation,
         }
         result["operations"] = measure(

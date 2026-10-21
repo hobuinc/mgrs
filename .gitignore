@@ -5,3 +5,5 @@ mgrs.egg-info/
 dist/
 benchmarks/data/
 benchmarks/results/
+mgrs/_native*.so
+mgrs/_native*.pyd

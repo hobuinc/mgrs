@@ -2,7 +2,7 @@
   #define MGRS_H
 
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(MGRS_STATIC)
 #   define USE_DLL   __declspec(dllexport)
 #else
 #   define USE_DLL

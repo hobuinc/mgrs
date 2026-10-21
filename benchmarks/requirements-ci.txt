@@ -2,3 +2,8 @@
 packaging==26.3
 setuptools==84.2.1
 pytest==9.1.1
+wheel==0.48.0
+scikit-build-core==1.1.1
+pybind11==3.1.0
+cmake==4.4.4
+ninja==1.13.2

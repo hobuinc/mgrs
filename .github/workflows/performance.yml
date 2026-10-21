@@ -33,7 +33,9 @@ jobs:
       PYTHONHASHSEED: '0'
       PYTHONUNBUFFERED: '1'
       CC: gcc
+      CXX: g++
       CFLAGS: '-O3 -DNDEBUG'
+      CXXFLAGS: '-O3 -DNDEBUG'
 
     steps:
       # On pull_request, github.sha is the proposed merge commit. Test the
@@ -65,6 +67,9 @@ jobs:
           python --version
           python -m pip freeze > toolchain.txt
           gcc --version >> toolchain.txt
+          g++ --version >> toolchain.txt
+          cmake --version >> toolchain.txt
+          ninja --version >> toolchain.txt
           lscpu >> toolchain.txt
           printf '\nCFLAGS=%s\nImageOS=%s\nImageVersion=%s\n' \
             "$CFLAGS" "$ImageOS" "$ImageVersion" >> toolchain.txt
@@ -72,12 +77,12 @@ jobs:
       # Build both before timing and use separate source trees. Installing
       # both as editable packages in one environment can select the wrong one.
       - name: Build baseline
-        working-directory: baseline
-        run: python setup.py build_ext --inplace --force
+        working-directory: candidate
+        run: python -m benchmarks.build --source ../baseline
 
       - name: Build candidate
         working-directory: candidate
-        run: python setup.py build_ext --inplace --force
+        run: python -m benchmarks.build --source .
 
       - name: Test harness and conversions
         working-directory: candidate
@@ -85,11 +90,12 @@ jobs:
 
       - name: Compare one million global points
         working-directory: candidate
+        # Gate each operation against its baseline; faster scalar bindings
+        # can reduce batch/scalar ratios without slowing batch conversion.
         run: |
           python -m benchmarks.ci \
             --base ../baseline --candidate . --output ../performance \
             --points 1000000 --repeats 5 --max-regression 10 \
-            --min-array-speedup 1.5 \
             2>&1 | tee ../performance.log
 
       - name: Publish summary

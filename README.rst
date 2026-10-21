@@ -4,13 +4,14 @@ mgrs: Converting to and from MGRS and Decimal Degrees
 ------------------------------------------------------------------------------
 
 GeoTrans_ provides C code for converting to and from MGRS, but well, it's
-C code :).  This is a simple ctypes_ wrapper around two of the MGRS-related
-functions in GeoTrans_.
+C code :). This package exposes scalar and batch GeoTrans_ conversions through
+a pybind11_ extension. The C kernels are linked statically into that extension;
+no separate libmgrs shared library or runtime Python dependencies are needed.
 
 This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
 
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
-.. _`ctypes`: http://docs.python.org/library/ctypes.html
+.. _`pybind11`: https://pybind11.readthedocs.io/
 
 
 
@@ -126,6 +127,31 @@ In a nutshell::
 You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.
 
+Building from source
+------------------------------------------------------------------------------
+
+The build uses scikit-build-core and CMake with a C compiler and a C++17
+compiler. pip installs the Python build dependencies and obtains CMake/Ninja
+when needed::
+
+    python -m pip install .
+    # Development install:
+    python -m pip install -e .
+    python -m pip install pytest
+    python -m pytest tests --doctest-glob='*.txt'
+
+To produce both source and wheel distributions::
+
+    python -m pip install build
+    python -m build
+
+``CMakeLists.txt`` defines a position-independent static ``mgrs_core`` library
+and the ``mgrs._native`` pybind11 extension. Only the extension and Python
+package are installed. CMake's normal compiler selection, toolchain files,
+and build flags apply; no ``setup.py`` build is required. The scalar and batch
+``MGRS`` methods and ``mgrs.core.MGRSError`` remain available. The internal
+``mgrs.core.rt`` foreign-function handle has been removed.
+
 Performance testing
 ------------------------------------------------------------------------------
 
@@ -139,12 +165,14 @@ over the globe's spherical surface. From a source checkout::
 
 See `benchmarks/README.rst <benchmarks/README.rst>`_ for dataset generation,
 timing methodology, JSON reports, and regression thresholds.
+See `benchmarks/pybind11.rst <benchmarks/pybind11.rst>`_ for the measured
+comparison with the previous ctypes binding.
 
 Array conversion
 ------------------------------------------------------------------------------
 
 The batch methods use Python's standard-library ``array.array`` and byte
-buffers. They perform the entire conversion loop in C with one ctypes call::
+buffers. They perform the entire conversion loop in C with one extension call::
 
     from array import array
     import mgrs
@@ -185,6 +213,7 @@ Invalid values raise ``mgrs.core.MGRSError`` with the first failing zero-based
 row. No partial output is returned. NaN and infinite coordinates are rejected.
 Latitude warnings are emitted once per batch, identifying the first affected
 row. All scalar and batch conversion methods serialize access to GeoTrans's
-shared projection state. ctypes releases the GIL during conversion, but calls
+shared projection state through a native mutex. The extension releases the GIL
+during conversion, but calls
 from multiple Python threads do not execute the projection code in parallel.
 The batch adapter needs no additional dependencies or third-party array ABI.

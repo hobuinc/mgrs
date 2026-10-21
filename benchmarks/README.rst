@@ -3,7 +3,7 @@ Performance tests
 
 Run these commands from the repository root, with the local extension built::
 
-    python -m pip install -e . packaging
+    python -m pip install -e .
     python -m benchmarks generate
     python -m benchmarks run --output benchmarks/results/baseline.json
     # After making a change, using the same interpreter and machine:
@@ -29,7 +29,7 @@ a different workload, use ``generate --output other.csv --points 2000000
 Smaller counts are supported for smoke tests; use at least a million for
 performance comparisons.
 
-Each run measures the public Python APIs serially, including their ctypes,
+Each run measures the public Python APIs serially, including their binding,
 allocation, and encoding costs:
 
 * Forward: ``MGRS.toMGRS(latitude, longitude, MGRSPrecision=5)``.
@@ -89,7 +89,10 @@ dispatch. The comparison uses:
 Both revisions are built from source on one ``ubuntu-24.04`` runner, with
 Python 3.13, identical compiler flags, and the pinned dependencies in
 ``requirements-ci.txt``. The workflow builds both before timing and does not
-reuse cached native binaries or historical timings. Each child process loads
+reuse cached native binaries or historical timings. Both revisions are built
+through their PEP 517 wheel backends, then only the native binaries are placed
+in their respective source trees. This supports historical setuptools/ctypes
+builds and scikit-build-core/pybind11 builds without competing editable installs. Each child process loads
 only its selected source tree, and its report verifies that import location.
 The candidate's harness measures both revisions, so older baselines do not
 need to contain benchmark code. Review changes to the harness and workflow
@@ -122,7 +125,11 @@ It uses ``pull_request`` with read-only repository permissions, no secrets,
 and GitHub-hosted runners to accommodate fork contributions. It publishes
 through job summaries and artifacts without posting PR comments.
 
-Local reproduction with two already-built checkouts::
+Local reproduction with two checkouts::
+
+    python -m pip install -r benchmarks/requirements-ci.txt
+    python -m benchmarks.build --source /path/to/base
+    python -m benchmarks.build --source /path/to/candidate
 
     python -m benchmarks.ci --base /path/to/base --candidate /path/to/candidate \
         --output /tmp/mgrs-comparison --points 1000000 --repeats 5
@@ -158,28 +165,30 @@ Array scenario
 Measure scalar and array APIs on the same dataset using only standard-library
 arrays and byte buffers::
 
-    python -m benchmarks run --scenario array --min-array-speedup 1.5 \
+    python -m benchmarks run --scenario array \
         --output benchmarks/results/array.json
 
 This prepares interleaved ``array('d')`` coordinates and 15-byte, NUL-padded
 ``bytearray`` records outside timing, then checks **every** forward code and
 inverse coordinate for exact equality with the scalar API. Timed batch passes
-include input validation, output array
-allocation, the native loop, and output disposal. Input preparation, CSV I/O,
+include input validation, output allocation, the native loop, and output disposal.
+Input preparation, CSV I/O,
 and conversion of byte arrays into Python strings/lists are excluded. The
 reported improvement applies to callers consuming array outputs directly.
 
 Reports include ``array_operations`` (the same sample/median/throughput fields
 as scalar operations), ``array_config`` (buffer types, record width, and
 validation method), and ``array_speedup`` (scalar median time divided by array
-median time). The
-optional minimum-speedup gate returns 1 if either direction falls below the
+median time). The optional minimum-speedup gate returns 1 if either direction falls below the
 requested ratio, and records the requirement and outcome in the JSON report.
 
 CI runs the scenario automatically for revisions that expose both array APIs.
-Its candidate must achieve at least **1.5x** scalar throughput in each direction.
 When both revisions expose the API, batch timings also participate in the
-existing **10% regression gate**. A baseline predating the array API still runs
+existing **10% regression gate**. CI compares all four absolute operation
+timings against the baseline. Batch/scalar ratios remain informational: a faster
+scalar binding can reduce that ratio even when batch throughput improves. The
+optional ``--min-array-speedup`` flag remains available for explicit experiments.
+A baseline predating the array API still runs
 the scalar comparison; the summary explicitly identifies that the batch
 baseline is unavailable. Removing an existing array API fails comparison.
 The paired run pools ten batch samples per revision/direction, alongside the

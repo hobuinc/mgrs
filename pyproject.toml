@@ -3,7 +3,7 @@ name = "mgrs"
 description = "MGRS coordinate conversion for Python"
 readme = "README.rst"
 requires-python = ">=3.9"
-dependencies = ["packaging"]
+dependencies = []
 license = {file = "LICENSE"}
 keywords = ["gis", "coordinate", "conversion"]
 authors = [
@@ -30,25 +30,35 @@ classifiers = [
 ]
 dynamic = ["version"]
 
-[tool.setuptools]
-packages = ["libmgrs",
-            "mgrs",
-            ]
-
-
-[tool.setuptools.dynamic]
-version = {attr = "mgrs.__version__"}
-readme = {file = ["README.rst"]}
-
 [project.urls]
 repository = "https://github.com/hobuinc/mgrs/"
 changelog = "https://github.com/hobuinc/mgrs/commits/main/"
 
 [build-system]
-requires = ["wheel", "setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["scikit-build-core>=1.0", "pybind11>=3.1"]
+build-backend = "scikit_build_core.build"
 
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+cmake.version = ">=3.20"
+wheel.packages = ["mgrs"]
+# Ship source and tooling only, never scratch files or generated binaries/data.
+sdist.include = [
+    "/CMakeLists.txt", "/pyproject.toml", "/README.rst", "/LICENSE",
+    "/tox.ini", "/.gitignore", "/.github/**/*.yml", "/ci/*.sh", "/ci/*.bat",
+    "/mgrs/*.py", "/src/*.cpp", "/libmgrs/*.c", "/libmgrs/*.h",
+    "/tests/*.py", "/tests/*.txt", "/benchmarks/*.py", "/benchmarks/*.rst",
+    "/benchmarks/requirements-ci.txt",
+]
+sdist.exclude = ["*"]
+
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.regex"
+field = "version"
+input = "mgrs/__init__.py"
 
 [tool.cibuildwheel]
 test-requires = "pytest"
-#test-command = "pytest {project}/tests --capture=sys "
+test-command = "python -m pytest tests --doctest-glob='*.txt'"
+test-sources = ["tests", "benchmarks"]

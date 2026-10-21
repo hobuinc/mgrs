@@ -90,11 +90,18 @@ def combine_runs(runs):
 
 
 def summary(base, candidate, comparison, threshold, min_speedup=None):
+    def revision(report):
+        value = report["environment"]["git_commit"]
+        suffix = ""
+        if report["environment"].get("git_dirty"):
+            suffix = " (working tree changes)"
+        return f"`{value}`{suffix}"
+
     lines = [
         "## MGRS performance comparison",
         "",
-        f"Base: `{base['environment']['git_commit']}`  ",
-        f"Candidate: `{candidate['environment']['git_commit']}`",
+        f"Base: {revision(base)}  ",
+        f"Candidate: {revision(candidate)}",
         "",
         f"{base['dataset']['count']:,} points; "
         f"{base['config']['repeats']} timed passes per revision/direction. "
@@ -128,7 +135,7 @@ def summary(base, candidate, comparison, threshold, min_speedup=None):
                 "",
             ]
         for operation, speedup in speedups.items():
-            status = "PASS"
+            status = "informational" if min_speedup is None else "PASS"
             if min_speedup is not None and speedup < min_speedup:
                 status = "FAIL"
             lines.append(f"* {operation}: **{speedup:.2f}x** ({status})")

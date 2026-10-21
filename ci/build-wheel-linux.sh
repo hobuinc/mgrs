@@ -1,29 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 
-#/opt/python/cp38-cp38
-
-#python-root: ['cp36-cp36m','cp37-cp37m','cp38-cp38']
-
-# 3.6, 3.7, 3.8
-PYTHON_VERSION="$1"
-
-if [[ "$PYTHON_VERSION" == "3.6" ]]; then
-    PYTHONROOT="/opt/python/cp36-cp36m"
-elif [[ "$PYTHON_VERSION" == "3.7" ]]; then
-    PYTHONROOT="/opt/python/cp37-cp37m"
-elif [[ "$PYTHON_VERSION" == "3.8" ]]; then
-    PYTHONROOT="/opt/python/cp38-cp38"
-fi
-
-echo "PYTHONROOT: " $PYTHONROOT
-
+# Run inside a manylinux image; for example: build-wheel-linux.sh 3.13
+version="${1:?Supply a Python version, for example 3.13}"
+tag="${version//./}"
+python_bin="/opt/python/cp${tag}-cp${tag}/bin/python"
 cd /src
-$PYTHONROOT/bin/python -m pip install . -t .
-
-$PYTHONROOT/bin/python setup.py bdist_wheel
-
-
-for f in dist/*.whl
-do
-    auditwheel repair $f
-done;
+"$python_bin" -m pip wheel --no-deps --wheel-dir dist .
+for wheel in dist/*.whl; do
+    auditwheel repair "$wheel"
+done

@@ -174,8 +174,11 @@ def test_child_failure_stops_comparison(tmp_path, monkeypatch, sources):
 
 def test_git_metadata_comes_from_loaded_tree(tmp_path, monkeypatch):
     seen = []
+    check_output = perf.subprocess.check_output
 
     def git(command, **kwargs):
+        if command[0] != "git":
+            return check_output(command, **kwargs)
         seen.append(kwargs["cwd"])
         return "revision" if command[-1] == "HEAD" else ""
 
