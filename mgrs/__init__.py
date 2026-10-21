@@ -2,7 +2,7 @@ import ctypes
 
 from . import core
 
-__version__ = "1.5.4"
+__version__ = "1.5.5"
 
 
 class MGRS:
