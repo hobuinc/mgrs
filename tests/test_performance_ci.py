@@ -107,12 +107,14 @@ def test_editable_hook_cannot_override_revision(tmp_path, old_source):
     venv.create(env_path, with_pip=False, symlinks=os.name != "nt")
     binary = "Scripts/python.exe" if os.name == "nt" else "bin/python"
     executable = env_path / binary
+    # Use the venv's installation directory: on Debian/Ubuntu, site also
+    # lists dist-packages paths that need not exist in a new environment.
     site_packages = Path(
         subprocess.check_output(
             [
                 str(executable),
                 "-c",
-                "import site; print(site.getsitepackages()[-1])",
+                "import sysconfig; print(sysconfig.get_path('purelib'))",
             ],
             text=True,
         ).strip()
