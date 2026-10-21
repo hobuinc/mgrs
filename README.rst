@@ -130,6 +130,8 @@ arguments in .toMGRS().  Other than that, there isn't too much to it.
 Building from source
 ------------------------------------------------------------------------------
 
+Python 3.11 or later is required.
+
 The build uses scikit-build-core and CMake with a C compiler and a C++17
 compiler. GitHub Actions and the commands below use uv to install Python build
 dependencies and obtain CMake/Ninja when needed::

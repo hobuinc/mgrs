@@ -41,14 +41,14 @@ jobs:
       # On pull_request, github.sha is the proposed merge commit. Test the
       # result contributors intend to merge against the target branch SHA.
       - name: Check out candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           path: candidate
           persist-credentials: false
 
       - name: Check out baseline
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || inputs.baseline_ref || github.event.before || github.event.repository.default_branch }}
           path: baseline

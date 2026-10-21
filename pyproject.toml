@@ -2,7 +2,7 @@
 name = "mgrs"
 description = "MGRS coordinate conversion for Python"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = []
 license = {file = "LICENSE"}
 keywords = ["gis", "coordinate", "conversion"]
@@ -19,8 +19,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
