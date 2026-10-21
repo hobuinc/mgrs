@@ -2,7 +2,7 @@
 
 
 
-python -m pip install pytest numpy
+python -m pip install pytest
 
 for f in wheelhouse/*.whl
 do

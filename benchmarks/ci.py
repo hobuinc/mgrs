@@ -33,6 +33,8 @@ def run_revision(source, dataset, output, repeats):
             str(output),
             "--repeats",
             str(repeats),
+            "--scenario",
+            "auto",
         ],
         cwd=source,
         env=env,
@@ -55,29 +57,39 @@ def combine_runs(runs):
                 raise ValueError(f"revision changed between runs: {key}")
         if report["native_library_sha256"] != first["native_library_sha256"]:
             raise ValueError("native library changed between runs")
-        for operation in perf.OPERATIONS:
-            samples = report["operations"][operation]["seconds"]
-            if len(samples) != report["config"]["repeats"] or not all(
-                math.isfinite(value) and value > 0 for value in samples
-            ):
-                raise ValueError(f"invalid {operation} samples")
+        for group in ("operations", "array_operations"):
+            if (group in report) != (group in first):
+                raise ValueError("array support changed between runs")
+            if group not in report:
+                continue
+            for operation in perf.OPERATIONS:
+                samples = report[group][operation]["seconds"]
+                if len(samples) != report["config"]["repeats"] or not all(
+                    math.isfinite(value) and value > 0 for value in samples
+                ):
+                    raise ValueError(f"invalid {operation} samples")
     combined = copy.deepcopy(first)
     combined["config"]["repeats"] *= len(runs)
     combined["config"]["timing"] += "-abba-pooled-v1"
     combined["run_started_at"] = [report["created_at"] for report in runs]
-    for operation in perf.OPERATIONS:
-        samples = [
-            value
-            for report in runs
-            for value in report["operations"][operation]["seconds"]
-        ]
-        combined["operations"][operation] = perf.summarize(
-            samples, first["dataset"]["count"]
-        )
+    for group in ("operations", "array_operations"):
+        if group not in first:
+            continue
+        for operation in perf.OPERATIONS:
+            samples = [
+                value
+                for report in runs
+                for value in report[group][operation]["seconds"]
+            ]
+            combined[group][operation] = perf.summarize(
+                samples, first["dataset"]["count"]
+            )
+    if "array_operations" in combined:
+        combined["array_speedup"] = perf.array_speedups(combined)
     return combined
 
 
-def summary(base, candidate, comparison, threshold):
+def summary(base, candidate, comparison, threshold, min_speedup=None):
     lines = [
         "## MGRS performance comparison",
         "",
@@ -95,15 +107,33 @@ def summary(base, candidate, comparison, threshold):
         "Time change | Result |",
         "| --- | ---: | ---: | ---: | --- |",
     ]
-    for operation in perf.OPERATIONS:
-        before = base["operations"][operation]["queries_per_second"]
-        after = candidate["operations"][operation]["queries_per_second"]
-        delta = comparison[operation]["change_percent"]
-        status = "FAIL" if comparison[operation]["regression"] else "PASS"
-        lines.append(
-            f"| {operation} | {before:,.0f} | {after:,.0f} | "
-            f"{delta:+.2f}% | {status} |"
-        )
+    for name, change in comparison.items():
+        group = "operations"
+        if name.startswith("array_"):
+            group = "array_operations"
+        operation = name.removeprefix("array_")
+        before = base[group][operation]["queries_per_second"]
+        after = candidate[group][operation]["queries_per_second"]
+        delta = change["change_percent"]
+        status = "FAIL" if change["regression"] else "PASS"
+        row = f"| {name} | {before:,.0f} | {after:,.0f} | "
+        lines.append(row + f"{delta:+.2f}% | {status} |")
+    speedups = perf.array_speedups(candidate)
+    if speedups:
+        lines += ["", "### Candidate array speedup over scalar", ""]
+        if "array_operations" not in base:
+            lines += [
+                "Base revision has no array API; new scenario validated "
+                "against candidate scalar results.",
+                "",
+            ]
+        for operation, speedup in speedups.items():
+            status = "PASS"
+            if min_speedup is not None and speedup < min_speedup:
+                status = "FAIL"
+            lines.append(f"* {operation}: **{speedup:.2f}x** ({status})")
+        if min_speedup is not None:
+            lines += ["", f"Required minimum: {min_speedup:g}x."]
     lines += [
         "",
         "Both revisions passed full round-trip validation. "
@@ -125,6 +155,7 @@ def main(argv=None):
     parser.add_argument("--points", type=perf.positive_int, default=1_000_000)
     parser.add_argument("--repeats", type=perf.positive_int, default=5)
     parser.add_argument("--max-regression", type=perf.percentage, default=10)
+    parser.add_argument("--min-array-speedup", type=perf.positive_float)
     args = parser.parse_args(argv)
     output = args.output.resolve()
     try:
@@ -158,6 +189,9 @@ def main(argv=None):
         perf.write_json(output / "base.json", base)
         perf.write_json(output / "candidate.json", candidate)
         comparison = perf.compare_results(candidate, base, args.max_regression)
+        speedups = perf.array_speedups(candidate)
+        if args.min_array_speedup is not None and not speedups:
+            raise ValueError("candidate must support the array scenario")
         perf.write_json(
             output / "comparison.json",
             {
@@ -165,12 +199,24 @@ def main(argv=None):
                 "order": ORDER,
                 "max_regression_percent": args.max_regression,
                 "operations": comparison,
+                "array_speedup": speedups,
+                "min_array_speedup": args.min_array_speedup,
             },
         )
-        rendered = summary(base, candidate, comparison, args.max_regression)
+        rendered = summary(
+            base,
+            candidate,
+            comparison,
+            args.max_regression,
+            args.min_array_speedup,
+        )
         (output / "summary.md").write_text(rendered)
         print(rendered)
-        return int(any(item["regression"] for item in comparison.values()))
+        regressed = any(item["regression"] for item in comparison.values())
+        if args.min_array_speedup is not None:
+            minimum = args.min_array_speedup
+            regressed |= any(s < minimum for s in speedups.values())
+        return int(regressed)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         (output / "summary.md").write_text(
             "## MGRS performance comparison failed\n\n"

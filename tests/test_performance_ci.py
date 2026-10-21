@@ -184,3 +184,79 @@ def test_git_metadata_comes_from_loaded_tree(tmp_path, monkeypatch):
     assert seen == [tmp_path, tmp_path]
     assert metadata["git_commit"] == "revision"
     assert metadata["source_root"] == str(tmp_path)
+
+
+def with_arrays(value, seconds=0.25):
+    value["array_config"] = {"points_storage": "array('d')", "timing": "array"}
+    value["array_operations"] = {
+        name: perf.summarize([seconds, seconds], 4) for name in perf.OPERATIONS
+    }
+    return value
+
+
+def test_array_regression_and_missing_support(tmp_path):
+    base = with_arrays(report(tmp_path))
+    candidate = copy.deepcopy(base)
+    candidate["array_operations"]["inverse"] = perf.summarize([0.5, 0.5], 4)
+    changes = perf.compare_results(candidate, base, 10)
+    assert changes["array_inverse"]["regression"]
+    assert not changes["array_forward"]["regression"]
+    assert not changes["inverse"]["regression"]
+    with pytest.raises(ValueError, match="no longer supports"):
+        perf.compare_results(report(tmp_path), base, 10)
+    # A base that predates the API still participates in the scalar gate.
+    assert set(perf.compare_results(candidate, report(tmp_path), 10)) == {
+        "forward",
+        "inverse",
+    }
+
+
+def test_array_aggregation_recomputes_speedup(tmp_path):
+    first = with_arrays(report(tmp_path), 0.25)
+    second = with_arrays(report(tmp_path), 0.5)
+    result = ci.combine_runs([first, second])
+    samples = result["array_operations"]["forward"]["seconds"]
+    assert samples == [0.25, 0.25, 0.5, 0.5]
+    assert result["array_speedup"]["forward"] == 1 / 0.375
+
+
+@pytest.mark.parametrize(
+    "seconds,exit_code",
+    [(0.25, 0), (0.75, 1), (None, 2)],
+)
+def test_ci_array_speedup_gate(
+    tmp_path,
+    monkeypatch,
+    sources,
+    seconds,
+    exit_code,
+):
+    base, candidate = sources
+
+    def run(source, dataset, output, repeats):
+        value = report(source)
+        if source == candidate and seconds is not None:
+            with_arrays(value, seconds)
+        return value
+
+    monkeypatch.setattr(ci, "run_revision", run)
+    output = tmp_path / "results"
+    args = [
+        "--base",
+        str(base),
+        "--candidate",
+        str(candidate),
+        "--output",
+        str(output),
+        "--points",
+        "4",
+        "--repeats",
+        "2",
+        "--min-array-speedup",
+        "2",
+    ]
+    assert ci.main(args) == exit_code
+    if seconds is not None:
+        result = json.loads((output / "comparison.json").read_text())
+        assert result["array_speedup"]["forward"] == 1 / seconds
+        assert result["min_array_speedup"] == 2

@@ -89,6 +89,7 @@ jobs:
           python -m benchmarks.ci \
             --base ../baseline --candidate . --output ../performance \
             --points 1000000 --repeats 5 --max-regression 10 \
+            --min-array-speedup 1.5 \
             2>&1 | tee ../performance.log
 
       - name: Publish summary

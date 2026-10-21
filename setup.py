@@ -1,6 +1,7 @@
 from setuptools import Extension, setup
 
 sources = [
+    "libmgrs/batch.c",
     "libmgrs/mgrs.c",
     "libmgrs/utm.c",
     "libmgrs/ups.c",

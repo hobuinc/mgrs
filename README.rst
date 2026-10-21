@@ -140,4 +140,51 @@ over the globe's spherical surface. From a source checkout::
 See `benchmarks/README.rst <benchmarks/README.rst>`_ for dataset generation,
 timing methodology, JSON reports, and regression thresholds.
 
+Array conversion
+------------------------------------------------------------------------------
 
+The batch methods use Python's standard-library ``array.array`` and byte
+buffers. They perform the entire conversion loop in C with one ctypes call::
+
+    from array import array
+    import mgrs
+
+    converter = mgrs.MGRS()
+    points = array("d", [42.0, -93.0, 89.0, 45.0])
+    codes = converter.toMGRSArray(points)       # bytearray, 2 records of 15 bytes
+    decoded = converter.toLatLonArray(codes)   # array('d'), 4 interleaved values
+
+    # Read individual results when Python strings/tuples are needed:
+    first_code = codes[:15].rstrip(b"\0").decode("ascii")
+    first_latlon = tuple(decoded[:2])
+
+``toMGRSArray(points, inDegrees=True, MGRSPrecision=5)`` accepts an
+``array('d')`` containing interleaved latitude,longitude pairs. Compatible
+buffers with native-endian 8-byte doubles and shape ``(2*N,)`` or ``(N, 2)``
+are also supported. It returns a new ``bytearray`` containing one 15-byte
+ASCII record per point, padded with NUL bytes for shorter codes. Full-length
+records do not have a trailing terminator.
+
+``toLatLonArray(codes, inDegrees=True, *, width=15)`` accepts a flat ``bytes``,
+``bytearray``, or compatible byte buffer. Its length must be divisible by the
+record width. The optional ``width`` accepts 1 through 15 bytes for externally
+packed records; outputs from ``toMGRSArray`` always use 15. It returns a new
+``array('d')`` of interleaved latitude,longitude pairs::
+
+    decoded = converter.toLatLonArray(b"15TWG31NEA", width=5)
+
+Inputs must be C-contiguous, and numeric inputs must be aligned for doubles.
+They are read without copying and may be read-only. Use ``memoryview`` for
+views and slices of existing buffers; materialize strided numeric data with
+``array('d', values)`` before conversion. Lists, Unicode strings, and buffers
+with the wrong element type or layout are rejected. Empty inputs work. Buffer
+exports retain the input storage throughout conversion and are released on
+success or failure. Do not mutate input values while conversion is in progress.
+
+Invalid values raise ``mgrs.core.MGRSError`` with the first failing zero-based
+row. No partial output is returned. NaN and infinite coordinates are rejected.
+Latitude warnings are emitted once per batch, identifying the first affected
+row. All scalar and batch conversion methods serialize access to GeoTrans's
+shared projection state. ctypes releases the GIL during conversion, but calls
+from multiple Python threads do not execute the projection code in parallel.
+The batch adapter needs no additional dependencies or third-party array ABI.
