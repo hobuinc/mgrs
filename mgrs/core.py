@@ -2,10 +2,15 @@ import ctypes
 import math
 import os
 import sysconfig
+import threading
 from ctypes.util import find_library
 from warnings import filterwarnings, warn
 
 import packaging.tags
+
+# GeoTrans changes shared projection parameters during every conversion.
+# ctypes releases the GIL, so all public conversion calls share this lock.
+_conversion_lock = threading.RLock()
 
 
 class DeprecatedClassMeta(type):
@@ -330,3 +335,22 @@ rt.Convert_MGRS_To_UTM.argtype = [
 ]
 rt.Convert_MGRS_To_UTM.restype = ctypes.c_long
 rt.Convert_MGRS_To_UTM.errcheck = check_error
+
+rt.Convert_Geodetic_To_MGRS_Array.argtypes = [
+    ctypes.c_void_p,
+    ctypes.c_size_t,
+    ctypes.c_int,
+    ctypes.c_long,
+    ctypes.c_void_p,
+    ctypes.POINTER(ctypes.c_size_t),
+]
+rt.Convert_Geodetic_To_MGRS_Array.restype = ctypes.c_long
+rt.Convert_MGRS_To_Geodetic_Array.argtypes = [
+    ctypes.c_void_p,
+    ctypes.c_size_t,
+    ctypes.c_size_t,
+    ctypes.c_int,
+    ctypes.c_void_p,
+    ctypes.POINTER(ctypes.c_size_t),
+]
+rt.Convert_MGRS_To_Geodetic_Array.restype = ctypes.c_long

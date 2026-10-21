@@ -151,3 +151,39 @@ changes could disproportionately affect those paths: the global aggregate is
 dominated by UTM points and can conceal a polar-only regression. Require review
 of changes to benchmark settings, thresholds, and build flags so a performance
 failure is resolved or deliberately accepted rather than obscured.
+
+Array scenario
+---------------
+
+Measure scalar and array APIs on the same dataset using only standard-library
+arrays and byte buffers::
+
+    python -m benchmarks run --scenario array --min-array-speedup 1.5 \
+        --output benchmarks/results/array.json
+
+This prepares interleaved ``array('d')`` coordinates and 15-byte, NUL-padded
+``bytearray`` records outside timing, then checks **every** forward code and
+inverse coordinate for exact equality with the scalar API. Timed batch passes
+include input validation, output array
+allocation, the native loop, and output disposal. Input preparation, CSV I/O,
+and conversion of byte arrays into Python strings/lists are excluded. The
+reported improvement applies to callers consuming array outputs directly.
+
+Reports include ``array_operations`` (the same sample/median/throughput fields
+as scalar operations), ``array_config`` (buffer types, record width, and
+validation method), and ``array_speedup`` (scalar median time divided by array
+median time). The
+optional minimum-speedup gate returns 1 if either direction falls below the
+requested ratio, and records the requirement and outcome in the JSON report.
+
+CI runs the scenario automatically for revisions that expose both array APIs.
+Its candidate must achieve at least **1.5x** scalar throughput in each direction.
+When both revisions expose the API, batch timings also participate in the
+existing **10% regression gate**. A baseline predating the array API still runs
+the scalar comparison; the summary explicitly identifies that the batch
+baseline is unavailable. Removing an existing array API fails comparison.
+The paired run pools ten batch samples per revision/direction, alongside the
+scalar samples, and publishes both comparisons and the speedup in its summary.
+The ordinary tests verify correctness and gate logic without wall-clock limits.
+Reports from a different buffer layout or timing protocol are rejected as
+incompatible; regenerate both reports with this harness when comparing revisions.

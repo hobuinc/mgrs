@@ -11,6 +11,7 @@ import statistics
 import subprocess
 import sys
 import time
+from array import array
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -188,6 +189,69 @@ def summarize(samples, count):
     }
 
 
+def prepare_arrays(converter, points, codes, precision):
+    """Validate every batch output against the scalar API before timing."""
+    coordinates = array("d", (value for point in points for value in point))
+    records = (code.encode("ascii").ljust(15, b"\0") for code in codes)
+    strings = bytearray().join(records)
+    actual_codes = converter.toMGRSArray(coordinates, MGRSPrecision=precision)
+    if actual_codes != strings:
+        raise ValueError("array forward results differ from scalar results")
+    expected = array(
+        "d", (value for code in codes for value in converter.toLatLon(code))
+    )
+    actual_points = converter.toLatLonArray(strings)
+    if actual_points != expected:
+        raise ValueError("array inverse results differ from scalar results")
+    return (
+        coordinates,
+        strings,
+        {
+            "points_storage": "array('d')",
+            "codes_storage": "bytearray",
+            "code_width": 15,
+            "validation": "all-rows-exact-scalar-equivalence",
+            "timing": "whole-buffer-including-output-allocation-v1",
+        },
+    )
+
+
+def measure_arrays(converter, points, codes, precision, repeats, warmup):
+    converter.toMGRSArray(
+        memoryview(points)[: warmup * 2],
+        MGRSPrecision=precision,
+    )
+    converter.toLatLonArray(memoryview(codes)[: warmup * 15])
+    samples = {operation: [] for operation in OPERATIONS}
+    for repeat in range(repeats):
+        order = OPERATIONS if repeat % 2 == 0 else OPERATIONS[::-1]
+        for operation in order:
+            start = time.perf_counter()
+            if operation == "forward":
+                converter.toMGRSArray(points, MGRSPrecision=precision)
+            else:
+                converter.toLatLonArray(codes)
+            elapsed = time.perf_counter() - start
+            samples[operation].append(elapsed)
+            print(
+                f"array {operation} {repeat + 1}/{repeats}: {elapsed:.3f} s",
+                file=sys.stderr,
+                flush=True,
+            )
+    count = len(points) // 2
+    return {name: summarize(values, count) for name, values in samples.items()}
+
+
+def array_speedups(report):
+    if "array_operations" not in report:
+        return {}
+    return {
+        name: report["operations"][name]["median_seconds"]
+        / report["array_operations"][name]["median_seconds"]
+        for name in OPERATIONS
+    }
+
+
 def measure(converter, points, codes, precision, repeats, warmup):
     forward = converter.toMGRS
     inverse = converter.toLatLon
@@ -259,20 +323,29 @@ def compare_results(current, baseline, max_regression):
     for key in ("python", "implementation", "platform", "machine", "hostname"):
         if current["environment"][key] != previous_environment.get(key):
             raise ValueError(f"baseline environment does not match: {key}")
+    groups = [("", "operations")]
+    if "array_operations" in baseline:
+        if "array_operations" not in current:
+            raise ValueError("candidate no longer supports array conversions")
+        if current.get("array_config") != baseline.get("array_config"):
+            raise ValueError("baseline array configuration does not match")
+        groups.append(("array_", "array_operations"))
     comparisons = {}
-    for operation in OPERATIONS:
-        previous_operation = baseline.get("operations", {}).get(operation, {})
-        previous = previous_operation.get("median_seconds")
-        if not isinstance(previous, (int, float)) or not (
-            math.isfinite(previous) and previous > 0
-        ):
-            raise ValueError(f"invalid {operation} baseline timing")
-        elapsed = current["operations"][operation]["median_seconds"]
-        change = (elapsed / previous - 1) * 100
-        comparisons[operation] = {
-            "change_percent": change,
-            "regression": elapsed > previous * (1 + max_regression / 100),
-        }
+    for prefix, group in groups:
+        for operation in OPERATIONS:
+            name = prefix + operation
+            previous_operation = baseline.get(group, {}).get(operation, {})
+            previous = previous_operation.get("median_seconds")
+            if not isinstance(previous, (int, float)) or not (
+                math.isfinite(previous) and previous > 0
+            ):
+                raise ValueError(f"invalid {name} baseline timing")
+            elapsed = current[group][operation]["median_seconds"]
+            change = (elapsed / previous - 1) * 100
+            comparisons[name] = {
+                "change_percent": change,
+                "regression": elapsed > previous * (1 + max_regression / 100),
+            }
     return comparisons
 
 
@@ -294,6 +367,13 @@ def percentage(value):
     number = float(value)
     if not math.isfinite(number) or number < 0:
         raise argparse.ArgumentTypeError("must be finite and nonnegative")
+    return number
+
+
+def positive_float(value):
+    number = percentage(value)
+    if number == 0:
+        raise argparse.ArgumentTypeError("must be positive")
     return number
 
 
@@ -322,6 +402,10 @@ def main(argv=None):
     run.add_argument("--warmup", type=nonnegative_int, default=10_000)
     run.add_argument("--baseline", type=Path)
     run.add_argument("--max-regression", type=percentage, default=10.0)
+    run.add_argument(
+        "--scenario", choices=("scalar", "array", "auto"), default="scalar"
+    )
+    run.add_argument("--min-array-speedup", type=positive_float)
     args = parser.parse_args(argv)
     try:
         if args.command == "generate":
@@ -350,7 +434,19 @@ def main(argv=None):
             file=sys.stderr,
         )
         converter = mgrs.MGRS()
+        available = hasattr(converter, "toMGRSArray") and hasattr(
+            converter, "toLatLonArray"
+        )
+        use_arrays = args.scenario != "scalar" and available
+        if args.scenario == "array" and not available:
+            raise ValueError("this revision has no array conversion API")
+        if args.min_array_speedup is not None and not use_arrays:
+            raise ValueError("minimum speedup requires the array scenario")
         codes, validation = prepare_workload(converter, points, args.precision)
+        if use_arrays:
+            array_points, array_codes, array_config = prepare_arrays(
+                converter, points, codes, args.precision
+            )
         source_root = Path(mgrs.__file__).resolve().parents[1]
         result = {
             "schema_version": SCHEMA_VERSION,
@@ -375,6 +471,23 @@ def main(argv=None):
             args.repeats,
             result["config"]["warmup"],
         )
+        if use_arrays:
+            result["array_config"] = array_config
+            result["array_operations"] = measure_arrays(
+                converter,
+                array_points,
+                array_codes,
+                args.precision,
+                args.repeats,
+                result["config"]["warmup"],
+            )
+            result["array_speedup"] = array_speedups(result)
+            if args.min_array_speedup is not None:
+                result["array_min_speedup"] = args.min_array_speedup
+                result["array_speedup_pass"] = all(
+                    s >= args.min_array_speedup
+                    for s in result["array_speedup"].values()
+                )
         # Retain the measurement even if the chosen baseline is incompatible.
         write_json(output, result)
         print(f"Results: {output}")
@@ -392,6 +505,10 @@ def main(argv=None):
                 print(f"{operation}: {delta:+.2f}% time ({label})")
             regressed = any(item["regression"] for item in comparison.values())
             write_json(output, result)
+        for operation, speedup in array_speedups(result).items():
+            print(f"array {operation}: {speedup:.2f}x scalar throughput")
+            if args.min_array_speedup is not None:
+                regressed |= speedup < args.min_array_speedup
         return 1 if regressed else 0
     except (OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)

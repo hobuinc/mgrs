@@ -2,7 +2,7 @@ import ctypes
 
 from . import core
 
-__version__ = "1.5.5"
+__version__ = "1.6.0"
 
 
 class MGRS:
@@ -87,9 +87,9 @@ class MGRS:
             lon = longitude
 
         p = ctypes.create_string_buffer(80)
-        core.rt.Convert_Geodetic_To_MGRS(lat, lon, MGRSPrecision, p)
-        c = ctypes.string_at(p)
-        return c.decode("utf-8")
+        with core._conversion_lock:
+            core.rt.Convert_Geodetic_To_MGRS(lat, lon, MGRSPrecision, p)
+        return p.value.decode("utf-8")
 
     def toLatLon(self, MGRS, inDegrees=True):
         plat = ctypes.pointer(ctypes.c_double())
@@ -100,7 +100,8 @@ class MGRS:
         else:
             mgrs = MGRS
         c = ctypes.string_at(mgrs)
-        core.rt.Convert_MGRS_To_Geodetic(c, plat, plon)
+        with core._conversion_lock:
+            core.rt.Convert_MGRS_To_Geodetic(c, plat, plon)
 
         if inDegrees:
             lat = core.TO_DEGREES(plat.contents.value)
@@ -122,7 +123,14 @@ class MGRS:
         easting = ctypes.pointer(ctypes.c_double())
         northing = ctypes.pointer(ctypes.c_double())
 
-        core.rt.Convert_MGRS_To_UTM(mgrs, zone, hemisphere, easting, northing)
+        with core._conversion_lock:
+            core.rt.Convert_MGRS_To_UTM(
+                mgrs,
+                zone,
+                hemisphere,
+                easting,
+                northing,
+            )
 
         return (
             zone.contents.value,
@@ -138,13 +146,37 @@ class MGRS:
             hemisphere = hemisphere.encode("utf-8")
 
         hemisphere = ctypes.c_char(hemisphere)
-        core.rt.Convert_UTM_To_MGRS(
-            zone,
-            hemisphere,
-            ctypes.c_double(easting),
-            ctypes.c_double(northing),
-            MGRSPrecision,
-            mgrs,
-        )
+        with core._conversion_lock:
+            core.rt.Convert_UTM_To_MGRS(
+                zone,
+                hemisphere,
+                ctypes.c_double(easting),
+                ctypes.c_double(northing),
+                MGRSPrecision,
+                mgrs,
+            )
 
         return mgrs.value.decode("utf-8")
+
+    def toMGRSArray(self, points, inDegrees=True, MGRSPrecision=5):
+        """Convert interleaved lat/lon doubles to a bytearray of 15-byte codes.
+
+        Accepts array('d') or compatible contiguous, aligned buffers of shape
+        (2*N,) or (N, 2). Inputs are read without copying. Errors raise
+        MGRSError with the first failing row; partial output is not returned.
+        """
+        from ._array import to_mgrs
+
+        return to_mgrs(points, inDegrees, MGRSPrecision)
+
+    def toLatLonArray(self, codes, inDegrees=True, *, width=15):
+        """Convert fixed-width byte records to interleaved array('d') lat/lon.
+
+        Accepts contiguous bytes, bytearray, or byte memoryviews. Each record
+        contains width ASCII bytes (1..15), NUL-padded for shorter strings.
+        Errors raise MGRSError with the first failing row. Latitude warnings
+        are reported once per batch, identifying the first affected row.
+        """
+        from ._array import to_latlon
+
+        return to_latlon(codes, inDegrees, width)
