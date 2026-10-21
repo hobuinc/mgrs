@@ -24,8 +24,13 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - name: Set up uv
+      uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa # v10.3.1
+      with:
+        version: '0.13.4'
+
     - name: Build wheels
-      uses: pypa/cibuildwheel@v3.3.1
+      run: uv tool run --python 3.13 --from cibuildwheel==3.3.1 cibuildwheel --output-dir wheelhouse
 
     - uses: actions/upload-artifact@v6
       with:
@@ -38,8 +43,14 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - name: Set up uv
+      uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa # v10.3.1
+      with:
+        version: '0.13.4'
+        python-version: '3.13'
+
     - name: Build sdist
-      run: pipx run build --sdist
+      run: uv build --sdist
 
     - uses: actions/upload-artifact@v6
       with:

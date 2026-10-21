@@ -59,6 +59,7 @@ field = "version"
 input = "mgrs/__init__.py"
 
 [tool.cibuildwheel]
+build-frontend = "build[uv]"
 test-requires = "pytest"
 test-command = "python -m pytest tests --doctest-glob='*.txt'"
 test-sources = ["tests", "benchmarks"]

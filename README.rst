@@ -131,19 +131,23 @@ Building from source
 ------------------------------------------------------------------------------
 
 The build uses scikit-build-core and CMake with a C compiler and a C++17
-compiler. pip installs the Python build dependencies and obtains CMake/Ninja
-when needed::
+compiler. GitHub Actions and the commands below use uv to install Python build
+dependencies and obtain CMake/Ninja when needed::
 
-    python -m pip install .
+    uv venv
+    . .venv/bin/activate
+    uv pip install .
     # Development install:
-    python -m pip install -e .
-    python -m pip install pytest
+    uv pip install -e . pytest
     python -m pytest tests --doctest-glob='*.txt'
 
 To produce both source and wheel distributions::
 
-    python -m pip install build
-    python -m build
+    uv build
+
+Install uv using https://docs.astral.sh/uv/getting-started/installation/.
+On Windows, activate with ``.venv\Scripts\activate`` instead. Standard PEP 517
+frontends such as pip can also build and install the package.
 
 ``CMakeLists.txt`` defines a position-independent static ``mgrs_core`` library
 and the ``mgrs._native`` pybind11 extension. Only the extension and Python

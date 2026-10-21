@@ -3,7 +3,9 @@ Performance tests
 
 Run these commands from the repository root, with the local extension built::
 
-    python -m pip install -e .
+    uv venv
+    . .venv/bin/activate
+    uv pip install -e .
     python -m benchmarks generate
     python -m benchmarks run --output benchmarks/results/baseline.json
     # After making a change, using the same interpreter and machine:
@@ -90,10 +92,14 @@ Both revisions are built from source on one ``ubuntu-24.04`` runner, with
 Python 3.13, identical compiler flags, and the pinned dependencies in
 ``requirements-ci.txt``. The workflow builds both before timing and does not
 reuse cached native binaries or historical timings. Both revisions are built
-through their PEP 517 wheel backends, then only the native binaries are placed
-in their respective source trees. This supports historical setuptools/ctypes
-builds and scikit-build-core/pybind11 builds without competing editable installs. Each child process loads
-only its selected source tree, and its report verifies that import location.
+with ``uv build`` through their PEP 517 wheel backends, then only the native
+binaries are placed in their respective source trees. This supports historical
+setuptools/ctypes builds and scikit-build-core/pybind11 builds without competing
+editable installs.
+Each child process disables site initialization with ``python -S`` so installed
+editable import hooks cannot redirect it to another checkout. Site-package
+directories remain available as ordinary import paths for baseline dependencies,
+after the requested source tree. The report verifies that import location.
 The candidate's harness measures both revisions, so older baselines do not
 need to contain benchmark code. Review changes to the harness and workflow
 alongside changes to the library.
@@ -127,7 +133,9 @@ through job summaries and artifacts without posting PR comments.
 
 Local reproduction with two checkouts::
 
-    python -m pip install -r benchmarks/requirements-ci.txt
+    uv venv
+    . .venv/bin/activate
+    uv pip install -r benchmarks/requirements-ci.txt
     python -m benchmarks.build --source /path/to/base
     python -m benchmarks.build --source /path/to/candidate
 

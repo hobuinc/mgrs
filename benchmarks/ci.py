@@ -5,6 +5,7 @@ import copy
 import json
 import math
 import os
+import site
 import subprocess
 import sys
 from pathlib import Path
@@ -18,13 +19,16 @@ def run_revision(source, dataset, output, repeats):
     """Use this harness for both revisions, even if the base predates it."""
     source = Path(source).resolve()
     env = os.environ.copy()
-    # Run the script directly: its sys.path[0] is benchmarks/, not the
-    # candidate checkout. The requested source tree supplies the mgrs import.
-    env["PYTHONPATH"] = str(source)
+    # Skip site initialization so editable-install .pth hooks cannot redirect
+    # mgrs to another checkout. Add site-package directories as ordinary paths
+    # for historical runtime dependencies (such as packaging), without running
+    # their .pth files. The requested source tree always comes first.
+    env["PYTHONPATH"] = os.pathsep.join([str(source), *site.getsitepackages()])
     env["PYTHONNOUSERSITE"] = "1"
     subprocess.run(
         [
             sys.executable,
+            "-S",
             str(Path(perf.__file__).resolve()),
             "run",
             "--dataset",

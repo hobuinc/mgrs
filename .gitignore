@@ -1,5 +1,6 @@
 *.pyc
 build/
+.venv/
 libmgrs.so
 mgrs.egg-info/
 dist/

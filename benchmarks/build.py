@@ -35,14 +35,14 @@ def build_revision(source):
     with tempfile.TemporaryDirectory(prefix="mgrs-wheel-") as directory:
         subprocess.run(
             [
+                "uv",
+                "build",
+                "--wheel",
+                "--python",
                 sys.executable,
-                "-m",
-                "pip",
-                "wheel",
-                "--no-deps",
                 "--no-build-isolation",
-                "--no-cache-dir",
-                "--wheel-dir",
+                "--no-cache",
+                "--out-dir",
                 directory,
                 str(source),
             ],
