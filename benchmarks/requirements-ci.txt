@@ -1,0 +1,4 @@
+# Both revisions use these exact build/test dependencies in one environment.
+packaging==26.3
+setuptools==84.2.1
+pytest==9.1.1
