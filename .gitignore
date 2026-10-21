@@ -3,3 +3,5 @@ build/
 libmgrs.so
 mgrs.egg-info/
 dist/
+benchmarks/data/
+benchmarks/results/

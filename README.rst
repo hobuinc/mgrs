@@ -126,4 +126,18 @@ In a nutshell::
 You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.
 
+Performance testing
+------------------------------------------------------------------------------
+
+The opt-in benchmark harness measures forward and inverse conversions over
+a reproducible, randomized dataset of one million points distributed uniformly
+over the globe's spherical surface. From a source checkout::
+
+    python -m benchmarks generate
+    python -m benchmarks run --output benchmarks/results/baseline.json
+    python -m benchmarks run --baseline benchmarks/results/baseline.json
+
+See `benchmarks/README.rst <benchmarks/README.rst>`_ for dataset generation,
+timing methodology, JSON reports, and regression thresholds.
+
 
