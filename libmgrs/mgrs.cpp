@@ -1,4 +1,5 @@
-// C API adapter for the unmodified NGA GEOTRANS 3.10 implementation.
+// C API adapter for NGA GEOTRANS 3.10; local changes are documented in
+// geotrans3.10/README.rst.
 // Callers serialize access, including Set/Get_MGRS_Parameters. The Python
 // extension holds its projection mutex for all scalar and batch calls.
 #include "mgrs.h"

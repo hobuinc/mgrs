@@ -188,6 +188,8 @@ See `benchmarks/README.rst <benchmarks/README.rst>`_ for dataset generation,
 timing methodology, JSON reports, and regression thresholds.
 See `benchmarks/pybind11.rst <benchmarks/pybind11.rst>`_ for the measured
 comparison with the previous ctypes binding.
+See `benchmarks/geotrans310-forward.rst <benchmarks/geotrans310-forward.rst>`_
+for the fixed million-point dataset and GEOTRANS 3.10 forward optimization.
 
 Array conversion
 ------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# The vendored sources are unchanged from the NGA archive.
+# Source provenance and local changes are documented in geotrans3.10/README.rst.
 add_library(geotrans310 STATIC
     geotrans3.10/CoordinateSystemParameters/CoordinateSystemParameters.cpp
     geotrans3.10/CoordinateSystemParameters/EllipsoidParameters.cpp
