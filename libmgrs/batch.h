@@ -12,7 +12,8 @@ extern "C" {
  * Forward input/output: count * 2 doubles / count * 15 bytes.
  * Inverse input/output: count * width bytes / count * 2 doubles.
  * Returns the first error (stopping immediately), or accumulated warnings.
- * index identifies the failed row or first warning row. No per-row allocation.
+ * index identifies the failed row or first warning row. The adapter reuses
+ * its buffers; GEOTRANS allocates intermediate coordinate objects per row.
  */
 long USE_DLL Convert_Geodetic_To_MGRS_Array(
     const double *points, size_t count, int degrees, long precision,

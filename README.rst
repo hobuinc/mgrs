@@ -3,12 +3,21 @@
 mgrs: Converting to and from MGRS and Decimal Degrees
 ------------------------------------------------------------------------------
 
-GeoTrans_ provides C code for converting to and from MGRS, but well, it's
-C code :). This package exposes scalar and batch GeoTrans_ conversions through
-a pybind11_ extension. The C kernels are linked statically into that extension;
-no separate libmgrs shared library or runtime Python dependencies are needed.
+This package exposes scalar and batch GeoTrans_ conversions through
+a pybind11_ extension. The GEOTRANS 3.10 C++ implementation is linked statically
+into that extension; no separate libmgrs shared library or runtime Python
+dependencies are needed.
 
-This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
+The MGRS, UTM, UPS, Transverse Mercator and Polar Stereographic sources are
+vendored from NGA's GEOTRANS 3.10 distribution. Source provenance and hashes
+are recorded in ``libmgrs/geotrans3.10/SOURCE.json``.
+
+Inverse conversion returns the center of the MGRS grid cell. Compared with
+the previous GEOTRANS 2.4.2 implementation, this adds half the cell width
+to both grid coordinates: 0.5 metres at precision 5, up to 50,000 metres at
+precision 0. Projection algorithms, zone handling and input validation also
+differ. Existing test expectations are retained during this migration so
+these behavioral changes remain visible.
 
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`pybind11`: https://pybind11.readthedocs.io/
