@@ -151,6 +151,11 @@ Install uv using https://docs.astral.sh/uv/getting-started/installation/.
 On Windows, activate with ``.venv\Scripts\activate`` instead. Standard PEP 517
 frontends such as pip can also build and install the package.
 
+CI pins uv and cibuildwheel in ``ci/requirements.txt``. Dependabot checks
+GitHub Actions daily and Python dependencies weekly, including the build
+requirements in ``pyproject.toml`` and the pins in ``ci/requirements.txt``
+and ``benchmarks/requirements-ci.txt``.
+
 ``CMakeLists.txt`` defines a position-independent static ``mgrs_core`` library
 and the ``mgrs._native`` pybind11 extension. Only the extension and Python
 package are installed. CMake's normal compiler selection, toolchain files,

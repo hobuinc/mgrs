@@ -44,7 +44,7 @@ wheel.packages = ["mgrs"]
 # Ship source and tooling only, never scratch files or generated binaries/data.
 sdist.include = [
     "/CMakeLists.txt", "/pyproject.toml", "/README.rst", "/LICENSE",
-    "/tox.ini", "/.gitignore", "/.github/**/*.yml", "/ci/*.sh", "/ci/*.bat",
+    "/tox.ini", "/.gitignore", "/.github/**/*.yml", "/ci/*.sh", "/ci/*.bat", "/ci/*.txt",
     "/mgrs/*.py", "/src/*.cpp", "/libmgrs/*.c", "/libmgrs/*.h",
     "/tests/*.py", "/tests/*.txt", "/benchmarks/*.py", "/benchmarks/*.rst",
     "/benchmarks/requirements-ci.txt",
