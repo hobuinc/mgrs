@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "sampling": "jittered-equal-area-sphere-v1",
+  "count": 1000000,
+  "seed": 20261022,
+  "latitude_bands": 1000,
+  "longitude_cells": 1000,
+  "sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1"
+}

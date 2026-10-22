@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "dataset": {
+    "schema_version": 1,
+    "sampling": "jittered-equal-area-sphere-v1",
+    "count": 1000000,
+    "seed": 20261022,
+    "latitude_bands": 1000,
+    "longitude_cells": 1000,
+    "sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1"
+  },
+  "environment": {
+    "cpu": "Apple M4 Max",
+    "python": "3.12.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+    "compile_flags": "-O3 -DNDEBUG",
+    "lto": false,
+    "pybind11": "3.1.0",
+    "scikit_build_core": "1.1.1"
+  },
+  "method": {
+    "order": [
+      "legacy",
+      "base",
+      "candidate",
+      "candidate",
+      "base",
+      "legacy"
+    ],
+    "precision": 5,
+    "samples_per_process": 5,
+    "pooled_samples_per_backend_and_operation": 10,
+    "warmup": 10000,
+    "timing": "serial-public-api-including-output-allocation",
+    "legacy_inverse_comparison": false
+  },
+  "validation": {
+    "precisions": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "exact_forward_matches_per_api": 6000000,
+    "exact_inverse_coordinate_pairs": 1000000,
+    "packed_forward_sha256": {
+      "0": "67718fa5e3ea8269a68d5f318577f45b32ac949441e9c795e2d2df9518a2b465",
+      "1": "1d7ac5806201ed84c553c37f3159d8cb16ca2615b4892992061bf8c63370ec4c",
+      "2": "400efa7c9a98525a60967e1785f4011d15ce71b8a23f743206d0058a5ead8314",
+      "3": "0626d7ecf333e16f221d4cbf9cfd76fb038a5d076453c97c0806983c734c1537",
+      "4": "c3563beef5602c4aa2da05af776f17591dd24a3fb84aa0cb5a6d4a962c4ab5a7",
+      "5": "19e101af5a7b204341ae618924372a5e82d14533962d1e73438a74859847e374"
+    },
+    "packed_inverse_sha256": "d5f4f6c6972b50e8c58b3ec8a75420047690bb72e5234dc6af5ad361fcac7023",
+    "inverse_inputs_sha256": "d2d5b052b010ca9f82a13db99543898cf3004ccf60aea36384ad33cbc3b276d6",
+    "coverage": {
+      "utm": 989685,
+      "ups_north": 2736,
+      "ups_south": 7579
+    },
+    "max_round_trip_error_metres": 0.7074648694134353,
+    "round_trip_tolerance_metres": 3
+  },
+  "backends": {
+    "legacy": {
+      "base_commit": "c8d6e5775f00643b1e2e761f3aae14e2df94d42d",
+      "modified": false,
+      "native_library_sha256": "ce2e52f1b50118c65b4761a78870a245a1afb9e86efc83a7082eff3cd587f624",
+      "scalar_forward": {
+        "seconds": [
+          0.5847335408907384,
+          0.5969812499824911,
+          0.5920936660841107,
+          0.5869618749711663,
+          0.5841191250365227,
+          0.5873469589278102,
+          0.5845042089931667,
+          0.5834131659939885,
+          0.5902713751420379,
+          0.5881494579371065
+        ],
+        "median_seconds": 0.5871544169494882,
+        "min_seconds": 0.5834131659939885,
+        "max_seconds": 0.5969812499824911,
+        "queries_per_second": 1703129.4854178505,
+        "microseconds_per_query": 0.5871544169494882
+      },
+      "batch_forward": {
+        "seconds": [
+          0.3326472910121083,
+          0.3302291671279818,
+          0.32905629090964794,
+          0.3286414579488337,
+          0.32847504201345146,
+          0.32898537488654256,
+          0.3306394999381155,
+          0.3329277921002358,
+          0.3308597079012543,
+          0.328139667166397
+        ],
+        "median_seconds": 0.32964272901881486,
+        "min_seconds": 0.328139667166397,
+        "max_seconds": 0.3329277921002358,
+        "queries_per_second": 3033587.311258194,
+        "microseconds_per_query": 0.32964272901881486
+      }
+    },
+    "base": {
+      "base_commit": "e614372234ab23675643ac6de5e655913bc40b49",
+      "modified": false,
+      "native_library_sha256": "e47431bade894cb84adb16d8b999db89edf6c36849f38ff1bec0cdbbdedf386b",
+      "scalar_forward": {
+        "seconds": [
+          0.6703307921998203,
+          0.6668193750083447,
+          0.6638222080655396,
+          0.6558673749677837,
+          0.6566608340945095,
+          0.6614283751696348,
+          0.6511111659929156,
+          0.6598110829945654,
+          0.6456695001106709,
+          0.648819874972105
+        ],
+        "median_seconds": 0.6582359585445374,
+        "min_seconds": 0.6456695001106709,
+        "max_seconds": 0.6703307921998203,
+        "queries_per_second": 1519212.0500544459,
+        "microseconds_per_query": 0.6582359585445374
+      },
+      "batch_forward": {
+        "seconds": [
+          0.3829728339333087,
+          0.3820512918755412,
+          0.38137187506072223,
+          0.38123283395543694,
+          0.38109562499448657,
+          0.3919669580645859,
+          0.3810159999411553,
+          0.38410079083405435,
+          0.3797914159949869,
+          0.3810939590912312
+        ],
+        "median_seconds": 0.3813023545080796,
+        "min_seconds": 0.3797914159949869,
+        "max_seconds": 0.3919669580645859,
+        "queries_per_second": 2622590.676866147,
+        "microseconds_per_query": 0.3813023545080796
+      },
+      "scalar_inverse": {
+        "seconds": [
+          0.9274877090938389,
+          0.9160027080215514,
+          0.9115957499016076,
+          0.912447249982506,
+          0.9109351669903845,
+          0.905712875071913,
+          0.9156032500322908,
+          0.9483953330200166,
+          0.9246641658246517,
+          0.9407046250998974
+        ],
+        "median_seconds": 0.9158029790269211,
+        "min_seconds": 0.905712875071913,
+        "max_seconds": 0.9483953330200166,
+        "queries_per_second": 1091937.919947085,
+        "microseconds_per_query": 0.9158029790269211
+      },
+      "batch_inverse": {
+        "seconds": [
+          0.7830957910045981,
+          0.7824299999047071,
+          0.7889284167904407,
+          0.7877309999894351,
+          0.7857067920267582,
+          0.8177365830633789,
+          0.7983897919766605,
+          0.7871723750140518,
+          0.7823170840274543,
+          0.7942444588989019
+        ],
+        "median_seconds": 0.7874516875017434,
+        "min_seconds": 0.7823170840274543,
+        "max_seconds": 0.8177365830633789,
+        "queries_per_second": 1269919.1783721792,
+        "microseconds_per_query": 0.7874516875017434
+      }
+    },
+    "candidate": {
+      "base_commit": "e614372234ab23675643ac6de5e655913bc40b49",
+      "modified": true,
+      "native_library_sha256": "6270560009fc93007dd756c041ce3c7f898953e93c93149c5a2cc03d6d5e63c6",
+      "scalar_forward": {
+        "seconds": [
+          0.5789643751922995,
+          0.5707608750090003,
+          0.5617927080020308,
+          0.5723492500837892,
+          0.5653617910575122,
+          0.5732103339396417,
+          0.5686214591842145,
+          0.5637459999416023,
+          0.5657076670322567,
+          0.5673161658924073
+        ],
+        "median_seconds": 0.5679688125383109,
+        "min_seconds": 0.5617927080020308,
+        "max_seconds": 0.5789643751922995,
+        "queries_per_second": 1760660.053728826,
+        "microseconds_per_query": 0.5679688125383109
+      },
+      "batch_forward": {
+        "seconds": [
+          0.28734787506982684,
+          0.29040237492881715,
+          0.2906518329400569,
+          0.28985262499190867,
+          0.2874054580461234,
+          0.28674537502229214,
+          0.2902503330260515,
+          0.2872238331474364,
+          0.28614895790815353,
+          0.28426395799033344
+        ],
+        "median_seconds": 0.2873766665579751,
+        "min_seconds": 0.28426395799033344,
+        "max_seconds": 0.2906518329400569,
+        "queries_per_second": 3479753.634758864,
+        "microseconds_per_query": 0.2873766665579751
+      },
+      "scalar_inverse": {
+        "seconds": [
+          0.9239312920253724,
+          0.9217714590486139,
+          0.9201682501006871,
+          0.9101539580151439,
+          0.9108807079028338,
+          0.9161399169825017,
+          0.9082739579025656,
+          0.905475249979645,
+          0.9096224580425769,
+          0.9119202909059823
+        ],
+        "median_seconds": 0.911400499404408,
+        "min_seconds": 0.905475249979645,
+        "max_seconds": 0.9239312920253724,
+        "queries_per_second": 1097212.4775589777,
+        "microseconds_per_query": 0.911400499404408
+      },
+      "batch_inverse": {
+        "seconds": [
+          0.791859082877636,
+          0.7883288748562336,
+          0.8016955421771854,
+          0.7887282089795917,
+          0.7896062908694148,
+          0.7807981669902802,
+          0.7858800410758704,
+          0.7833201671019197,
+          0.7795513749588281,
+          0.7821881251875311
+        ],
+        "median_seconds": 0.787104457966052,
+        "min_seconds": 0.7795513749588281,
+        "max_seconds": 0.8016955421771854,
+        "queries_per_second": 1270479.400642818,
+        "microseconds_per_query": 0.787104457966052
+      },
+      "mgrs_cpp_sha256": "faff97e4a9892da388eb4bf5b5bd7fcd47b56c631cc1c566d4ef6f2a9c00b5c3"
+    }
+  },
+  "comparison_to_unmodified_310": {
+    "forward": {
+      "change_percent": -13.713493593668346,
+      "regression": false
+    },
+    "inverse": {
+      "change_percent": -0.4807234441616348,
+      "regression": false
+    },
+    "array_forward": {
+      "change_percent": -24.632863353618294,
+      "regression": false
+    },
+    "array_inverse": {
+      "change_percent": -0.044095344667183234,
+      "regression": false
+    }
+  },
+  "forward_comparison": {
+    "operations": {
+      "median_seconds": {
+        "legacy": 0.5871544169494882,
+        "base": 0.6582359585445374,
+        "candidate": 0.5679688125383109
+      },
+      "candidate_vs_base_time_percent": -13.713493593668346,
+      "candidate_vs_legacy_time_percent": -3.2675568568238944
+    },
+    "array_operations": {
+      "median_seconds": {
+        "legacy": 0.32964272901881486,
+        "base": 0.3813023545080796,
+        "candidate": 0.2873766665579751
+      },
+      "candidate_vs_base_time_percent": -24.632863353618294,
+      "candidate_vs_legacy_time_percent": -12.821779077804973
+    }
+  }
+}
