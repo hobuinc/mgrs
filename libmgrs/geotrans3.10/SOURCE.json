@@ -1,0 +1,232 @@
+{
+  "distribution": "GEOTRANS 3.10",
+  "archive": "geotrans-download.tgz",
+  "archive_sha256": "c789647b54a8319385d5384f3e3dfacba3ecc28c64f443f0e520a46540f21a6d",
+  "files": [
+    {
+      "path": "CoordinateSystems/mgrs/MGRS.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/mgrs/MGRS.cpp",
+      "sha256": "8e5e5283b8025d94ae6067e9df7b1e0117249986fe5c0a0474ce2f9b2a934ec4"
+    },
+    {
+      "path": "CoordinateSystems/mgrs/MGRS.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/mgrs/MGRS.h",
+      "sha256": "2badcbdd687577d3d3bc77fe3325cce721e32f6144da724d54055c73407bb9bd"
+    },
+    {
+      "path": "CoordinateSystems/misc/CoordinateSystem.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/misc/CoordinateSystem.cpp",
+      "sha256": "fa6470a8e2f183686e230c9afe5dfd0c0d14237894f984ba3396e96af7e9cdf3"
+    },
+    {
+      "path": "CoordinateSystems/misc/CoordinateSystem.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/misc/CoordinateSystem.h",
+      "sha256": "08a9cf7b2106aea2ae7aa5ab85eae75dd23f01b00fca0f159c901a5b9d283bfb"
+    },
+    {
+      "path": "CoordinateSystems/polarst/PolarStereographic.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/polarst/PolarStereographic.cpp",
+      "sha256": "4cade7e3b1026978f11d9a97bd43f2d1f07ad5e3955ec556a93fe78c7a2da78d"
+    },
+    {
+      "path": "CoordinateSystems/polarst/PolarStereographic.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/polarst/PolarStereographic.h",
+      "sha256": "3b57257c57e1a3c511d250efe0d0ded9973a9687b99a7333a7f6da2d4ff881f0"
+    },
+    {
+      "path": "CoordinateSystems/tranmerc/TransverseMercator.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/tranmerc/TransverseMercator.cpp",
+      "sha256": "7668d345e414c8e13069883a13d74d119d2c75b3042e3339433c58cc201162b0"
+    },
+    {
+      "path": "CoordinateSystems/tranmerc/TransverseMercator.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/tranmerc/TransverseMercator.h",
+      "sha256": "52706690de54e980fab8a3a09d6b259ad2c3db271a52b55e0a7f6b5f1c14ee4e"
+    },
+    {
+      "path": "CoordinateSystems/ups/UPS.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/ups/UPS.cpp",
+      "sha256": "29bb4ba79072a68618e3f5ed8dfd18d08f3cae9537e0cd92c3bf33e94d62ac54"
+    },
+    {
+      "path": "CoordinateSystems/ups/UPS.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/ups/UPS.h",
+      "sha256": "235c818b2bc0ed677621ec519241cd01483af044edbb48165051336c9a50323b"
+    },
+    {
+      "path": "CoordinateSystems/utm/UTM.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/utm/UTM.cpp",
+      "sha256": "83d59d428022a5836a606655a2383f8d6a8f52fd27923e3eeb9f2c8b58125e5d"
+    },
+    {
+      "path": "CoordinateSystems/utm/UTM.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystems/utm/UTM.h",
+      "sha256": "3bef4d4385faa3b03d26ab76a87585df5d3e000e9e4e15926798289b73973a38"
+    },
+    {
+      "path": "CoordinateSystemParameters/CoordinateSystemParameters.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/CoordinateSystemParameters.cpp",
+      "sha256": "375ca6c0723f301d5eb37fe6fd4ba8982468c16ff0b8c1cca452f02e9b6a5233"
+    },
+    {
+      "path": "CoordinateSystemParameters/CoordinateSystemParameters.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/CoordinateSystemParameters.h",
+      "sha256": "fa501bacecb739ad6a096bbb4e55267e57db599fabb025937f3a56d71fee2cb4"
+    },
+    {
+      "path": "CoordinateSystemParameters/EllipsoidParameters.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/EllipsoidParameters.cpp",
+      "sha256": "6c16afc658a5d214de510c30a3c18cdb40292c380b43c01aaace8c1cc30ba081"
+    },
+    {
+      "path": "CoordinateSystemParameters/EllipsoidParameters.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/EllipsoidParameters.h",
+      "sha256": "f760a59163db355ffe0c347cf185ebc557f870320bfd49690bb509eabcc050ac"
+    },
+    {
+      "path": "CoordinateSystemParameters/MapProjection5Parameters.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/MapProjection5Parameters.cpp",
+      "sha256": "48752513f0cc692318bd069f92e5f9204c88a3be490f1dda35d8e47d9c46cc5a"
+    },
+    {
+      "path": "CoordinateSystemParameters/MapProjection5Parameters.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/MapProjection5Parameters.h",
+      "sha256": "754548276b7b167d8520f22fa8c11d644ecde0dae58abe811e109fc9f1821464"
+    },
+    {
+      "path": "CoordinateSystemParameters/PolarStereographicScaleFactorParameters.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/PolarStereographicScaleFactorParameters.cpp",
+      "sha256": "3e3915e3a3eb4feeebca4ecc6fd5cf7423bff1e1f41a3b5e4bcb9de28abbcfd5"
+    },
+    {
+      "path": "CoordinateSystemParameters/PolarStereographicScaleFactorParameters.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/PolarStereographicScaleFactorParameters.h",
+      "sha256": "469213ded2be865dfd00ac3a9b86486781b0427c8b4f7ffe3362ed1502b64ee0"
+    },
+    {
+      "path": "CoordinateSystemParameters/PolarStereographicStandardParallelParameters.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/PolarStereographicStandardParallelParameters.cpp",
+      "sha256": "f5cc589524627f21039ec20c83b365aa69da775b8161463d257a951d43a3d040"
+    },
+    {
+      "path": "CoordinateSystemParameters/PolarStereographicStandardParallelParameters.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/PolarStereographicStandardParallelParameters.h",
+      "sha256": "f96f572a9a25ccb357378e7ef5b7ffcf2773433d1f537e07b2b11108276d9bb1"
+    },
+    {
+      "path": "CoordinateSystemParameters/UTMParameters.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/UTMParameters.cpp",
+      "sha256": "d177a77f3b8afbf4bccbf23158a322a92411f29e648afc0b048eed08c42c37f1"
+    },
+    {
+      "path": "CoordinateSystemParameters/UTMParameters.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateSystemParameters/UTMParameters.h",
+      "sha256": "2486ba7b15f83a5d68b463bff06953650f321d676e086c21b4ff2c4492c5e1dd"
+    },
+    {
+      "path": "CoordinateTuples/CoordinateTuple.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/CoordinateTuple.cpp",
+      "sha256": "0d880efb6445240fa94dd5425565580fcd9b22bb26bd581d4e37dad059fedfee"
+    },
+    {
+      "path": "CoordinateTuples/CoordinateTuple.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/CoordinateTuple.h",
+      "sha256": "0b5744eb42c50ae9b7e9dd5f70128399fe3ec78e5a2b490d2b124f72441c759a"
+    },
+    {
+      "path": "CoordinateTuples/GeodeticCoordinates.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/GeodeticCoordinates.cpp",
+      "sha256": "82f88ab58c87e42b08f3bb65a0cde923ffec70f6d0eeeb53a90c851a6183e0e5"
+    },
+    {
+      "path": "CoordinateTuples/GeodeticCoordinates.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/GeodeticCoordinates.h",
+      "sha256": "4f94a2486c0def7b4c26b8a817536c4c6a1c69cf7c00070a443ddd890a3195fe"
+    },
+    {
+      "path": "CoordinateTuples/MGRSorUSNGCoordinates.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/MGRSorUSNGCoordinates.cpp",
+      "sha256": "1c8c9bcdf0c252f8af0a9b3a0a073411ae00d13cdbc5069372cf9a16b9607518"
+    },
+    {
+      "path": "CoordinateTuples/MGRSorUSNGCoordinates.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/MGRSorUSNGCoordinates.h",
+      "sha256": "1ad7129dcfd9ea76042cfcbf153c2adce08edbd1d69a5f26ab29485eeef46a4c"
+    },
+    {
+      "path": "CoordinateTuples/MapProjectionCoordinates.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/MapProjectionCoordinates.cpp",
+      "sha256": "6dca1241c6b24d67fe800553c78d81b2955bb999af3537bd0ce5823b661b8a19"
+    },
+    {
+      "path": "CoordinateTuples/MapProjectionCoordinates.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/MapProjectionCoordinates.h",
+      "sha256": "8c5639ef904164a35ceb14489e27a767f1499a5e246e662f963fa27afb685287"
+    },
+    {
+      "path": "CoordinateTuples/UPSCoordinates.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/UPSCoordinates.cpp",
+      "sha256": "e973c968f4d929eeff999b55cbbc65c6b30d9aa8213a3a1ca64877d99c87354a"
+    },
+    {
+      "path": "CoordinateTuples/UPSCoordinates.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/UPSCoordinates.h",
+      "sha256": "182da1d7a46a91801894a50217b4de61afa8b329263bc2f5406cf107c137955c"
+    },
+    {
+      "path": "CoordinateTuples/UTMCoordinates.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/UTMCoordinates.cpp",
+      "sha256": "b521c839ac356a30a938ba85ab63dd23f50d0bac43321d4bcbe185e78bb43325"
+    },
+    {
+      "path": "CoordinateTuples/UTMCoordinates.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/CoordinateTuples/UTMCoordinates.h",
+      "sha256": "4c0568fc8a4a986da2531582207c2954f169decbf4883aded422a8eeed7a9f70"
+    },
+    {
+      "path": "DtccApi.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/DtccApi.h",
+      "sha256": "c432135be2dc0026b1130f22708ed2c1a312370167505b53291b92bb2a43333f"
+    },
+    {
+      "path": "Enumerations/CoordinateType.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Enumerations/CoordinateType.h",
+      "sha256": "44ec1d4ad812eca2f776775d760d702e42a9c2d73734ab2816faa8468150b978"
+    },
+    {
+      "path": "Enumerations/Precision.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Enumerations/Precision.h",
+      "sha256": "2ced01bda41afd649f2099176bcc75bbfc35078e57112b7389e4fba357a68b05"
+    },
+    {
+      "path": "Exception/CoordinateConversionException.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Exception/CoordinateConversionException.h",
+      "sha256": "0984fb27dc4f4af85124d4a2fed7c8fc7ba5c8a7813b3f885e29d017d13d576b"
+    },
+    {
+      "path": "Exception/ErrorMessages.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Exception/ErrorMessages.cpp",
+      "sha256": "138d106ad0f475ab6445ac737efdc99311f9e7a92f0f62e8ac50923ad539af3b"
+    },
+    {
+      "path": "Exception/ErrorMessages.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Exception/ErrorMessages.h",
+      "sha256": "f537e32f18e4c7209986778268c0d404adfbfe54a0f19eab559e4b22b49aa797"
+    },
+    {
+      "path": "Exception/WarningMessages.cpp",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Exception/WarningMessages.cpp",
+      "sha256": "acc5288b59d3f96d7551ee43d6dda10ed31cb82d45105d5691f364ea8e591e78"
+    },
+    {
+      "path": "Exception/WarningMessages.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/Exception/WarningMessages.h",
+      "sha256": "0503ed373030e51e34d13630844c23f8f6d72a39c6fcee8810c32ac15ca446e3"
+    },
+    {
+      "path": "GeotransConstants.h",
+      "archive_member": "geotrans3.10/CCS/src/dtcc/GeotransConstants.h",
+      "sha256": "d926c1e7c5e63342fc52bc8491f27ea8efb244af7914427557bbb422f2e4e3b8"
+    }
+  ]
+}

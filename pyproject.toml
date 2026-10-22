@@ -45,7 +45,10 @@ wheel.packages = ["mgrs"]
 sdist.include = [
     "/CMakeLists.txt", "/pyproject.toml", "/README.rst", "/LICENSE",
     "/tox.ini", "/.gitignore", "/.github/**/*.yml", "/ci/*.sh", "/ci/*.bat", "/ci/*.txt",
-    "/mgrs/*.py", "/src/*.cpp", "/libmgrs/*.c", "/libmgrs/*.h",
+    "/mgrs/*.py", "/src/*.cpp", "/libmgrs/*.c", "/libmgrs/*.h", "/libmgrs/*.cpp",
+    "/libmgrs/CMakeLists.txt", "/libmgrs/geotrans3.10/**/*.cpp",
+    "/libmgrs/geotrans3.10/**/*.h", "/libmgrs/geotrans3.10/README.rst",
+    "/libmgrs/geotrans3.10/SOURCE.json",
     "/tests/*.py", "/tests/*.txt", "/benchmarks/*.py", "/benchmarks/*.rst",
     "/benchmarks/requirements-ci.txt",
 ]

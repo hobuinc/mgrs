@@ -3,12 +3,21 @@
 mgrs: Converting to and from MGRS and Decimal Degrees
 ------------------------------------------------------------------------------
 
-GeoTrans_ provides C code for converting to and from MGRS, but well, it's
-C code :). This package exposes scalar and batch GeoTrans_ conversions through
-a pybind11_ extension. The C kernels are linked statically into that extension;
-no separate libmgrs shared library or runtime Python dependencies are needed.
+This package exposes scalar and batch GeoTrans_ conversions through
+a pybind11_ extension. The GEOTRANS 3.10 C++ implementation is linked statically
+into that extension; no separate libmgrs shared library or runtime Python
+dependencies are needed.
 
-This library has an internal copy of some of the files from GeoTrans_ 2.4.2.
+The MGRS, UTM, UPS, Transverse Mercator and Polar Stereographic sources are
+vendored from NGA's GEOTRANS 3.10 distribution. Source provenance and hashes
+are recorded in ``libmgrs/geotrans3.10/SOURCE.json``.
+
+Inverse conversion returns the center of the MGRS grid cell. Compared with
+the previous GEOTRANS 2.4.2 implementation, this adds half the cell width
+to both grid coordinates: 0.5 metres at precision 5, up to 50,000 metres at
+precision 0. Projection algorithms, zone handling and input validation also
+differ. The doctests reflect GEOTRANS 3.10 cell centers and compare decimal
+degrees to five decimal places, approximately one-metre resolution.
 
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`pybind11`: https://pybind11.readthedocs.io/
@@ -112,17 +121,18 @@ In a nutshell::
     >>> c
     '15TWG0000049776'
 
-    >>> d = m.toLatLon(c)
-    >>> d
-    (41.999997975127997, -93.000000000000014)
+    >>> lat, lon = m.toLatLon(c)
+    >>> '%.5f, %.5f' % (lat, lon)
+    '42.00000, -92.99999'
 
     >>> y = '321942.29N'
     >>> yd = m.dmstodd(y)
-    32.328414
+    >>> '%.5f' % yd
+    '32.32841'
 
     >>> d, m, s = m.ddtodms(32.328414)
-    >>> d, m, s
-    (32.0, 19.0, 42.290400)
+    >>> (d, m, '%.2f' % s)
+    (32.0, 19.0, '42.29')
 
 You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.
