@@ -56,9 +56,13 @@ long Convert_MGRS_To_Geodetic_Array(
         char text[MGRS_WIDTH + 1] = {0};
         double lat = 0, lon = 0;
         long status = 0;
+        int terminated = 0;
         memcpy(text, codes + i * width, width);
-        for (j = 0; j < width && text[j]; ++j) {
-            if ((unsigned char)text[j] > 127) {
+        for (j = 0; j < width; ++j) {
+            if (!text[j]) {
+                terminated = 1;
+            } else if (terminated || (unsigned char)text[j] > 127) {
+                /* Only NUL padding may follow the first terminator. */
                 status = MGRS_STRING_ERROR;
                 break;
             }

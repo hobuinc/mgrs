@@ -111,11 +111,11 @@ std::string code_bytes(py::handle value, const char *encoding = "utf-8") {
         throw py::type_error("MGRS must be str or bytes");
     }
     std::string text(PyBytes_AS_STRING(value.ptr()), PyBytes_GET_SIZE(value.ptr()));
-    // GeoTrans uses ctype functions on char values. Reject non-ASCII before
-    // they reach the parser, while preserving scalar NUL-termination semantics.
+    // Scalar Python strings have explicit lengths: do not let an embedded NUL
+    // hide trailing input from the C API. Fixed-width batch padding is separate.
     for (unsigned char ch : text) {
         if (!ch) {
-            break;
+            throw MGRSError("String Error: MGRS must not contain NUL bytes");
         }
         if (ch > 127) {
             throw MGRSError("String Error: MGRS must contain ASCII bytes");

@@ -137,6 +137,19 @@ In a nutshell::
 You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.
 
+MGRS input accepts ASCII whitespace (spaces, tabs, and line breaks) before,
+after, or between coordinate groups. ``toLatLon`` and ``MGRSToUTM`` remove
+this whitespace before validating the complete coordinate and passing it
+to GEOTRANS. Both ``str`` and ``bytes`` inputs are supported::
+
+    >>> m = mgrs.MGRS()
+    >>> lat, lon = m.toLatLon("  04QEJ 97987 90670  ")
+    >>> '%.5f, %.5f' % (lat, lon)
+    '21.61643, -158.05326'
+
+Invalid characters, trailing text, and NUL bytes in scalar inputs raise
+``mgrs.core.MGRSError`` rather than converting a partial coordinate.
+
 Building from source
 ------------------------------------------------------------------------------
 
@@ -221,6 +234,10 @@ packed records; outputs from ``toMGRSArray`` always use 15. It returns a new
 ``array('d')`` of interleaved latitude,longitude pairs::
 
     decoded = converter.toLatLonArray(b"15TWG31NEA", width=5)
+
+ASCII whitespace within each record is removed before conversion; records
+must still fit the selected width. NUL bytes are allowed only as trailing
+padding, and any non-NUL data after the first NUL raises an error.
 
 Inputs must be C-contiguous, and numeric inputs must be aligned for doubles.
 They are read without copying and may be read-only. Use ``memoryview`` for
