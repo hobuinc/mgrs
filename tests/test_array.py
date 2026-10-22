@@ -60,39 +60,42 @@ def test_batch_matches_scalar(points, precision, degrees):
     assert decoded == expected
 
 
-def test_readonly_numeric_view_is_not_copied(points, monkeypatch):
-    original = mgrs.core.rt.Convert_Geodetic_To_MGRS_Array
-    pointers = []
-
-    def call(pointer, *args):
-        pointers.append(pointer)
-        with pytest.raises(BufferError):
-            points.append(0)
-        return original(pointer, *args)
-
-    monkeypatch.setattr(mgrs.core.rt, "Convert_Geodetic_To_MGRS_Array", call)
+def test_readonly_numeric_view(points):
     converter = mgrs.MGRS()
     with memoryview(points)[2:].toreadonly() as view:
         codes = converter.toMGRSArray(view)
-    assert pointers == [points.buffer_info()[0] + points.itemsize * 2]
     assert codes == pack(converter.toMGRS(*p) for p in pairs(points[2:]))
     points.append(0)  # No export survives the conversion.
 
 
-def test_readonly_byte_view_is_not_copied(monkeypatch):
+def test_readonly_byte_view():
     owner = b"x15TWG0000049776y"
-    pointer = ctypes.cast(ctypes.c_char_p(owner), ctypes.c_void_p).value
-    original = mgrs.core.rt.Convert_MGRS_To_Geodetic_Array
-    calls = []
-
-    def call(address, *args):
-        calls.append(address)
-        return original(address, *args)
-
-    monkeypatch.setattr(mgrs.core.rt, "Convert_MGRS_To_Geodetic_Array", call)
     result = mgrs.MGRS().toLatLonArray(memoryview(owner)[1:-1])
-    assert calls == [pointer + 1]
     assert result == array("d", mgrs.MGRS().toLatLon("15TWG0000049776"))
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 12),
+    reason="Python buffer exporters",
+)
+def test_buffer_protocol_acquires_and_releases_input(points):
+    events = []
+
+    class Provider:
+        def __buffer__(self, flags):
+            events.append("acquired")
+            return memoryview(points).toreadonly()
+
+        def __release_buffer__(self, view):
+            # The native request keeps this export alive until conversion ends.
+            with pytest.raises(BufferError):
+                points.append(0)
+            events.append("released")
+
+    converter = mgrs.MGRS()
+    assert converter.toMGRSArray(Provider()) == converter.toMGRSArray(points)
+    assert events == ["acquired", "released"]
+    points.append(0)
 
 
 def test_shaped_and_native_ctypes_buffers(points):
@@ -237,24 +240,15 @@ def test_scalar_and_batch_calls_share_projection_lock(points):
             assert codes == expected
 
 
-def test_buffers_release_on_native_exception(monkeypatch):
-    points = array("d", [42, -93])
-    codes = pack(["15TWG0000049776"])
+def test_buffers_release_when_warning_becomes_error():
+    codes = pack(["50TMK5045027900"])
+    import warnings
 
-    def fail(*args):
-        with pytest.raises(BufferError):
-            owner.append(0)
-        raise RuntimeError("native call failed")
-
-    converter = mgrs.MGRS()
-    for symbol, owner, convert in (
-        ("Convert_Geodetic_To_MGRS_Array", points, converter.toMGRSArray),
-        ("Convert_MGRS_To_Geodetic_Array", codes, converter.toLatLonArray),
-    ):
-        monkeypatch.setattr(mgrs.core.rt, symbol, fail)
-        with pytest.raises(RuntimeError, match="native call failed"):
-            convert(owner)
-        owner.append(0)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        with pytest.raises(RuntimeWarning, match="Latitude Warning"):
+            mgrs.MGRS().toLatLonArray(codes)
+    codes.append(0)
 
 
 def test_buffer_owners_are_not_leaked():

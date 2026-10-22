@@ -2,7 +2,10 @@
 
 import copy
 import json
+import os
 import subprocess
+import venv
+from pathlib import Path
 
 import pytest
 
@@ -70,7 +73,8 @@ def test_missing_or_invalid_samples_rejected(tmp_path, samples):
         ci.combine_runs([first])
 
 
-def test_requested_tree_imported_without_its_own_harness(tmp_path):
+@pytest.fixture
+def old_source(tmp_path):
     source = tmp_path / "old source tree"
     package = source / "mgrs"
     package.mkdir(parents=True)
@@ -84,12 +88,82 @@ def test_requested_tree_imported_without_its_own_harness(tmp_path):
         "    def toLatLon(self, code):\n"
         "        return tuple(map(float, code.split(':')[1:]))\n"
     )
+    return source
+
+
+def test_requested_tree_imported_without_its_own_harness(tmp_path, old_source):
     dataset = tmp_path / "global.csv"
     perf.generate_dataset(dataset, 4)
-    result = ci.run_revision(source, dataset, tmp_path / "result.json", 1)
+    result = ci.run_revision(old_source, dataset, tmp_path / "result.json", 1)
     assert result["mgrs_version"] == "old-tree-under-test"
-    assert result["environment"]["source_root"] == str(source)
-    assert not (source / "benchmarks").exists()
+    assert result["environment"]["source_root"] == str(old_source)
+    assert not (old_source / "benchmarks").exists()
+
+
+def test_editable_hook_cannot_override_revision(tmp_path, old_source):
+    # A disposable environment reproduces scikit-build-core's .pth-installed
+    # meta-path finder even when the test suite itself uses a regular wheel.
+    env_path = tmp_path / "editable environment"
+    venv.create(env_path, with_pip=False, symlinks=os.name != "nt")
+    binary = "Scripts/python.exe" if os.name == "nt" else "bin/python"
+    executable = env_path / binary
+    # Use the venv's installation directory: on Debian/Ubuntu, site also
+    # lists dist-packages paths that need not exist in a new environment.
+    site_packages = Path(
+        subprocess.check_output(
+            [
+                str(executable),
+                "-c",
+                "import sysconfig; print(sysconfig.get_path('purelib'))",
+            ],
+            text=True,
+        ).strip()
+    )
+    (site_packages / "test_editable_hook.py").write_text(
+        "import sys\n"
+        "class Finder:\n"
+        "    def find_spec(self, fullname, path=None, target=None):\n"
+        "        if fullname == 'mgrs' or fullname.startswith('mgrs.'):\n"
+        "            raise RuntimeError('editable hook intercepted mgrs')\n"
+        "sys.meta_path.insert(0, Finder())\n"
+    )
+    hook = site_packages / "test_editable_hook.pth"
+    hook.write_text("import test_editable_hook\n")
+    intercepted = subprocess.run(
+        [str(executable), "-c", "import mgrs"],
+        capture_output=True,
+        text=True,
+    )
+    assert intercepted.returncode != 0
+    assert "editable hook intercepted mgrs" in intercepted.stderr
+
+    # Runtime dependencies in site-packages must remain importable, as the
+    # historical ctypes implementation needs packaging.tags.
+    (site_packages / "test_dependency.py").write_text("value = 42\n")
+    with (old_source / "mgrs" / "__init__.py").open("a") as stream:
+        stream.write("from test_dependency import value\nassert value == 42\n")
+    dataset = tmp_path / "global.csv"
+    output = tmp_path / "result.json"
+    perf.generate_dataset(dataset, 4)
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(ci.__file__).resolve().parents[1])
+    subprocess.run(
+        [
+            str(executable),
+            "-c",
+            "import sys; from pathlib import Path; from benchmarks import ci; "
+            "ci.run_revision(*(Path(p) for p in sys.argv[1:]), repeats=1)",
+            str(old_source),
+            str(dataset),
+            str(output),
+        ],
+        env=env,
+        check=True,
+        timeout=30,
+    )
+    result = json.loads(output.read_text())
+    assert result["mgrs_version"] == "old-tree-under-test"
+    assert result["environment"]["source_root"] == str(old_source)
 
 
 @pytest.fixture
@@ -174,8 +248,11 @@ def test_child_failure_stops_comparison(tmp_path, monkeypatch, sources):
 
 def test_git_metadata_comes_from_loaded_tree(tmp_path, monkeypatch):
     seen = []
+    check_output = perf.subprocess.check_output
 
     def git(command, **kwargs):
+        if command[0] != "git":
+            return check_output(command, **kwargs)
         seen.append(kwargs["cwd"])
         return "revision" if command[-1] == "HEAD" else ""
 

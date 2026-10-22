@@ -1,8 +1,6 @@
-
+@echo off
 call conda activate test
-
-where python
-
-
-python -m pip install . -t .
-python setup.py bdist_wheel
+if errorlevel 1 exit /b %errorlevel%
+python -m pip install build
+if errorlevel 1 exit /b %errorlevel%
+python -m build --wheel

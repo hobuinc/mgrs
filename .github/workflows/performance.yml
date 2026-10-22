@@ -33,38 +33,46 @@ jobs:
       PYTHONHASHSEED: '0'
       PYTHONUNBUFFERED: '1'
       CC: gcc
+      CXX: g++
       CFLAGS: '-O3 -DNDEBUG'
+      CXXFLAGS: '-O3 -DNDEBUG'
 
     steps:
       # On pull_request, github.sha is the proposed merge commit. Test the
       # result contributors intend to merge against the target branch SHA.
       - name: Check out candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           path: candidate
           persist-credentials: false
 
       - name: Check out baseline
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || inputs.baseline_ref || github.event.before || github.event.repository.default_branch }}
           path: baseline
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa # v10.3.1
         with:
+          version-file: candidate/ci/requirements.txt
           python-version: '3.13'
+          activate-environment: true
 
       - name: Install shared build tools
-        run: python -m pip install -r candidate/benchmarks/requirements-ci.txt
+        run: uv pip install -r candidate/benchmarks/requirements-ci.txt
 
       - name: Record toolchain
         run: |
-          python --version
-          python -m pip freeze > toolchain.txt
+          python --version > toolchain.txt
+          uv --version >> toolchain.txt
+          uv pip freeze >> toolchain.txt
           gcc --version >> toolchain.txt
+          g++ --version >> toolchain.txt
+          cmake --version >> toolchain.txt
+          ninja --version >> toolchain.txt
           lscpu >> toolchain.txt
           printf '\nCFLAGS=%s\nImageOS=%s\nImageVersion=%s\n' \
             "$CFLAGS" "$ImageOS" "$ImageVersion" >> toolchain.txt
@@ -72,12 +80,12 @@ jobs:
       # Build both before timing and use separate source trees. Installing
       # both as editable packages in one environment can select the wrong one.
       - name: Build baseline
-        working-directory: baseline
-        run: python setup.py build_ext --inplace --force
+        working-directory: candidate
+        run: python -m benchmarks.build --source ../baseline
 
       - name: Build candidate
         working-directory: candidate
-        run: python setup.py build_ext --inplace --force
+        run: python -m benchmarks.build --source .
 
       - name: Test harness and conversions
         working-directory: candidate
@@ -85,11 +93,12 @@ jobs:
 
       - name: Compare one million global points
         working-directory: candidate
+        # Gate each operation against its baseline; faster scalar bindings
+        # can reduce batch/scalar ratios without slowing batch conversion.
         run: |
           python -m benchmarks.ci \
             --base ../baseline --candidate . --output ../performance \
             --points 1000000 --repeats 5 --max-regression 10 \
-            --min-array-speedup 1.5 \
             2>&1 | tee ../performance.log
 
       - name: Publish summary

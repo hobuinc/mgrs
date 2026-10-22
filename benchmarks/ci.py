@@ -5,6 +5,7 @@ import copy
 import json
 import math
 import os
+import site
 import subprocess
 import sys
 from pathlib import Path
@@ -18,13 +19,16 @@ def run_revision(source, dataset, output, repeats):
     """Use this harness for both revisions, even if the base predates it."""
     source = Path(source).resolve()
     env = os.environ.copy()
-    # Run the script directly: its sys.path[0] is benchmarks/, not the
-    # candidate checkout. The requested source tree supplies the mgrs import.
-    env["PYTHONPATH"] = str(source)
+    # Skip site initialization so editable-install .pth hooks cannot redirect
+    # mgrs to another checkout. Add site-package directories as ordinary paths
+    # for historical runtime dependencies (such as packaging), without running
+    # their .pth files. The requested source tree always comes first.
+    env["PYTHONPATH"] = os.pathsep.join([str(source), *site.getsitepackages()])
     env["PYTHONNOUSERSITE"] = "1"
     subprocess.run(
         [
             sys.executable,
+            "-S",
             str(Path(perf.__file__).resolve()),
             "run",
             "--dataset",
@@ -90,11 +94,18 @@ def combine_runs(runs):
 
 
 def summary(base, candidate, comparison, threshold, min_speedup=None):
+    def revision(report):
+        value = report["environment"]["git_commit"]
+        suffix = ""
+        if report["environment"].get("git_dirty"):
+            suffix = " (working tree changes)"
+        return f"`{value}`{suffix}"
+
     lines = [
         "## MGRS performance comparison",
         "",
-        f"Base: `{base['environment']['git_commit']}`  ",
-        f"Candidate: `{candidate['environment']['git_commit']}`",
+        f"Base: {revision(base)}  ",
+        f"Candidate: {revision(candidate)}",
         "",
         f"{base['dataset']['count']:,} points; "
         f"{base['config']['repeats']} timed passes per revision/direction. "
@@ -128,7 +139,7 @@ def summary(base, candidate, comparison, threshold, min_speedup=None):
                 "",
             ]
         for operation, speedup in speedups.items():
-            status = "PASS"
+            status = "informational" if min_speedup is None else "PASS"
             if min_speedup is not None and speedup < min_speedup:
                 status = "FAIL"
             lines.append(f"* {operation}: **{speedup:.2f}x** ({status})")
