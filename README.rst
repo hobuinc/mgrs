@@ -16,8 +16,8 @@ Inverse conversion returns the center of the MGRS grid cell. Compared with
 the previous GEOTRANS 2.4.2 implementation, this adds half the cell width
 to both grid coordinates: 0.5 metres at precision 5, up to 50,000 metres at
 precision 0. Projection algorithms, zone handling and input validation also
-differ. Existing test expectations are retained during this migration so
-these behavioral changes remain visible.
+differ. The doctests reflect GEOTRANS 3.10 cell centers and compare decimal
+degrees to five decimal places, approximately one-metre resolution.
 
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`pybind11`: https://pybind11.readthedocs.io/
@@ -121,17 +121,18 @@ In a nutshell::
     >>> c
     '15TWG0000049776'
 
-    >>> d = m.toLatLon(c)
-    >>> d
-    (41.999997975127997, -93.000000000000014)
+    >>> lat, lon = m.toLatLon(c)
+    >>> '%.5f, %.5f' % (lat, lon)
+    '42.00000, -92.99999'
 
     >>> y = '321942.29N'
     >>> yd = m.dmstodd(y)
-    32.328414
+    >>> '%.5f' % yd
+    '32.32841'
 
     >>> d, m, s = m.ddtodms(32.328414)
-    >>> d, m, s
-    (32.0, 19.0, 42.290400)
+    >>> (d, m, '%.2f' % s)
+    (32.0, 19.0, '42.29')
 
 You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.

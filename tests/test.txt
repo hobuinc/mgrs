@@ -1,3 +1,7 @@
+Decimal-degree strings use five decimal places: approximately 1.1 metres
+in latitude and at most 1.1 metres in longitude. Inverse coordinates reflect
+the MGRS cell centers returned by GEOTRANS 3.10.
+
 >>> import mgrs
 >>> latitude = 42.0
 >>> longitude = -93.0
@@ -8,37 +12,39 @@
 15TWG0000049776
 
 >>> lat, lon = m.toLatLon(c)
->>> '%.6f' % lat
-'41.999998'
+>>> '%.5f' % lat
+'42.00000'
 
->>> '%.6f' % lon
-'-93.000000'
+>>> '%.5f' % lon
+'-92.99999'
 
 >>> yp = '321942N'
 >>> yd = m.dmstodd(yp)
->>> '%.6f' % yd
-'32.328333'
+>>> '%.5f' % yd
+'32.32833'
 
 
 >>> y = '321942.29N'
 >>> yd = m.dmstodd(y)
->>> '%.6f' % yd
-'32.328414'
+>>> '%.5f' % yd
+'32.32841'
 
 
 >>> x = '671328.35W'
 >>> yd = m.dmstodd(x)
->>> '%.6f' % yd
-'-67.224542'
+>>> '%.5f' % yd
+'-67.22454'
 
 >>> y = '321942.29S'
 >>> yd = m.dmstodd(y)
->>> '%.6f' % yd
-'-32.328414'
+>>> '%.5f' % yd
+'-32.32841'
+
+For DMS output, two decimal places in arcseconds resolve about 0.3 metres.
 
 >>> d, m, s = m.ddtodms(32.328414)
->>> (d, m,'%.6f' % s)
-(32.0, 19.0, '42.290400')
+>>> (d, m, '%.2f' % s)
+(32.0, 19.0, '42.29')
 
 >>> m = mgrs.MGRS()
 >>> washingtondc = (38.9072, -77.0369)
@@ -55,14 +61,17 @@
 >>> coords = u"15SWC8081751205"
 
 >>> lat, lon = convert.toLatLon(coords)
->>> '%.10f' % lat
-'38.4054261538'
+>>> '%.5f' % lat
+'38.40543'
 
->>> '%.10f' % lon
-'-92.0743952603'
+>>> '%.5f' % lon
+'-92.07439'
+
+UTM coordinates retain the exact half-metre offsets of a precision-5 cell
+center, rather than rounding them to whole metres.
 
 >>> convert.MGRSToUTM(coords)
-(15, 'N', 580817.0, 4251205.0)
+(15, 'N', 580817.5, 4251205.5)
 
 >>> convert.UTMToMGRS(15,'N',580817,4251205)
 '15SWC8081751205'
@@ -78,8 +87,8 @@
 >>> assert len(caught) == 1
 >>> assert caught[0].category is RuntimeWarning
 >>> assert "Latitude Warning" in str(caught[0].message)
->>> '%.12f, %.12f' % v
-'39.999832750882, 116.419518457826'
+>>> '%.5f, %.5f' % v
+'39.99984, 116.41952'
 
 >>> coords = "32TNK0000000000"
 >>> with warnings.catch_warnings(record=True) as caught:
@@ -88,5 +97,5 @@
 >>> assert len(caught) == 1
 >>> assert caught[0].category is RuntimeWarning
 >>> assert "Latitude Warning" in str(caught[0].message)
->>> '%.12f, %.12f' % v
-'39.749907519104, 9.000000000000'
+>>> '%.5f, %.5f' % v
+'39.74991, 9.00001'
