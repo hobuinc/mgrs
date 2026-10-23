@@ -135,7 +135,9 @@ jobs:
       - run: npm ci
       # All platforms consume the same package; these jobs need no Rust build.
       - name: Install built assets into the test checkout
-        run: tar -xzf "$RUNNER_TEMP"/mgrs-package/*.tgz --strip-components=1
+        # GNU tar in Git Bash treats the D: in Windows paths as a remote host.
+        # Let the shell open the archive; stdin also works with BSD tar on macOS.
+        run: tar -xzf - --strip-components=1 < "$RUNNER_TEMP"/mgrs-package/*.tgz
       - run: npm run test:node
       - name: Test standalone installation and TypeScript declarations
         run: npm run test:package -- "$RUNNER_TEMP"/mgrs-package/*.tgz
