@@ -1,4 +1,5 @@
-// C API adapter for the unmodified NGA GEOTRANS 3.10 implementation.
+// C API adapter for NGA GEOTRANS 3.10; local changes are documented in
+// geotrans3.10/README.rst.
 // Callers serialize access, including Set/Get_MGRS_Parameters. The Python
 // extension holds its projection mutex for all scalar and batch calls.
 #include "mgrs.h"
@@ -82,22 +83,51 @@ long precision_status(long precision) {
     return precision < 0 || precision > 5 ? MGRS_PRECISION_ERROR : MGRS_NO_ERROR;
 }
 
-bool valid_string(const char *text) {
+bool normalize_string(const char *text, char (&normalized)[16]) {
     if (!text) {
         return false;
     }
-    // Upstream's coordinate tuple stores 20 characters plus a terminator.
-    // Reject overlong input rather than silently truncating it to a valid code.
-    for (size_t i = 0; i <= 20; ++i) {
-        const auto ch = static_cast<unsigned char>(text[i]);
-        if (!ch) {
-            return true;
+    const auto digit = [](char ch) { return ch >= '0' && ch <= '9'; };
+    const auto letter = [](char ch) {
+        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+    };
+    size_t length = 0;
+    for (; *text; ++text) {
+        const char ch = *text;
+        // Normalize before applying the length limit or creating an upstream
+        // coordinate tuple, which would otherwise truncate long spaced input.
+        if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' ||
+            ch == '\v' || ch == '\f') {
+            continue;
         }
-        if (ch > 127) {
+        if ((!digit(ch) && !letter(ch)) || length == sizeof(normalized) - 1) {
             return false;
         }
+        normalized[length++] = ch;
     }
-    return false;
+    normalized[length] = '\0';
+
+    // Require the whole string to match [zone] + 3 letters + paired digits.
+    // GEOTRANS checks geographic validity, but can ignore letters after digits.
+    size_t i = 0;
+    while (digit(normalized[i])) {
+        ++i;
+    }
+    if (i > 2) {
+        return false;
+    }
+    const size_t letters = i;
+    while (letter(normalized[i])) {
+        ++i;
+    }
+    if (i - letters != 3) {
+        return false;
+    }
+    const size_t digits = i;
+    while (digit(normalized[i])) {
+        ++i;
+    }
+    return i == length && i - digits <= 10 && (i - digits) % 2 == 0;
 }
 
 long grid_status(char hemisphere, double easting, double northing, bool utm) {
@@ -170,11 +200,12 @@ long Convert_Geodetic_To_MGRS(double latitude, double longitude,
 }
 
 long Convert_MGRS_To_Geodetic(char *mgrs, double *latitude, double *longitude) {
-    if (!valid_string(mgrs)) {
+    char normalized[16] = {};
+    if (!normalize_string(mgrs, normalized)) {
         return MGRS_STRING_ERROR;
     }
     return convert([&] {
-        cc::MGRSorUSNGCoordinates input(cc::CoordinateType::militaryGridReferenceSystem, mgrs);
+        cc::MGRSorUSNGCoordinates input(cc::CoordinateType::militaryGridReferenceSystem, normalized);
         std::unique_ptr<cc::GeodeticCoordinates> result(state().get().convertToGeodetic(&input));
         *latitude = result->latitude();
         *longitude = result->longitude();
@@ -202,11 +233,12 @@ long Convert_UTM_To_MGRS(long zone, char hemisphere, double easting,
 
 long Convert_MGRS_To_UTM(char *mgrs, long *zone, char *hemisphere,
                         double *easting, double *northing) {
-    if (!valid_string(mgrs)) {
+    char normalized[16] = {};
+    if (!normalize_string(mgrs, normalized)) {
         return MGRS_STRING_ERROR;
     }
     return convert([&] {
-        cc::MGRSorUSNGCoordinates input(cc::CoordinateType::militaryGridReferenceSystem, mgrs);
+        cc::MGRSorUSNGCoordinates input(cc::CoordinateType::militaryGridReferenceSystem, normalized);
         std::unique_ptr<cc::UTMCoordinates> result(state().get().convertToUTM(&input));
         *zone = result->zone();
         *hemisphere = result->hemisphere();
@@ -232,11 +264,12 @@ long Convert_UPS_To_MGRS(char hemisphere, double easting, double northing,
 }
 
 long Convert_MGRS_To_UPS(char *mgrs, char *hemisphere, double *easting, double *northing) {
-    if (!valid_string(mgrs)) {
+    char normalized[16] = {};
+    if (!normalize_string(mgrs, normalized)) {
         return MGRS_STRING_ERROR;
     }
     return convert([&] {
-        cc::MGRSorUSNGCoordinates input(cc::CoordinateType::militaryGridReferenceSystem, mgrs);
+        cc::MGRSorUSNGCoordinates input(cc::CoordinateType::militaryGridReferenceSystem, normalized);
         std::unique_ptr<cc::UPSCoordinates> result(state().get().convertToUPS(&input));
         *hemisphere = result->hemisphere();
         *easting = result->easting();

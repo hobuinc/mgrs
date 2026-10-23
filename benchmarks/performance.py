@@ -135,8 +135,9 @@ def prepare_workload(converter, points, precision):
     digest = hashlib.sha256()
     coverage = {"utm": 0, "ups_north": 0, "ups_south": 0}
     max_error = 0.0
-    # MGRS identifies the corner of a cell, not the original location. Allow
-    # three cell widths for the diagonal and projection scale distortion.
+    # MGRS identifies a cell, not the original location. GEOTRANS 3.10 returns
+    # its center; older backends return its corner. Allow three cell widths
+    # for the diagonal and projection scale distortion with either backend.
     tolerance = 3 * 10 ** (5 - precision)
     for index, point in enumerate(points):
         try:

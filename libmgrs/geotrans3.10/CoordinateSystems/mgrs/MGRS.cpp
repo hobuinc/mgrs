@@ -322,9 +322,11 @@ void makeMGRSString(
 
   i = 0;
   if (zone)
-    i = snprintf(MGRSString + i, MGRSStringMaxLength - i, "%2.2ld", zone);
-  else
-    strncpy(MGRSString, "  ", 2);  // 2 spaces
+  {
+    // Valid UTM zones are 1..60; UPS has no zone prefix.
+    MGRSString[i++] = '0' + zone / 10;
+    MGRSString[i++] = '0' + zone % 10;
+  }
 
   for (j=0;j<3;j++)
     MGRSString[i++] = alphabet[letters[j]];
@@ -335,12 +337,24 @@ void makeMGRSString(
   if (easting >= 99999.5)
     easting = 99999.0;
   east = (long)((easting+EPSILON2) /divisor);
-  i += snprintf(MGRSString + i, MGRSStringMaxLength - i, "%*.*ld", precision, precision, east);
   northing = fmod (northing, 100000.0);
   if (northing >= 99999.5)
     northing = 99999.0;
   north = (long)((northing+EPSILON2) /divisor);
-  i += snprintf(MGRSString + i, MGRSStringMaxLength - i, "%*.*ld", precision, precision, north);}
+
+  // Precision is validated as 0..5 by the callers. The remainders above
+  // fit in exactly that many zero-padded digits. Write them directly to
+  // avoid three general-purpose snprintf calls per forward conversion.
+  // At precision zero neither numeric field is emitted, as with %0.0ld.
+  for (j = precision - 1; j >= 0; --j)
+  {
+    MGRSString[i + j] = '0' + east % 10;
+    MGRSString[i + precision + j] = '0' + north % 10;
+    east /= 10;
+    north /= 10;
+  }
+  MGRSString[i + 2 * precision] = '\0';
+}
 
 
 void breakMGRSString(
