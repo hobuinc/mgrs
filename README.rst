@@ -18,6 +18,35 @@ release notes below for the change from the previous southwest-corner convention
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`pybind11`: https://pybind11.readthedocs.io/
 
+Rust and TypeScript
+------------------------------------------------------------------------------
+
+This repository also contains a native Rust translation of the WGS84 GEOTRANS
+3.10 algorithms and a TypeScript/JavaScript package using that engine through
+WebAssembly in Node.js and browsers. Both follow the Python scalar and batch
+API, including cell-center inverse coordinates and ASCII whitespace handling.
+Rust uses borrowed slices and owned vectors; TypeScript uses ``Float64Array``
+and ``Uint8Array``. Neither requires Python or C++ at runtime.
+
+See the `Rust guide <rust/README.md>`_, `TypeScript guide <typescript/README.md>`_,
+`test coverage <rust/tests/fixtures/README.md>`_, and
+`performance guide <benchmarks/rust-typescript.md>`_ for build instructions,
+language-specific error/warning handling, and fixed-workload comparisons.
+These new packages must be built from this checkout; this change does not
+publish them to crates.io or npm.
+
+Run native tests from the repository root::
+
+    cargo test --workspace --all-features --locked
+
+After installing the WebAssembly toolchain described in the TypeScript guide::
+
+    cd typescript
+    npm ci
+    npm test
+    npx playwright install chromium
+    npm run test:browser
+
 
 
 ChangeLog
