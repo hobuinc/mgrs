@@ -31,6 +31,11 @@ a different workload, use ``generate --output other.csv --points 2000000
 Smaller counts are supported for smoke tests; use at least a million for
 performance comparisons.
 
+The GEOTRANS 3.10 forward optimization uses a separate fixed million-point
+dataset with seed ``20261022``. Its checksum is recorded in
+``geotrans310-forward-dataset.json``; see ``geotrans310-forward.rst`` for
+generation commands and results.
+
 Each run measures the public Python APIs serially, including their binding,
 allocation, and encoding costs:
 

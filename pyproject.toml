@@ -50,6 +50,8 @@ sdist.include = [
     "/libmgrs/geotrans3.10/**/*.h", "/libmgrs/geotrans3.10/README.rst",
     "/libmgrs/geotrans3.10/SOURCE.json",
     "/tests/*.py", "/tests/*.txt", "/benchmarks/*.py", "/benchmarks/*.rst",
+    "/benchmarks/geotrans310-forward-dataset.json",
+    "/benchmarks/geotrans310-forward-results.json",
     "/benchmarks/requirements-ci.txt",
 ]
 sdist.exclude = ["*"]
