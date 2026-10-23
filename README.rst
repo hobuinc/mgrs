@@ -12,12 +12,8 @@ The MGRS, UTM, UPS, Transverse Mercator and Polar Stereographic sources are
 vendored from NGA's GEOTRANS 3.10 distribution. Source provenance and hashes
 are recorded in ``libmgrs/geotrans3.10/SOURCE.json``.
 
-Inverse conversion returns the center of the MGRS grid cell. Compared with
-the previous GEOTRANS 2.4.2 implementation, this adds half the cell width
-to both grid coordinates: 0.5 metres at precision 5, up to 50,000 metres at
-precision 0. Projection algorithms, zone handling and input validation also
-differ. The doctests reflect GEOTRANS 3.10 cell centers and compare decimal
-degrees to five decimal places, approximately one-metre resolution.
+Inverse conversion returns the center of the MGRS grid cell. See the 1.6.0
+release notes below for the change from the previous southwest-corner convention.
 
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`pybind11`: https://pybind11.readthedocs.io/
@@ -26,6 +22,22 @@ degrees to five decimal places, approximately one-metre resolution.
 
 ChangeLog
 ------------------------------------------------------------------------------
+
+1.6.0
+
+Changes since `1.5.4 <https://github.com/hobuinc/mgrs/releases/tag/1.5.4>`_.
+
+**Inverse conversions now return the cell center.** GEOTRANS 3.10 replaces 2.4.2 and decodes MGRS coordinates to the center of the represented cell instead of its southwest corner. This applies to ``toLatLon``, ``toLatLonArray``, and ``MGRSToUTM``. `#57 <https://github.com/hobuinc/mgrs/pull/57>`_
+
+The shift is half the cell width on each projected grid axis: **+0.5 m easting and northing at precision 5** (about 0.707 m diagonally), increasing to **+50 km per axis at precision 0**. Applications that compare exact decoded coordinates or use them as cell corners must account for this change.
+
+* Accept leading, trailing, and internal ASCII whitespace in MGRS inputs; reject trailing junk and embedded NULs, preserving batch NUL padding. `#59 <https://github.com/hobuinc/mgrs/pull/59>`_
+* Add ``toMGRSArray`` and ``toLatLonArray`` batch conversions. `#51 <https://github.com/hobuinc/mgrs/pull/51>`_
+* Replace ctypes with pybind11, modernize builds, and require Python 3.11 or later. `#49 <https://github.com/hobuinc/mgrs/pull/49>`_, `#52 <https://github.com/hobuinc/mgrs/pull/52>`_
+* Optimize GEOTRANS 3.10 formatting, recovering the forward-conversion slowdown on the benchmark workload without changing results. `#58 <https://github.com/hobuinc/mgrs/pull/58>`_
+* Add reproducible performance benchmarks and CI regression checks; update wheel and artifact tooling. `#50 <https://github.com/hobuinc/mgrs/pull/50>`_, `#53 <https://github.com/hobuinc/mgrs/pull/53>`_, `#54 <https://github.com/hobuinc/mgrs/pull/54>`_, `#55 <https://github.com/hobuinc/mgrs/pull/55>`_, `#56 <https://github.com/hobuinc/mgrs/pull/56>`_
+
+`Full changes since 1.5.4 <https://github.com/hobuinc/mgrs/compare/1.5.4...d3370da69879118723a054f2681e5842fcb6821b>`_
 
 1.5.3
 
