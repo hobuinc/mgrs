@@ -1,0 +1,36 @@
+{
+  "name": "mgrs-geotrans",
+  "version": "1.6.0",
+  "description": "GEOTRANS 3.10 MGRS conversions in Rust and WebAssembly",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/node.js",
+  "types": "./dist/node.d.ts",
+  "exports": {
+    ".": {
+      "browser": {"types": "./dist/browser.d.ts", "default": "./dist/browser.js"},
+      "node": {"types": "./dist/node.d.ts", "import": "./dist/node.js"},
+      "default": "./dist/browser.js"
+    },
+    "./browser": {"types": "./dist/browser.d.ts", "default": "./dist/browser.js"},
+    "./node": {"types": "./dist/node.d.ts", "default": "./dist/node.js"},
+    "./wasm": "./wasm/web/mgrs_bg.wasm"
+  },
+  "files": ["dist", "wasm", "README.md", "LICENSE", "NOTICE"],
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && npm run test:node",
+    "test:node": "node scripts/test-node.mjs",
+    "test:package": "node scripts/test-package.mjs",
+    "test:browser": "node test/browser.mjs",
+    "bench": "node benchmark.mjs",
+    "bench:browser": "node test/browser.mjs --benchmark",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0",
+    "playwright": "^1.56.0"
+  }
+}

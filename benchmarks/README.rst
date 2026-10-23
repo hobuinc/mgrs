@@ -1,6 +1,11 @@
 Performance tests
 =================
 
+For the Rust and TypeScript/WebAssembly implementations, see the
+`Rust and TypeScript performance guide <rust-typescript.md>`_. It covers
+native, Node.js and browser runs, shared datasets, Python equivalence checks,
+and four independent scalar/batch conversion timings.
+
 Run these commands from the repository root, with the local extension built::
 
     uv venv

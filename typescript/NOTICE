@@ -1,0 +1,22 @@
+This crate translates the WGS84 paths of the NGA GEOTRANS 3.10 sources
+vendored in ../libmgrs/geotrans3.10. The original files, modification history,
+and notices remain there. SOURCE.json records their upstream archive hashes:
+https://github.com/hobuinc/mgrs/blob/main/libmgrs/geotrans3.10/SOURCE.json
+
+Translated sources: CoordinateSystems/mgrs/MGRS.cpp,
+CoordinateSystems/tranmerc/TransverseMercator.cpp,
+CoordinateSystems/utm/UTM.cpp, CoordinateSystems/ups/UPS.cpp,
+CoordinateSystems/polarst/PolarStereographic.cpp, and GeotransConstants.h.
+
+Source classification: UNCLASSIFIED.
+GeotransConstants.h notice: Copyright BAE Systems Inc. 2019 ALL RIGHTS RESERVED.
+Transverse Mercator algorithm: C. Rollins, April 18, 2006; updated to the NGA
+Transverse Mercator document in 2014 and WGS84 book coefficients in 2016.
+
+The Rust translation preserves the projection formulas, coefficient values,
+operation order, MGRS cell-center convention, truncation epsilon, special
+zones, latitude warnings, and the repository's formatting/input fixes.
+It does not expose the upstream configurable ellipsoid/projection classes,
+which are not part of the public Python MGRS API.
+
+Rust/TypeScript wrapper code is distributed under the repository MIT license.
