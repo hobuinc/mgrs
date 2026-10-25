@@ -6,5 +6,11 @@ mgrs.egg-info/
 dist/
 benchmarks/data/
 benchmarks/results/
-mgrs/_native*.so
-mgrs/_native*.pyd
+/.tools/
+/.pnpm-store/
+/target/
+/typescript/node_modules/
+/typescript/dist/
+/typescript/wasm/
+/typescript/test-results/
+/typescript/*.tgz

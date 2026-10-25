@@ -1,0 +1,27 @@
+[package]
+name = "mgrs-geotrans"
+version = "1.6.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Rust translation of the WGS84 GEOTRANS 3.10 MGRS conversion engine"
+license = "MIT"
+repository = "https://github.com/hobuinc/mgrs"
+readme = "README.md"
+
+[lib]
+name = "mgrs"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+wasm = ["dep:wasm-bindgen"]
+
+[dependencies]
+wasm-bindgen = { version = "=0.2.105", optional = true }
+
+[dev-dependencies]
+serde_json = "1"
+sha2 = "0.10"
+
+[[example]]
+name = "benchmark"
+path = "examples/benchmark.rs"

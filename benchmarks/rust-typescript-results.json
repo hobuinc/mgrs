@@ -1,0 +1,206 @@
+{
+  "date": "2026-10-23",
+  "machine": "macOS 26.5.2, ARM64",
+  "rust": {
+    "backend": "Rust GEOTRANS 3.10",
+    "dataset_sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1",
+    "max_roundtrip_metres": 0.707464869858751,
+    "platform": "macos/aarch64/Mac.localdomain",
+    "points": 1000000,
+    "precision": 5,
+    "regression_passed": true,
+    "repeats": 5,
+    "runtime": "rustc 1.90.0 (1159e78c4 2025-09-14)",
+    "seed": 20261022,
+    "timings": {
+      "batch_forward": {
+        "median_seconds": 0.148947541,
+        "points_per_second": 6713773.139766034,
+        "samples_seconds": [
+          0.1451695,
+          0.151234709,
+          0.148947541,
+          0.152908416,
+          0.148596792
+        ]
+      },
+      "batch_inverse": {
+        "median_seconds": 0.392946,
+        "points_per_second": 2544878.940108819,
+        "samples_seconds": [
+          0.393299083,
+          0.385974916,
+          0.394974875,
+          0.388946792,
+          0.392946
+        ]
+      },
+      "scalar_forward": {
+        "median_seconds": 0.172339833,
+        "points_per_second": 5802489.0856195735,
+        "samples_seconds": [
+          0.172339833,
+          0.172265666,
+          0.172736917,
+          0.173553708,
+          0.17198225
+        ]
+      },
+      "scalar_inverse": {
+        "median_seconds": 0.378858375,
+        "points_per_second": 2639508.7610244853,
+        "samples_seconds": [
+          0.375284333,
+          0.386034958,
+          0.38243225,
+          0.376538667,
+          0.378858375
+        ]
+      }
+    }
+  },
+  "node": {
+    "points": 1000000,
+    "precision": 5,
+    "repeats": 5,
+    "max_roundtrip_metres": 0.707464869858751,
+    "timings": {
+      "scalar_forward": {
+        "samples_seconds": [
+          0.3191208750000001,
+          0.3225086249999995,
+          0.3223571249999995,
+          0.3160537089999998,
+          0.3189607500000002
+        ],
+        "median_seconds": 0.3191208750000001,
+        "points_per_second": 3133608.8558919868
+      },
+      "scalar_inverse": {
+        "samples_seconds": [
+          0.9225629999999997,
+          0.9544475840000005,
+          0.9356191660000004,
+          0.9207635839999985,
+          0.9166807499999995
+        ],
+        "median_seconds": 0.9225629999999997,
+        "points_per_second": 1083936.8151551713
+      },
+      "batch_forward": {
+        "samples_seconds": [
+          0.19187508399999978,
+          0.18928520800000023,
+          0.19102616600000055,
+          0.18882054099999915,
+          0.18672199999999975
+        ],
+        "median_seconds": 0.18928520800000023,
+        "points_per_second": 5283032.998542595
+      },
+      "batch_inverse": {
+        "samples_seconds": [
+          0.6689157920000003,
+          0.6540980829999998,
+          0.6956137080000008,
+          0.6934524170000004,
+          0.6532321249999986
+        ],
+        "median_seconds": 0.6689157920000003,
+        "points_per_second": 1494956.4832519302
+      }
+    },
+    "backend": "TypeScript WebAssembly GEOTRANS 3.10",
+    "runtime": "v24.19.0",
+    "platform": "darwin/arm64/Mac.localdomain",
+    "dataset_sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1",
+    "seed": 20261022,
+    "regression_passed": true
+  },
+  "browser": {
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "passed": 11,
+    "tests": [
+      "all upstream forward strings, precisions, units and batch equivalents",
+      "all Python inverse coordinates, UTM outputs, errors and warnings",
+      "UTM truncation boundaries",
+      "Python doctests and DMS helpers",
+      "issue 40 whitespace normalization across scalar and batch APIs",
+      "invalid scalar inputs and numerical ranges",
+      "typed buffers, views, ownership, width, layout and empty input",
+      "batch failures identify the first row and preserve inputs",
+      "warning callbacks preserve values and may throw",
+      "multiple instances and explicit disposal",
+      "browser workers independently initialize and convert"
+    ],
+    "benchmark": {
+      "points": 1000000,
+      "precision": 5,
+      "repeats": 5,
+      "max_roundtrip_metres": 0.7079211801573382,
+      "timings": {
+        "scalar_forward": {
+          "samples_seconds": [
+            0.5476000001430511,
+            0.5641000001430512,
+            0.4965,
+            0.5795,
+            0.5272000000476837
+          ],
+          "median_seconds": 0.5476000001430511,
+          "points_per_second": 1826150.474322073
+        },
+        "scalar_inverse": {
+          "samples_seconds": [
+            1.4517999999523163,
+            1.4720999999046325,
+            1.457,
+            1.4802000000476838,
+            1.4882999999523163
+          ],
+          "median_seconds": 1.4720999999046325,
+          "points_per_second": 679301.6779191517
+        },
+        "batch_forward": {
+          "samples_seconds": [
+            0.18879999995231628,
+            0.2357000000476837,
+            0.187,
+            0.19290000009536742,
+            0.19209999990463256
+          ],
+          "median_seconds": 0.19209999990463256,
+          "points_per_second": 5205622.074421899
+        },
+        "batch_inverse": {
+          "samples_seconds": [
+            0.6465999999046326,
+            0.6454000000953675,
+            0.6472999999523162,
+            0.6947999999523163,
+            0.6706000001430511
+          ],
+          "median_seconds": 0.6472999999523162,
+          "points_per_second": 1544878.7271337335
+        }
+      },
+      "dataset_sha256": "b5552c1e754f68f0c2462e31522e16cbf7eb7d75447a7ff3237298914b44b36e",
+      "backend": "Browser WebAssembly GEOTRANS 3.10",
+      "seed": 20261022
+    }
+  },
+  "equivalence": {
+    "points": 1000000,
+    "precisions": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "scalar_and_batch_forward_exact": true,
+    "inverse_max_degrees": 3.339550858072471e-13,
+    "oracle_source": "Python mgrs GEOTRANS 3.10 at 1b12e14"
+  }
+}
