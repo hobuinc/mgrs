@@ -1,4 +1,4 @@
-name: Wheels and PyPI release
+name: Packages and release
 
 on:
   workflow_dispatch:
@@ -13,6 +13,9 @@ on:
   release:
     types:
       - published
+
+permissions:
+  contents: read
 
 jobs:
   build_wheels:
@@ -30,6 +33,18 @@ jobs:
       with:
         version-file: ci/requirements.txt
 
+    # Linux installs Rust inside each manylinux/musllinux container via
+    # pyproject.toml. Windows/macOS builds use the runner toolchain.
+    - name: Install Rust backend toolchain
+      if: runner.os != 'Linux'
+      shell: bash
+      run: |
+        rustup toolchain install 1.90.0 --profile minimal
+        rustup default 1.90.0
+        if [[ "$RUNNER_OS" == Windows ]]; then
+          rustup target add i686-pc-windows-msvc x86_64-pc-windows-msvc aarch64-pc-windows-msvc
+        fi
+
     - name: Build wheels
       run: uv tool run --python 3.13 --constraints ci/requirements.txt --from cibuildwheel cibuildwheel --output-dir wheelhouse
 
@@ -37,6 +52,7 @@ jobs:
       with:
         name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
+        if-no-files-found: error
 
   build_sdist:
     name: Build source distribution
@@ -50,13 +66,137 @@ jobs:
         version-file: ci/requirements.txt
         python-version: '3.13'
 
+    - name: Install Rust backend toolchain
+      run: |
+        rustup toolchain install 1.90.0 --profile minimal
+        rustup default 1.90.0
+
     - name: Build sdist
       run: uv build --sdist
+
+    - name: Build and test from sdist outside the checkout
+      shell: bash
+      run: |
+        mkdir "$RUNNER_TEMP/mgrs-sdist"
+        tar -xzf dist/*.tar.gz --strip-components=1 -C "$RUNNER_TEMP/mgrs-sdist"
+        uv venv "$RUNNER_TEMP/mgrs-sdist-venv"
+        uv pip install --python "$RUNNER_TEMP/mgrs-sdist-venv/bin/python" "$RUNNER_TEMP/mgrs-sdist" pytest
+        mkdir "$RUNNER_TEMP/mgrs-sdist-tests"
+        cp -R "$RUNNER_TEMP/mgrs-sdist/tests" "$RUNNER_TEMP/mgrs-sdist/benchmarks" "$RUNNER_TEMP/mgrs-sdist/rust" "$RUNNER_TEMP/mgrs-sdist-tests/"
+        cd "$RUNNER_TEMP/mgrs-sdist-tests"
+        "$RUNNER_TEMP/mgrs-sdist-venv/bin/python" -m pytest tests --doctest-glob='*.txt'
 
     - uses: actions/upload-artifact@v7
       with:
         name: cibw-sdist
         path: dist/*.tar.gz
+        if-no-files-found: error
+
+  build_rust:
+    name: Build Rust package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Install Rust
+      run: rustup toolchain install 1.90.0 --profile minimal
+
+    - name: Package and test standalone crate
+      run: |
+        cargo +1.90.0 package -p mgrs-geotrans --locked
+        mkdir -p "$RUNNER_TEMP/mgrs-crate"
+        tar -xzf target/package/mgrs-geotrans-*.crate -C "$RUNNER_TEMP/mgrs-crate"
+        cargo +1.90.0 test --manifest-path "$RUNNER_TEMP"/mgrs-crate/mgrs-geotrans-*/Cargo.toml --all-features --locked
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: release-rust
+        path: target/package/mgrs-geotrans-*.crate
+        if-no-files-found: error
+
+  build_typescript:
+    name: Build TypeScript and WebAssembly package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: typescript
+    steps:
+    - uses: actions/checkout@v7
+
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '24'
+        cache: npm
+        cache-dependency-path: typescript/package-lock.json
+
+    - name: Install WebAssembly toolchain
+      run: |
+        rustup toolchain install 1.90.0 --profile minimal --target wasm32-unknown-unknown
+        rustup default 1.90.0
+        cargo install wasm-bindgen-cli --version 0.2.105 --locked
+
+    - run: npm ci
+    - run: npm run build
+    - run: npm run check
+    - run: npm run test:node
+    - name: Check generated notices
+      run: git diff --exit-code -- LICENSE NOTICE
+    - run: npx playwright install --with-deps chromium
+    - run: npm run test:browser
+
+    - name: Package and test standalone npm archive
+      run: |
+        mkdir -p "$RUNNER_TEMP/mgrs-package"
+        npm pack --pack-destination "$RUNNER_TEMP/mgrs-package"
+        npm run test:package -- "$RUNNER_TEMP"/mgrs-package/*.tgz
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: release-typescript
+        path: ${{ runner.temp }}/mgrs-package/*.tgz
+        if-no-files-found: error
+
+  upload_release:
+    name: Attach all packages to GitHub release
+    needs: [build_wheels, build_sdist, build_rust, build_typescript]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+    - name: Download all Python wheels and source distribution
+      uses: actions/download-artifact@v8
+      with:
+        pattern: cibw-*
+        path: release-assets
+        merge-multiple: true
+
+    - name: Download Rust package
+      uses: actions/download-artifact@v8
+      with:
+        name: release-rust
+        path: release-assets
+
+    - name: Download TypeScript package
+      uses: actions/download-artifact@v8
+      with:
+        name: release-typescript
+        path: release-assets
+
+    - name: Upload release assets
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+      # Fail before uploading if any package type is missing. Replace assets
+      # with the same names when rerunning a release job.
+      run: |
+        shopt -s failglob
+        gh release upload "$RELEASE_TAG" --clobber \
+          release-assets/*.whl release-assets/*.tar.gz \
+          release-assets/*.crate release-assets/*.tgz
 
   upload_pypi:
     needs: [build_wheels, build_sdist]

@@ -2,6 +2,8 @@
 build/
 .venv/
 libmgrs.so
+/mgrs/_native*.so
+/mgrs/_native*.pyd
 mgrs.egg-info/
 dist/
 benchmarks/data/

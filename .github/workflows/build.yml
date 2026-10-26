@@ -86,6 +86,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
         python-arch: ${{ matrix.python-arch }}
         activate-environment: true
+    - name: Install Rust backend toolchain
+      run: |
+        rustup toolchain install 1.90.0 --profile minimal
+        rustup default 1.90.0
+        if [[ "$RUNNER_OS" == Windows ]]; then
+          rustup target add x86_64-pc-windows-msvc aarch64-pc-windows-msvc
+        fi
     - name: Build and install test dependencies
       run: uv pip install -e . pytest
     - name: Test with pytest

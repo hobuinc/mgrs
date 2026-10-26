@@ -229,13 +229,33 @@ impl Mgrs {
             .checked_mul(WIDTH)
             .ok_or_else(|| Error::new(LAYOUT))?;
         let mut output = vec![0; len];
+        let result = self.to_mgrs_array_into(points, in_degrees, mgrs_precision, &mut output)?;
+        Ok(Conversion {
+            value: output,
+            warning: result.warning,
+        })
+    }
+
+    /// Fill caller-owned 15-byte records. On error, output may be partially
+    /// written; bindings must discard it rather than expose partial results.
+    pub fn to_mgrs_array_into(
+        &self,
+        points: &[f64],
+        in_degrees: bool,
+        mgrs_precision: i32,
+        output: &mut [u8],
+    ) -> Result<Conversion<()>> {
+        precision(mgrs_precision)?;
+        if points.len() % 2 != 0 || (points.len() / 2).checked_mul(WIDTH) != Some(output.len()) {
+            return Err(Error::new(LAYOUT));
+        }
         for (i, p) in points.chunks_exact(2).enumerate() {
             let (lat, lon) = radians(p[0], p[1], in_degrees).map_err(|e| e.at_row(i))?;
             let code = grid::forward(&self.projection, lat, lon, mgrs_precision)
                 .map_err(|e| e.at_row(i))?;
             output[i * WIDTH..(i + 1) * WIDTH].copy_from_slice(&code.bytes);
         }
-        Ok(Conversion::new(output, false))
+        Ok(Conversion::new((), false))
     }
 
     /// Fixed-width ASCII byte records to interleaved latitude/longitude doubles.
@@ -250,7 +270,29 @@ impl Mgrs {
         }
         let count = codes.len() / width;
         let capacity = count.checked_mul(2).ok_or_else(|| Error::new(LAYOUT))?;
-        let mut result = Conversion::new(Vec::with_capacity(capacity), false);
+        let mut output = vec![0.0; capacity];
+        let result = self.to_lat_lon_array_into(codes, in_degrees, width, &mut output)?;
+        Ok(Conversion {
+            value: output,
+            warning: result.warning,
+        })
+    }
+
+    /// Fill caller-owned interleaved doubles. Discard output on error.
+    pub fn to_lat_lon_array_into(
+        &self,
+        codes: &[u8],
+        in_degrees: bool,
+        width: usize,
+        output: &mut [f64],
+    ) -> Result<Conversion<()>> {
+        if !(1..=WIDTH).contains(&width)
+            || codes.len() % width != 0
+            || (codes.len() / width).checked_mul(2) != Some(output.len())
+        {
+            return Err(Error::new(LAYOUT));
+        }
+        let mut result = Conversion::new((), false);
         for (i, record) in codes.chunks_exact(width).enumerate() {
             let len = record.iter().position(|b| *b == 0).unwrap_or(width);
             if record[len..].iter().any(|b| *b != 0) {
@@ -262,9 +304,7 @@ impl Mgrs {
             if point.warning.is_some() && result.warning.is_none() {
                 result.warning = Some(Warning { row: Some(i) });
             }
-            result
-                .value
-                .extend_from_slice(&[point.value.0, point.value.1]);
+            output[i * 2..i * 2 + 2].copy_from_slice(&[point.value.0, point.value.1]);
         }
         Ok(result)
     }

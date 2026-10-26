@@ -163,6 +163,11 @@ def main(argv=None):
     parser.add_argument("--base", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--dataset",
+        type=Path,
+        help="reuse an existing fixed dataset",
+    )
     parser.add_argument("--points", type=perf.positive_int, default=1_000_000)
     parser.add_argument("--repeats", type=perf.positive_int, default=5)
     parser.add_argument("--max-regression", type=perf.percentage, default=10)
@@ -183,8 +188,13 @@ def main(argv=None):
         for source in sources.values():
             if not (source / "mgrs" / "__init__.py").is_file():
                 raise ValueError(f"missing mgrs source tree: {source}")
-        dataset = output / "global.csv"
-        perf.generate_dataset(dataset, args.points)
+        if args.dataset:
+            dataset = args.dataset.resolve()
+            # Verify the manifest before either run.
+            perf.load_dataset(dataset)
+        else:
+            dataset = output / "global.csv"
+            perf.generate_dataset(dataset, args.points)
         runs = {"base": [], "candidate": []}
         for index, revision in enumerate(ORDER, 1):
             print(f"\nRun {index}/4: {revision}", flush=True)

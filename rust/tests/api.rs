@@ -2,6 +2,52 @@ use mgrs::{LATITUDE, LAYOUT, LONGITUDE, MGRS, PRECISION, STRING};
 use std::sync::Arc;
 
 #[test]
+fn caller_owned_output_buffers() {
+    let m = MGRS::new();
+    let points = [42.0, -93.0, 90.0, 0.0];
+    let mut codes = [255; 30];
+    m.to_mgrs_array_into(&points, true, 5, &mut codes).unwrap();
+    assert_eq!(
+        codes.as_slice(),
+        m.to_mgrs_array(&points, true, 5).unwrap().value
+    );
+    let mut decoded = [0.0; 4];
+    m.to_lat_lon_array_into(&codes, true, 15, &mut decoded)
+        .unwrap();
+    assert_eq!(
+        decoded.as_slice(),
+        m.to_lat_lon_array(&codes, true, 15).unwrap().value
+    );
+    assert_eq!(
+        m.to_mgrs_array_into(&points, true, 5, &mut codes[..15])
+            .unwrap_err()
+            .code,
+        LAYOUT
+    );
+    assert_eq!(
+        m.to_lat_lon_array_into(&codes, true, 0, &mut decoded)
+            .unwrap_err()
+            .code,
+        LAYOUT
+    );
+    assert_eq!(
+        m.to_lat_lon_array_into(&codes, true, 15, &mut decoded[..2])
+            .unwrap_err()
+            .code,
+        LAYOUT
+    );
+    let warning = m
+        .to_lat_lon_array_into(b"50TMK5045027900", true, 15, &mut decoded[..2])
+        .unwrap();
+    assert_eq!(warning.warning.unwrap().row, Some(0));
+    let error = m
+        .to_lat_lon_array_into(b"50TMK5045027900invalidxxxxxxxx", true, 15, &mut decoded)
+        .unwrap_err();
+    assert_eq!(error.code, STRING);
+    assert_eq!(error.row, Some(1));
+}
+
+#[test]
 fn python_doctests_and_cell_centers() {
     let m = MGRS::new();
     for (lat, lon, code) in [

@@ -40,6 +40,10 @@ def capture(call):
 
 
 def main():
+    if getattr(mgrs._native, "backend", None) == "rust":
+        raise RuntimeError(
+            "Generate C++ reference fixtures from a C++ backend checkout"
+        )
     golden = cases(
         "tests/test_geotrans_forward.py", "test_forward_strings_match_upstream"
     )
