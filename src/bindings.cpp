@@ -164,6 +164,28 @@ struct MGRS {
         return py::make_tuple(latitude, longitude);
     }
 
+    std::string to_wkt(py::handle code) const {
+        auto text = code_bytes(code);
+        std::string wkt(1024, '\0');
+        std::size_t required = 0;
+        const long status = convert([&] {
+            auto call = [&] {
+                return mgrs_rust_to_wkt(
+                    reinterpret_cast<const std::uint8_t *>(text.data()), text.size(),
+                    reinterpret_cast<std::uint8_t *>(wkt.data()), wkt.size(), &required);
+            };
+            auto result = call();
+            if (required > wkt.size()) {
+                wkt.resize(required);
+                result = call();
+            }
+            return result;
+        });
+        check_result(status, "Convert_MGRS_To_WKT");
+        wkt.resize(required);
+        return wkt;
+    }
+
     py::tuple mgrs_to_utm(py::handle code, const std::string &encoding) const {
         auto text = code_bytes(code, encoding.c_str());
         std::int32_t zone = 0;
@@ -297,6 +319,9 @@ PYBIND11_MODULE(_native, module) {
         .def("toMGRS", &MGRS::to_mgrs, py::arg("latitude"), py::arg("longitude"),
              py::arg("inDegrees") = true, py::arg("MGRSPrecision") = 5)
         .def("toLatLon", &MGRS::to_latlon, py::arg("MGRS"), py::arg("inDegrees") = true)
+        .def("toWKT", &MGRS::to_wkt, py::arg("MGRS"),
+             "Return the full cell as a WGS84 longitude/latitude WKT POLYGON. "
+             "Curved edges are sampled; antimeridian longitudes may exceed +/-180.")
         .def("MGRSToUTM", &MGRS::mgrs_to_utm, py::arg("MGRS"), py::arg("encoding") = "utf-8")
         .def("UTMToMGRS", &MGRS::utm_to_mgrs, py::arg("zone"), py::arg("hemisphere"),
              py::arg("easting"), py::arg("northing"), py::arg("MGRSPrecision") = 5)

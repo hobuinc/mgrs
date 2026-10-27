@@ -8,12 +8,15 @@
 //! assert_eq!(code.value, "15TWG0000049776");
 //! let point = m.to_lat_lon(&code.value, true)?;
 //! assert!((point.value.0 - 42.0).abs() < 0.00001);
+//! let polygon = m.to_wkt(&code.value)?;
+//! assert!(polygon.value.starts_with("POLYGON (("));
 //! let codes = m.to_mgrs_array(&[42.0, -93.0, 90.0, 0.0], true, 5)?;
 //! assert_eq!(codes.value.len(), 30);
 //! assert_eq!(m.to_lat_lon_array(&codes.value, true, 15)?.value.len(), 4);
 //! # Ok::<(), mgrs::Error>(())
 //! ```
 #![forbid(unsafe_code)]
+mod geometry;
 mod grid;
 mod projection;
 #[cfg(feature = "wasm")]
@@ -182,6 +185,21 @@ impl Mgrs {
             result.value.1 = result.value.1 * 180.0 / PI;
         }
         Ok(result)
+    }
+
+    /// The full grid cell as a WGS84 `POLYGON ((longitude latitude, ...))`.
+    /// Precision comes from the ID (100 km through 1 m). The closed,
+    /// counterclockwise ring samples curved UTM/UPS edges adaptively, targeting
+    /// 0.1 m midpoint error. It is not clipped to zone or latitude-band limits.
+    /// Longitudes are unwrapped across the antimeridian and may exceed ±180°;
+    /// pole corners have two longitudes to preserve the cell's wedge. WKT has
+    /// no embedded SRID. Input validation and warnings match `to_lat_lon`.
+    pub fn to_wkt(&self, code: impl AsRef<[u8]>) -> Result<Conversion<String>> {
+        let cell = grid::cell(&self.projection, &grid::parse(code.as_ref())?)?;
+        Ok(Conversion {
+            value: cell.value.wkt(&self.projection)?,
+            warning: cell.warning,
+        })
     }
 
     pub fn mgrs_to_utm(&self, code: impl AsRef<[u8]>) -> Result<Conversion<Utm>> {

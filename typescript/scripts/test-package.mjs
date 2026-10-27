@@ -29,6 +29,7 @@ for (const Engine of [MGRS, BrowserMGRS]) {
   const m = new Engine(w => warnings.push(w));
   try {
     assert.equal(m.toMGRS(42, -93), "15TWG0000049776");
+    assert.ok(m.toWKT("15TWG0000049776").startsWith("POLYGON ((-93.000000000000 "));
     assert.deepEqual(m.toLatLonArray(m.toMGRSArray(new Float64Array([42, -93]))), new Float64Array(m.toLatLon("15TWG0000049776")));
     assert.deepEqual(m.toLatLon(" 04QEJ 97987 90670 "), m.toLatLon("04QEJ9798790670"));
     m.toLatLon("50TMK5045027900");
@@ -44,6 +45,10 @@ import {init, MGRS as BrowserMGRS} from "mgrs-geotrans/browser";
 const warnings: Warning[] = [];
 const m = new MGRS(w => warnings.push(w));
 const point: LatLon = m.toLatLon(m.toMGRS(42, -93));
+const polygon: string = m.toWKT("15TWG0000049776");
+const polygonBytes: string = m.toWKT(new TextEncoder().encode("15TWG"));
+// @ts-expect-error WKT requires an MGRS string or bytes, not a point.
+m.toWKT([42, -93]);
 const codes: Uint8Array = m.toMGRSArray(new Float64Array(point));
 const result: Float64Array = m.toLatLonArray(codes, true, {width: 15});
 // @ts-expect-error The public API requires Float64Array, not number[].

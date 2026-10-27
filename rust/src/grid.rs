@@ -390,6 +390,29 @@ pub(crate) fn inverse(proj: &Projection, p: &Parsed) -> Result<Conversion<(f64, 
     }
 }
 
+pub(crate) fn cell(proj: &Projection, p: &Parsed) -> Result<Conversion<crate::geometry::Cell>> {
+    let (hemisphere, easting, northing, warning) = if p.zone != 0 {
+        let center = to_utm(proj, p)?;
+        let u = center.value;
+        (u.hemisphere, u.easting, u.northing, center.warning)
+    } else {
+        let (h, e, n) = to_ups(p)?;
+        proj.ups_inverse(h, e, n)?;
+        (h, e, n, None)
+    };
+    let size = scale(p.precision);
+    Ok(Conversion {
+        value: crate::geometry::Cell {
+            zone: p.zone,
+            hemisphere,
+            easting: easting - size / 2.0,
+            northing: northing - size / 2.0,
+            size,
+        },
+        warning,
+    })
+}
+
 pub(crate) fn mgrs_to_utm(proj: &Projection, p: &Parsed) -> Result<Conversion<Utm>> {
     if p.zone != 0 {
         to_utm(proj, p)

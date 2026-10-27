@@ -188,7 +188,7 @@ You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.
 
 MGRS input accepts ASCII whitespace (spaces, tabs, and line breaks) before,
-after, or between coordinate groups. ``toLatLon`` and ``MGRSToUTM`` remove
+after, or between coordinate groups. ``toLatLon``, ``toWKT`` and ``MGRSToUTM`` remove
 this whitespace before validating the complete coordinate and passing it
 to GEOTRANS. Both ``str`` and ``bytes`` inputs are supported::
 
@@ -199,6 +199,37 @@ to GEOTRANS. Both ``str`` and ``bytes`` inputs are supported::
 
 Invalid characters, trailing text, and NUL bytes in scalar inputs raise
 ``mgrs.core.MGRSError`` rather than converting a partial coordinate.
+
+Cell polygons
+------------------------------------------------------------------------------
+
+``toWKT(MGRS)`` returns the cell footprint as a WKT ``POLYGON``::
+
+    >>> m = mgrs.MGRS()
+    >>> polygon = m.toWKT("15TWG0000049776")
+    >>> polygon.startswith("POLYGON ((")
+    True
+
+Coordinates are WGS84 **longitude latitude in degrees**, with no embedded SRID.
+The ID determines the cell size: 100 km at precision 0 through 1 m at precision
+5. The polygon covers the full UTM or UPS grid square, including portions beyond
+zone and latitude-band boundaries. Its corners are derived from the projected
+grid bounds, accounting for the half-cell offset used by ``toLatLon``.
+
+The exterior ring is closed and counterclockwise. Curved projected edges are
+sampled adaptively, targeting a 0.1 m midpoint error, so coarse cells generally
+have more than four vertices. Coordinates are written to 12 decimal places;
+the footprint is an approximation, not an exact representation of curved edges.
+
+To preserve a single polygon across the antimeridian, longitudes are continuous
+and may extend beyond -180 or +180 degrees. Do not wrap individual vertices:
+split the geometry at the antimeridian if a consumer requires that longitude
+range. Cells touching a pole include two vertices at latitude +90 or -90 with
+different longitudes to represent the cell's wedge.
+
+The method accepts ``str`` or ``bytes`` with the same whitespace, validation and
+latitude-band warnings as ``toLatLon``. Rust exposes ``to_wkt(code)`` and
+TypeScript exposes ``toWKT(code)`` with the same geometry conventions.
 
 Building from source
 ------------------------------------------------------------------------------

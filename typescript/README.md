@@ -62,6 +62,7 @@ Names, positional arguments and defaults follow Python. All latitude/longitude t
 | --- | --- |
 | `toMGRS(lat, lon, inDegrees=true, MGRSPrecision=5)` | `string` |
 | `toLatLon(code, inDegrees=true)` | `[latitude, longitude]` |
+| `toWKT(code)` | `string` WKT polygon, longitude latitude |
 | `MGRSToUTM(code, encoding="utf-8")` | `[zone, hemisphere, easting, northing]` |
 | `UTMToMGRS(zone, hemisphere, easting, northing, MGRSPrecision=5)` | `string` |
 | `toMGRSArray(points, inDegrees=true, MGRSPrecision=5)` | `Uint8Array` |
@@ -74,6 +75,17 @@ MGRS inputs accept `string` or `Uint8Array` (including Node `Buffer`); hemispher
 Precision is an integer 0–5, corresponding to 100 km, 10 km, 1 km, 100 m, 10 m and 1 m cells. Forward conversions truncate. **Inverse conversions return the cell center**, including `MGRSToUTM`: +0.5 m on each projected grid axis at precision 5 and +50 km at precision 0. WGS84, Norway/Svalbard exceptions and polar UPS behavior match Python GEOTRANS 3.10. `MGRSToUTM` can reject UPS references outside the supported UTM latitude range. Native and WebAssembly inverse floating-point results are checked within 1e-9 degrees; exact floating-point equality across runtimes is not guaranteed.
 
 ASCII whitespace before, after and between MGRS groups is removed; lowercase is accepted. Invalid characters, non-ASCII whitespace, trailing junk and embedded scalar NULs are rejected. Coordinates must be finite, latitude within ±90°, longitude from −180° through 360°, or corresponding radian limits. UTM zones are integers 1–60 and hemisphere must be `"N"` or `"S"`.
+
+## Cell polygons
+
+```ts
+const polygon: string = m.toWKT("15TWG0000049776");
+console.assert(polygon.startsWith("POLYGON (("));
+```
+
+`toWKT` accepts a string or `Uint8Array` and returns the full UTM/UPS grid square at the ID's precision (100 km through 1 m). WKT coordinates are WGS84 **longitude latitude degrees**, with no embedded SRID. The footprint is not clipped to zone or latitude-band boundaries. Its closed counterclockwise ring samples curved grid edges adaptively, targeting 0.1 m midpoint error, and writes coordinates to 12 decimal places. It is an approximation; coarse cells generally have more than four vertices. Validation, warning callbacks and disposal behavior match `toLatLon`.
+
+Antimeridian longitudes are unwrapped and may exceed ±180° to preserve one continuous polygon. Split at the antimeridian when a consumer requires normalized longitudes; do not wrap individual vertices. Cells touching a pole include two vertices at latitude ±90° with different longitudes to close the cell's wedge. Node.js and browsers expose the same API.
 
 ## Typed arrays
 

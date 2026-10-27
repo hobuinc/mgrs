@@ -11,6 +11,7 @@ export interface EngineInterface {
   warning_row(): number;
   to_mgrs(lat: number, lon: number, degrees: boolean, precision: number): string;
   to_lat_lon(code: Uint8Array, degrees: boolean): Float64Array;
+  to_wkt(code: Uint8Array): string;
   mgrs_to_utm(code: Uint8Array): Float64Array;
   utm_to_mgrs(zone: number, hemisphere: string, e: number, n: number, precision: number): string;
   to_mgrs_array(points: Float64Array, degrees: boolean, precision: number): Uint8Array;
@@ -76,6 +77,12 @@ export class BaseMGRS {
     const input = bytes(MGRS);
     const p = this.invoke(e => e.to_lat_lon(input, inDegrees));
     return [p[0]!, p[1]!];
+  }
+  /** Full cell as a WGS84 longitude/latitude WKT POLYGON. Curved edges are
+   * sampled; antimeridian longitudes may exceed ±180. No embedded SRID. */
+  toWKT(MGRS: MGRSInput): string {
+    const input = bytes(MGRS);
+    return this.invoke(e => e.to_wkt(input));
   }
   MGRSToUTM(MGRS: MGRSInput, encoding = "utf-8"): UTM {
     if (typeof MGRS === "string" && !["utf-8", "utf8", "ascii", "us-ascii"].includes(encoding.toLowerCase())) {

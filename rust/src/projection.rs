@@ -256,6 +256,17 @@ impl Projection {
     }
 
     pub fn utm_inverse(&self, p: &Utm) -> Result<(f64, f64)> {
+        let (lat, lon) = self.utm_inverse_cell(p)?;
+        if !(-80.5 * RAD - EPS..84.5 * RAD + EPS).contains(&lat) {
+            return Err(Error::new(NORTHING));
+        }
+        Ok((lat, lon))
+    }
+
+    // A valid cell's boundary can extend beyond the projection's normal
+    // latitude domain. Only geometry uses this variant; validate its center
+    // with the ordinary inverse before projecting any boundary vertices.
+    pub(crate) fn utm_inverse_cell(&self, p: &Utm) -> Result<(f64, f64)> {
         validate_utm(p)?;
         let x = (1.0 / self.radius) * (p.easting - 500000.0);
         let y =
@@ -296,7 +307,7 @@ impl Projection {
         if lon <= -PI {
             lon += 2.0 * PI;
         }
-        if !(-80.5 * RAD - EPS..84.5 * RAD + EPS).contains(&lat) || !lat.is_finite() {
+        if !lat.is_finite() || !lon.is_finite() {
             return Err(Error::new(NORTHING));
         }
         Ok((lat, lon))
@@ -341,6 +352,19 @@ impl Projection {
     }
 
     pub fn ups_inverse(&self, hemi: char, easting: f64, northing: f64) -> Result<(f64, f64)> {
+        let (lat, lon) = self.ups_inverse_cell(hemi, easting, northing)?;
+        if (-79.5 * RAD + EPS..0.0).contains(&lat) || (0.0..83.5 * RAD - EPS).contains(&lat) {
+            return Err(Error::new(LATITUDE));
+        }
+        Ok((lat, lon))
+    }
+
+    pub(crate) fn ups_inverse_cell(
+        &self,
+        hemi: char,
+        easting: f64,
+        northing: f64,
+    ) -> Result<(f64, f64)> {
         if !(0.0..=4000000.0).contains(&easting) {
             return Err(Error::new(EASTING));
         }
@@ -380,9 +404,6 @@ impl Projection {
         if hemi == 'S' {
             lat *= -1.0;
             lon *= -1.0;
-        }
-        if (-79.5 * RAD + EPS..0.0).contains(&lat) || (0.0..83.5 * RAD - EPS).contains(&lat) {
-            return Err(Error::new(LATITUDE));
         }
         Ok((lat, lon))
     }
