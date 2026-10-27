@@ -1,5 +1,5 @@
 [workspace]
-members = ["rust"]
+members = ["rust", "rust/python"]
 resolver = "2"
 
 [profile.release]

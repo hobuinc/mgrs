@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "baseline_source": {
+    "commit": "b0634d792179879ef0d18667f165fc18fc7208cf",
+    "snapshot": "git archive b0634d7",
+    "backend": "GEOTRANS 3.10 C++",
+    "note": "The archived checkout sits inside the working repository, so raw git_dirty metadata refers to the parent. The baseline source itself is unmodified."
+  },
+  "candidate_source": {
+    "parent": "b0634d792179879ef0d18667f165fc18fc7208cf",
+    "branch": "codex/python-rust-backend",
+    "backend": "Rust through the existing pybind11 interface"
+  },
+  "toolchain": {
+    "rust": "1.90.0",
+    "clang": "AppleClang 21.0.0.21000101",
+    "cmake": "4.4.4",
+    "scikit-build-core": "1.1.1",
+    "pybind11": "3.1.0",
+    "cpp_profile": "CMake Release, pybind11 NO_EXTRAS",
+    "rust_profile": "Cargo release, thin LTO, codegen-units=1, portable target (no target-cpu=native)"
+  },
+  "base": {
+    "schema_version": 1,
+    "created_at": "2026-10-23T20:19:44.450695+00:00",
+    "dataset": {
+      "schema_version": 1,
+      "sampling": "jittered-equal-area-sphere-v1",
+      "count": 1000000,
+      "seed": 20261022,
+      "latitude_bands": 1000,
+      "longitude_cells": 1000,
+      "sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1"
+    },
+    "config": {
+      "precision": 5,
+      "repeats": 10,
+      "warmup": 10000,
+      "timing": "serial-public-api-alternating-v1-abba-pooled-v1"
+    },
+    "environment": {
+      "source_root": "/Users/hobu/dev/git/mgrs/.tools/python-rust-comparison/baseline",
+      "python": "3.12.15",
+      "implementation": "CPython",
+      "platform": "macOS-26.5.2-arm64-arm-64bit",
+      "machine": "arm64",
+      "processor": "arm",
+      "hostname": "hobu-mbp-14-m4.local",
+      "git_commit": "b0634d792179879ef0d18667f165fc18fc7208cf",
+      "git_dirty": true
+    },
+    "mgrs_version": "1.6.0",
+    "native_library_sha256": "a8364717ddf989b1e23515a702653e0e86e86755f9b56a1d58877f817fe87f2b",
+    "validation": {
+      "inverse_inputs_sha256": "d2d5b052b010ca9f82a13db99543898cf3004ccf60aea36384ad33cbc3b276d6",
+      "coverage": {
+        "utm": 989685,
+        "ups_north": 2736,
+        "ups_south": 7579
+      },
+      "max_round_trip_error_metres": 0.7074648694134353,
+      "round_trip_tolerance_metres": 3
+    },
+    "operations": {
+      "forward": {
+        "seconds": [
+          0.5892028328962624,
+          0.5796086660120636,
+          0.5799197088927031,
+          0.5795305839274079,
+          0.5830699168145657,
+          0.5757281249389052,
+          0.5713284169323742,
+          0.5713417499791831,
+          0.5714879580773413,
+          0.5702371660154313
+        ],
+        "median_seconds": 0.5776293544331565,
+        "min_seconds": 0.5702371660154313,
+        "max_seconds": 0.5892028328962624,
+        "queries_per_second": 1731213.9563636396,
+        "microseconds_per_query": 0.5776293544331565
+      },
+      "inverse": {
+        "seconds": [
+          0.9748515000101179,
+          0.9600151248741895,
+          0.9477562920656055,
+          0.9518107080366462,
+          0.9619905408471823,
+          0.959642417030409,
+          0.9492891249246895,
+          0.9538275410886854,
+          0.9491587500087917,
+          0.9475352079607546
+        ],
+        "median_seconds": 0.9528191245626658,
+        "min_seconds": 0.9475352079607546,
+        "max_seconds": 0.9748515000101179,
+        "queries_per_second": 1049517.137325502,
+        "microseconds_per_query": 0.9528191245626658
+      }
+    },
+    "array_config": {
+      "points_storage": "array('d')",
+      "codes_storage": "bytearray",
+      "code_width": 15,
+      "validation": "all-rows-exact-scalar-equivalence",
+      "timing": "whole-buffer-including-output-allocation-v1"
+    },
+    "array_operations": {
+      "forward": {
+        "seconds": [
+          0.2925162920728326,
+          0.2961998339742422,
+          0.29475566698238254,
+          0.2964123331476003,
+          0.2943213749676943,
+          0.29560337495058775,
+          0.294353042030707,
+          0.29085845802910626,
+          0.2967422080691904,
+          0.2981384159065783
+        ],
+        "median_seconds": 0.29517952096648514,
+        "min_seconds": 0.29085845802910626,
+        "max_seconds": 0.2981384159065783,
+        "queries_per_second": 3387768.8964524763,
+        "microseconds_per_query": 0.29517952096648514
+      },
+      "inverse": {
+        "seconds": [
+          0.8196184590924531,
+          0.8279592921026051,
+          0.8240132501814514,
+          0.8191243750043213,
+          0.8213864588178694,
+          0.8224387080408633,
+          0.8195205419324338,
+          0.8213938339613378,
+          0.8204437920358032,
+          0.8233747910708189
+        ],
+        "median_seconds": 0.8213901463896036,
+        "min_seconds": 0.8191243750043213,
+        "max_seconds": 0.8279592921026051,
+        "queries_per_second": 1217448.2545176258,
+        "microseconds_per_query": 0.8213901463896036
+      }
+    },
+    "array_speedup": {
+      "forward": 1.956874760626571,
+      "inverse": 1.1600079800698297
+    },
+    "run_started_at": [
+      "2026-10-23T20:19:44.450695+00:00",
+      "2026-10-23T20:20:25.021930+00:00"
+    ]
+  },
+  "candidate": {
+    "schema_version": 1,
+    "created_at": "2026-10-23T20:20:03.250408+00:00",
+    "dataset": {
+      "schema_version": 1,
+      "sampling": "jittered-equal-area-sphere-v1",
+      "count": 1000000,
+      "seed": 20261022,
+      "latitude_bands": 1000,
+      "longitude_cells": 1000,
+      "sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1"
+    },
+    "config": {
+      "precision": 5,
+      "repeats": 10,
+      "warmup": 10000,
+      "timing": "serial-public-api-alternating-v1-abba-pooled-v1"
+    },
+    "environment": {
+      "source_root": "/Users/hobu/dev/git/mgrs",
+      "python": "3.12.15",
+      "implementation": "CPython",
+      "platform": "macOS-26.5.2-arm64-arm-64bit",
+      "machine": "arm64",
+      "processor": "arm",
+      "hostname": "hobu-mbp-14-m4.local",
+      "git_commit": "b0634d792179879ef0d18667f165fc18fc7208cf",
+      "git_dirty": true
+    },
+    "mgrs_version": "1.6.0",
+    "native_library_sha256": "48d9d40e4588cc8c5a19375f9f7e2ff488f9accd47b89d12cbe3c70a55f46f23",
+    "validation": {
+      "inverse_inputs_sha256": "d2d5b052b010ca9f82a13db99543898cf3004ccf60aea36384ad33cbc3b276d6",
+      "coverage": {
+        "utm": 989685,
+        "ups_north": 2736,
+        "ups_south": 7579
+      },
+      "max_round_trip_error_metres": 0.7074648691595598,
+      "round_trip_tolerance_metres": 3
+    },
+    "operations": {
+      "forward": {
+        "seconds": [
+          0.4206167918164283,
+          0.40791466692462564,
+          0.40956058306619525,
+          0.4175075830426067,
+          0.413272500038147,
+          0.42314124992117286,
+          0.4082843749783933,
+          0.4084820419084281,
+          0.4107420830987394,
+          0.4173525001388043
+        ],
+        "median_seconds": 0.4120072915684432,
+        "min_seconds": 0.40791466692462564,
+        "max_seconds": 0.42314124992117286,
+        "queries_per_second": 2427141.5105134826,
+        "microseconds_per_query": 0.4120072915684432
+      },
+      "inverse": {
+        "seconds": [
+          0.5039409589953721,
+          0.49797950009815395,
+          0.49758095806464553,
+          0.500293041812256,
+          0.49873404088430107,
+          0.5005891670007259,
+          0.4976902911439538,
+          0.4978244169615209,
+          0.5051487081218511,
+          0.5016689170151949
+        ],
+        "median_seconds": 0.4995135413482785,
+        "min_seconds": 0.49758095806464553,
+        "max_seconds": 0.5051487081218511,
+        "queries_per_second": 2001947.7295867032,
+        "microseconds_per_query": 0.4995135413482785
+      }
+    },
+    "array_config": {
+      "points_storage": "array('d')",
+      "codes_storage": "bytearray",
+      "code_width": 15,
+      "validation": "all-rows-exact-scalar-equivalence",
+      "timing": "whole-buffer-including-output-allocation-v1"
+    },
+    "array_operations": {
+      "forward": {
+        "seconds": [
+          0.15287470794282854,
+          0.1529586249962449,
+          0.1502878749743104,
+          0.15136858401820064,
+          0.1515567081514746,
+          0.15283066709525883,
+          0.15200849995017052,
+          0.15168133308179677,
+          0.15215995791368186,
+          0.15058516594581306
+        ],
+        "median_seconds": 0.15184491651598364,
+        "min_seconds": 0.1502878749743104,
+        "max_seconds": 0.1529586249962449,
+        "queries_per_second": 6585666.632407395,
+        "microseconds_per_query": 0.15184491651598364
+      },
+      "inverse": {
+        "seconds": [
+          0.38653537491336465,
+          0.38326587504707277,
+          0.3845314171630889,
+          0.38323287502862513,
+          0.38449845812283456,
+          0.3887204169295728,
+          0.3846218748949468,
+          0.39804925001226366,
+          0.38856433308683336,
+          0.38583804201334715
+        ],
+        "median_seconds": 0.385229958454147,
+        "min_seconds": 0.38323287502862513,
+        "max_seconds": 0.39804925001226366,
+        "queries_per_second": 2595852.1087321606,
+        "microseconds_per_query": 0.385229958454147
+      }
+    },
+    "array_speedup": {
+      "forward": 2.7133426723908407,
+      "inverse": 1.296663279649198
+    },
+    "run_started_at": [
+      "2026-10-23T20:20:03.250408+00:00",
+      "2026-10-23T20:20:14.147704+00:00"
+    ]
+  },
+  "comparison": {
+    "schema_version": 1,
+    "order": [
+      "base",
+      "candidate",
+      "candidate",
+      "base"
+    ],
+    "max_regression_percent": 10,
+    "operations": {
+      "forward": {
+        "change_percent": -28.67272267131279,
+        "regression": false
+      },
+      "inverse": {
+        "change_percent": -47.575197802883096,
+        "regression": false
+      },
+      "array_forward": {
+        "change_percent": -48.558451474272765,
+        "regression": false
+      },
+      "array_inverse": {
+        "change_percent": -53.10024594921012,
+        "regression": false
+      }
+    },
+    "array_speedup": {
+      "forward": 2.7133426723908407,
+      "inverse": 1.296663279649198
+    },
+    "min_array_speedup": null
+  },
+  "parity": {
+    "dataset": {
+      "schema_version": 1,
+      "sampling": "jittered-equal-area-sphere-v1",
+      "count": 1000000,
+      "seed": 20261022,
+      "latitude_bands": 1000,
+      "longitude_cells": 1000,
+      "sha256": "9e1729c9da6db1a56589702aa22ab16296aacd45534a9b4506dd256c61aeedc1"
+    },
+    "oracle_files": {
+      "upstream-precision-0.bin": "67718fa5e3ea8269a68d5f318577f45b32ac949441e9c795e2d2df9518a2b465",
+      "upstream-precision-1.bin": "1d7ac5806201ed84c553c37f3159d8cb16ca2615b4892992061bf8c63370ec4c",
+      "upstream-precision-2.bin": "400efa7c9a98525a60967e1785f4011d15ce71b8a23f743206d0058a5ead8314",
+      "upstream-precision-3.bin": "0626d7ecf333e16f221d4cbf9cfd76fb038a5d076453c97c0806983c734c1537",
+      "upstream-precision-4.bin": "c3563beef5602c4aa2da05af776f17591dd24a3fb84aa0cb5a6d4a962c4ab5a7",
+      "upstream-precision-5.bin": "19e101af5a7b204341ae618924372a5e82d14533962d1e73438a74859847e374",
+      "upstream-inverse-precision-5.bin": "d5f4f6c6972b50e8c58b3ec8a75420047690bb72e5234dc6af5ad361fcac7023"
+    },
+    "native_library_sha256": "48d9d40e4588cc8c5a19375f9f7e2ff488f9accd47b89d12cbe3c70a55f46f23",
+    "backend": "rust",
+    "exact_scalar_forward_records": 6000000,
+    "exact_batch_forward_records": 6000000,
+    "inverse_points": 1000000,
+    "inverse_scalar_equals_batch": true,
+    "inverse_components_differing_from_cpp": 348585,
+    "maximum_inverse_difference_degrees": 3.339550858072471e-13,
+    "inverse_tolerance_degrees": 1e-09
+  }
+}

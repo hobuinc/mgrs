@@ -45,13 +45,19 @@ wheel.packages = ["mgrs"]
 sdist.include = [
     "/CMakeLists.txt", "/pyproject.toml", "/README.rst", "/LICENSE",
     "/tox.ini", "/.gitignore", "/.github/**/*.yml", "/ci/*.sh", "/ci/*.bat", "/ci/*.txt",
-    "/mgrs/*.py", "/src/*.cpp", "/libmgrs/*.c", "/libmgrs/*.h", "/libmgrs/*.cpp",
-    "/libmgrs/CMakeLists.txt", "/libmgrs/geotrans3.10/**/*.cpp",
+    "/mgrs/*.py", "/src/*.cpp", "/src/*.h", "/cmake/*.cmake",
+    "/Cargo.toml", "/Cargo.lock", "/rust/Cargo.toml", "/rust/README.md",
+    "/rust/LICENSE", "/rust/NOTICE", "/rust/src/*.rs", "/rust/python/Cargo.toml",
+    "/rust/python/src/*.rs", "/rust/examples/*.rs",
+    "/rust/tests/*.rs", "/rust/tests/fixtures/*.json", "/rust/tests/fixtures/*.md",
+    "/libmgrs/*.c", "/libmgrs/*.h", "/libmgrs/*.cpp",
+    "/libmgrs/README.md", "/libmgrs/CMakeLists.txt", "/libmgrs/geotrans3.10/**/*.cpp",
     "/libmgrs/geotrans3.10/**/*.h", "/libmgrs/geotrans3.10/README.rst",
     "/libmgrs/geotrans3.10/SOURCE.json",
     "/tests/*.py", "/tests/*.txt", "/benchmarks/*.py", "/benchmarks/*.rst",
     "/benchmarks/geotrans310-forward-dataset.json",
     "/benchmarks/geotrans310-forward-results.json",
+    "/benchmarks/python-rust-results.json",
     "/benchmarks/requirements-ci.txt",
 ]
 sdist.exclude = ["*"]
@@ -65,4 +71,8 @@ input = "mgrs/__init__.py"
 build-frontend = "build[uv]"
 test-requires = "pytest"
 test-command = "python -m pytest tests --doctest-glob='*.txt'"
-test-sources = ["tests", "benchmarks"]
+test-sources = ["tests", "benchmarks", "rust/tests/fixtures"]
+
+[tool.cibuildwheel.linux]
+before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.90.0"
+environment = { PATH = "$HOME/.cargo/bin:$PATH" }

@@ -9,7 +9,7 @@ function run(command, args) {
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
-run("cargo", ["build", "--locked", "--release", "--target", "wasm32-unknown-unknown", "--features", "wasm", "--lib"]);
+run("cargo", ["build", "--package", "mgrs-geotrans", "--locked", "--release", "--target", "wasm32-unknown-unknown", "--features", "wasm", "--lib"]);
 const target = process.env.CARGO_TARGET_DIR ? resolve(root, process.env.CARGO_TARGET_DIR) : resolve(root, "target");
 for (const [targetName, directory] of [["web", "web"], ["nodejs", "node"]]) {
   const out = resolve(root, "typescript/wasm", directory);

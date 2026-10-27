@@ -2,7 +2,9 @@
 
 A native Rust translation of the WGS84 MGRS, UTM, UPS, Transverse Mercator and Polar Stereographic algorithms in this repository's GEOTRANS 3.10 backend. No C/C++, FFI, Python runtime, or native runtime dependency is required. The same Rust engine builds to WebAssembly for the [TypeScript package](../typescript/README.md).
 
-The crate is `mgrs-geotrans`; its Rust library name is `mgrs`. From this checkout, add a path dependency:
+The crate is `mgrs-geotrans`; its Rust library name is `mgrs`. GitHub releases include a `mgrs-geotrans-<version>.crate` source archive. Extract it with `tar -xzf mgrs-geotrans-<version>.crate`, then add a path dependency pointing to the extracted directory. The release workflow does not publish to crates.io.
+
+To use this checkout instead, add a path dependency:
 
 ```toml
 [dependencies]
@@ -64,6 +66,8 @@ Inputs are flat, contiguous borrowed slices: `[latitude, longitude, …]` or fix
 
 All conversions return `Result<Conversion<T>, Error>`. `Error.code` retains Python's backend status bits; `Error.row` is the zero-based first failing batch row. A failure returns no partial output. Latitude-band warnings preserve coordinates in `Conversion.value` and appear in `Conversion.warning`; batch warnings identify the first affected row. Check this field if warnings should be treated as errors.
 
+`to_mgrs_array_into` and `to_lat_lon_array_into` also accept a final mutable output slice of the exact required size. These allocation-free variants support the Python binding: on error, they can leave partial writes in that slice, which the caller must discard. The Python extension uses the private `mgrs-python` static-library crate and retains its pybind11 interface; the public `mgrs-geotrans` crate remains safe Rust without an FFI dependency.
+
 ```rust
 fn main() -> Result<(), mgrs::Error> {
 let result = mgrs::MGRS::new().to_lat_lon("50TMK5045027900", true)?;
@@ -88,4 +92,4 @@ cargo run --release --example benchmark -- --points 1000000 --repeats 5
 
 See [test coverage and oracle generation](tests/fixtures/README.md) and [performance paths](../benchmarks/rust-typescript.md) for fixed CSV workloads, Python equivalence checks, baseline comparisons and browser measurements. Ordinary tests have no timing thresholds. `cargo package -p mgrs-geotrans` packages the Rust sources, tests and fixtures independently of Python/C++.
 
-See [NOTICE](NOTICE) for GEOTRANS provenance and [LICENSE](LICENSE) for the repository license. These packages have not been published by this change.
+See [NOTICE](NOTICE) for GEOTRANS provenance and [LICENSE](LICENSE) for the repository license.

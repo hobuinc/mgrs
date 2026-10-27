@@ -12,6 +12,10 @@ from benchmarks.performance import load_dataset, sha256_file
 
 
 def main():
+    if getattr(mgrs._native, "backend", None) == "rust":
+        raise RuntimeError(
+            "Generate C++ reference fixtures from a C++ backend checkout"
+        )
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dataset", type=Path)
     parser.add_argument("output", type=Path)

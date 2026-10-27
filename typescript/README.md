@@ -2,6 +2,10 @@
 
 The [Rust translation](../rust/README.md) of this repository's GEOTRANS 3.10 backend, compiled to WebAssembly. Node.js and browsers use the same numerical engine. Python and C++ are not needed at runtime. This ESM package includes TypeScript declarations, generated JavaScript bindings and `.wasm` binaries when built and packed.
 
+## Install a release package
+
+Download `mgrs-geotrans-<version>.tgz` from the [GitHub release assets](https://github.com/hobuinc/mgrs/releases), then install it with `npm install /path/to/mgrs-geotrans-<version>.tgz`. The archive includes Node.js and browser JavaScript, TypeScript declarations, WebAssembly binaries, and license notices. No Rust compiler is needed to install it. The release workflow attaches the package to GitHub releases; it does not publish to npm.
+
 ## Build from this checkout
 
 Install Node.js 22 or later, Rust 1.85 or later (tested with 1.90.0), and the matching WebAssembly binding tools:
@@ -15,7 +19,7 @@ npm run build
 npm pack
 ```
 
-Install the resulting `mgrs-geotrans-1.6.0.tgz` into an application with `npm install /path/to/mgrs-geotrans-1.6.0.tgz`. The package is not published by this change. `npm pack` must follow `npm run build`; no compiler is needed when installing a built package.
+Install the resulting `mgrs-geotrans-1.6.0.tgz` into an application with `npm install /path/to/mgrs-geotrans-1.6.0.tgz`. `npm pack` must follow `npm run build`; no compiler is needed when installing a built package.
 
 ## Node.js
 

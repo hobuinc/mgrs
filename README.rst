@@ -4,16 +4,22 @@ mgrs: Converting to and from MGRS and Decimal Degrees
 ------------------------------------------------------------------------------
 
 This package exposes scalar and batch GeoTrans_ conversions through
-a pybind11_ extension. The GEOTRANS 3.10 C++ implementation is linked statically
-into that extension; no separate libmgrs shared library or runtime Python
-dependencies are needed.
+a pybind11_ extension. The Rust translation of GEOTRANS 3.10 is linked
+statically into that extension; no separate libmgrs shared library or runtime
+Python dependencies are needed. The C++ binding preserves the Python API;
+all coordinate conversion runs in Rust.
 
 The MGRS, UTM, UPS, Transverse Mercator and Polar Stereographic sources are
 vendored from NGA's GEOTRANS 3.10 distribution. Source provenance and hashes
-are recorded in ``libmgrs/geotrans3.10/SOURCE.json``.
+are recorded in ``libmgrs/geotrans3.10/SOURCE.json``. These C++ sources remain
+as reference material and are not compiled into the Python extension.
 
 Inverse conversion returns the center of the MGRS grid cell. See the 1.6.0
 release notes below for the change from the previous southwest-corner convention.
+The Rust backend retains that convention. Forward strings match the C++
+backend on the fixed million-point dataset at all six precisions; inverse
+coordinates can differ in their last floating-point digits. See the
+`Python backend comparison <benchmarks/python-rust.rst>`_ for measurements.
 
 .. _`GeoTrans`: http://earth-info.nga.mil/GandG/geotrans/
 .. _`pybind11`: https://pybind11.readthedocs.io/
@@ -32,8 +38,11 @@ See the `Rust guide <rust/README.md>`_, `TypeScript guide <typescript/README.md>
 `test coverage <rust/tests/fixtures/README.md>`_, and
 `performance guide <benchmarks/rust-typescript.md>`_ for build instructions,
 language-specific error/warning handling, and fixed-workload comparisons.
-These new packages must be built from this checkout; this change does not
-publish them to crates.io or npm.
+The release workflow attaches a Rust ``.crate`` and a TypeScript ``.tgz``
+with Node/browser WebAssembly builds to each published GitHub release,
+alongside the Python source distribution and all Python wheels. The workflow
+publishes the Python packages to PyPI; Rust and TypeScript packages are
+distributed as release downloads without publishing to crates.io or npm.
 
 Run native tests from the repository root::
 
@@ -196,34 +205,56 @@ Building from source
 
 Python 3.11 or later is required.
 
-The build uses scikit-build-core and CMake with a C compiler and a C++17
-compiler. GitHub Actions and the commands below use uv to install Python build
-dependencies and obtain CMake/Ninja when needed::
+The build uses scikit-build-core and CMake. You must provide a C++17 compiler
+and Rust/Cargo 1.85 or later on ``PATH`` before building (CI uses Rust 1.90.0).
+The package does not install Rust automatically. Prebuilt wheels do not
+require a Rust installation.
+
+Install Rust with `rustup <https://rustup.rs/>`_. On macOS or Linux::
+
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    . "$HOME/.cargo/env"
+    rustc --version
+    cargo --version
+
+On Windows, use the rustup installer from https://rustup.rs/, install the
+Visual Studio C++ Build Tools when prompted, and open a new terminal so
+``rustc`` and ``cargo`` are on ``PATH``.
+
+Install uv using https://docs.astral.sh/uv/getting-started/installation/.
+Then, from this repository's root, install the Python package with uv::
 
     uv venv
     . .venv/bin/activate
     uv pip install .
-    # Development install:
-    uv pip install -e . pytest
+
+On Windows PowerShell, activate with ``.venv\Scripts\Activate.ps1`` instead.
+uv installs Python build dependencies and the build backend obtains
+CMake/Ninja when needed; Rust is supplied by your existing toolchain.
+Standard PEP 517 frontends such as pip can also build and install the package.
+
+For development, install in editable mode and run the tests. Repeat the
+install command after changing Rust or C++ sources to rebuild the extension::
+
+    uv pip install --reinstall-package mgrs -e . pytest
     python -m pytest tests --doctest-glob='*.txt'
 
 To produce both source and wheel distributions::
 
     uv build
 
-Install uv using https://docs.astral.sh/uv/getting-started/installation/.
-On Windows, activate with ``.venv\Scripts\activate`` instead. Standard PEP 517
-frontends such as pip can also build and install the package.
-
 CI pins uv and cibuildwheel in ``ci/requirements.txt``. Dependabot checks
 GitHub Actions daily and Python dependencies weekly, including the build
 requirements in ``pyproject.toml`` and the pins in ``ci/requirements.txt``
 and ``benchmarks/requirements-ci.txt``.
 
-``CMakeLists.txt`` defines a position-independent static ``mgrs_core`` library
-and the ``mgrs._native`` pybind11 extension. Only the extension and Python
-package are installed. CMake's normal compiler selection, toolchain files,
-and build flags apply; no ``setup.py`` build is required. The scalar and batch
+``CMakeLists.txt`` builds the ``mgrs-python`` Cargo crate as a static library
+and links it into the ``mgrs._native`` pybind11 extension. Only the extension
+and Python package are installed. Cargo uses the locked dependencies and
+release profile; CMake's compiler flags apply to the C++ binding. Cross builds
+require the matching Rust target installed with ``rustup target add``; set
+``MGRS_RUST_TARGET`` for other CMake toolchains. macOS wheels target arm64 or
+x86_64 separately. No ``setup.py`` build is required. The scalar and batch
 ``MGRS`` methods and ``mgrs.core.MGRSError`` remain available. The internal
 ``mgrs.core.rt`` foreign-function handle has been removed.
 
@@ -288,13 +319,17 @@ views and slices of existing buffers; materialize strided numeric data with
 ``array('d', values)`` before conversion. Lists, Unicode strings, and buffers
 with the wrong element type or layout are rejected. Empty inputs work. Buffer
 exports retain the input storage throughout conversion and are released on
-success or failure. Do not mutate input values while conversion is in progress.
+success or failure. The binding copies input storage while holding the GIL,
+then Rust reads that snapshot. As with other Python buffers, external native
+code must not write concurrently while the snapshot is being taken.
 
 Invalid values raise ``mgrs.core.MGRSError`` with the first failing zero-based
 row. No partial output is returned. NaN and infinite coordinates are rejected.
 Latitude warnings are emitted once per batch, identifying the first affected
-row. All scalar and batch conversion methods serialize access to GeoTrans's
-shared projection state through a native mutex. The extension releases the GIL
-during conversion, but calls
-from multiple Python threads do not execute the projection code in parallel.
+row. Rust projection state is immutable and shared safely across calls. The
+extension releases the GIL during conversion, so independent calls from Python
+threads can run concurrently without a global projection mutex. Output is
+written directly into the returned Python buffer. Snapshot storage adds
+16 bytes per input point for forward batches or ``width`` bytes per inverse
+record, released when the call finishes.
 The batch adapter needs no additional dependencies or third-party array ABI.

@@ -246,6 +246,41 @@ def test_child_failure_stops_comparison(tmp_path, monkeypatch, sources):
     assert len(calls) == 1
 
 
+def test_fixed_dataset_is_preserved(tmp_path, monkeypatch, sources):
+    base, candidate = sources
+    dataset = tmp_path / "fixed.csv"
+    perf.generate_dataset(dataset, 4, seed=42)
+    before = dataset.read_bytes(), dataset.with_suffix(".json").read_bytes()
+    seen = []
+
+    def run(source, used_dataset, output, repeats):
+        seen.append(used_dataset)
+        return report(source)
+
+    monkeypatch.setattr(ci, "run_revision", run)
+    assert (
+        ci.main(
+            [
+                "--base",
+                str(base),
+                "--candidate",
+                str(candidate),
+                "--dataset",
+                str(dataset),
+                "--output",
+                str(tmp_path / "results"),
+            ]
+        )
+        == 0
+    )
+    assert seen == [dataset] * 4
+    assert before == (
+        dataset.read_bytes(),
+        dataset.with_suffix(".json").read_bytes(),
+    )
+    assert not (tmp_path / "results/global.csv").exists()
+
+
 def test_git_metadata_comes_from_loaded_tree(tmp_path, monkeypatch):
     seen = []
     check_output = perf.subprocess.check_output

@@ -1,0 +1,13 @@
+[package]
+name = "mgrs-python"
+version = "1.6.0"
+edition = "2021"
+rust-version = "1.85"
+publish = false
+license = "MIT"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+mgrs-geotrans = { path = ".." }

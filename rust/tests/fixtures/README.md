@@ -4,7 +4,7 @@
 
 It contains 6,876 forward strings (1,146 points at six precisions), five UTM boundary sets, and 6,595 inverse inputs with coordinates, radians, UTM results, errors and warnings. Points include the original forward regression cases, Norway/Svalbard, antimeridian, latitude-band/UTM/UPS boundaries, the issue 40 example, issue 46's latitude, doctest cities, and all 1,000 seeded global points used by Python's array tests.
 
-Explicit regeneration after building the current Python extension:
+Explicit regeneration requires a Python checkout with the C++ backend (for example `b0634d7`). The exporter rejects Rust-backed Python so the reference cannot be replaced by results from the implementation under test:
 
 ```sh
 python -m scripts.export_python_fixtures
