@@ -17,6 +17,9 @@ on:
 permissions:
   contents: read
 
+env:
+  RELEASE_TAG: ${{ github.event.release.tag_name || '' }}
+
 jobs:
   build_wheels:
     name: Build wheel on ${{ matrix.os }}
@@ -32,6 +35,10 @@ jobs:
       uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       with:
         version-file: ci/requirements.txt
+
+    - name: Synchronize package versions
+      shell: bash
+      run: uv run --no-project --python 3.13 python scripts/sync_versions.py --tag "$RELEASE_TAG"
 
     # Linux installs Rust inside each manylinux/musllinux container via
     # pyproject.toml. Windows/macOS builds use the runner toolchain.
@@ -66,13 +73,24 @@ jobs:
         version-file: ci/requirements.txt
         python-version: '3.13'
 
+    - name: Synchronize package versions
+      run: uv run --no-project --python 3.13 python scripts/sync_versions.py --tag "$RELEASE_TAG"
+
     - name: Install Rust backend toolchain
       run: |
         rustup toolchain install 1.90.0 --profile minimal
         rustup default 1.90.0
 
-    - name: Build sdist
-      run: uv build --sdist
+    - name: Build sdist and verify automatic version synchronization
+      run: |
+        # Start stale so the earlier release sync cannot mask a broken build hook.
+        uv run --no-project --python 3.13 python - <<'PY'
+        from pathlib import Path
+        from scripts.sync_versions import synchronize
+        synchronize(Path.cwd(), "0.0.0")
+        PY
+        uv build --sdist
+        uv run --no-project --python 3.13 python scripts/sync_versions.py --check --tag "$RELEASE_TAG"
 
     - name: Build and test from sdist outside the checkout
       shell: bash
@@ -82,7 +100,7 @@ jobs:
         uv venv "$RUNNER_TEMP/mgrs-sdist-venv"
         uv pip install --python "$RUNNER_TEMP/mgrs-sdist-venv/bin/python" "$RUNNER_TEMP/mgrs-sdist" pytest
         mkdir "$RUNNER_TEMP/mgrs-sdist-tests"
-        cp -R "$RUNNER_TEMP/mgrs-sdist/tests" "$RUNNER_TEMP/mgrs-sdist/benchmarks" "$RUNNER_TEMP/mgrs-sdist/rust" "$RUNNER_TEMP/mgrs-sdist-tests/"
+        cp -R "$RUNNER_TEMP/mgrs-sdist/tests" "$RUNNER_TEMP/mgrs-sdist/benchmarks" "$RUNNER_TEMP/mgrs-sdist/rust" "$RUNNER_TEMP/mgrs-sdist/scripts" "$RUNNER_TEMP/mgrs-sdist-tests/"
         cd "$RUNNER_TEMP/mgrs-sdist-tests"
         "$RUNNER_TEMP/mgrs-sdist-venv/bin/python" -m pytest tests --doctest-glob='*.txt'
 
@@ -99,12 +117,21 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
+    - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      with:
+        version-file: ci/requirements.txt
+        python-version: '3.13'
+
+    - name: Synchronize package versions
+      run: uv run --no-project --python 3.13 python scripts/sync_versions.py --tag "$RELEASE_TAG"
+
     - name: Install Rust
       run: rustup toolchain install 1.90.0 --profile minimal
 
     - name: Package and test standalone crate
       run: |
-        cargo +1.90.0 package -p mgrs-geotrans --locked
+        # Version synchronization intentionally updates the tagged manifests.
+        cargo +1.90.0 package -p mgrs-geotrans --locked --allow-dirty
         mkdir -p "$RUNNER_TEMP/mgrs-crate"
         tar -xzf target/package/mgrs-geotrans-*.crate -C "$RUNNER_TEMP/mgrs-crate"
         cargo +1.90.0 test --manifest-path "$RUNNER_TEMP"/mgrs-crate/mgrs-geotrans-*/Cargo.toml --all-features --locked
@@ -124,6 +151,15 @@ jobs:
         working-directory: typescript
     steps:
     - uses: actions/checkout@v7
+
+    - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      with:
+        version-file: ci/requirements.txt
+        python-version: '3.13'
+
+    - name: Synchronize package versions
+      working-directory: .
+      run: uv run --no-project --python 3.13 python scripts/sync_versions.py --tag "$RELEASE_TAG"
 
     - uses: actions/setup-node@v7
       with:
@@ -166,6 +202,13 @@ jobs:
       contents: write
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
+    - uses: actions/checkout@v7
+
+    - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      with:
+        version-file: ci/requirements.txt
+        python-version: '3.13'
+
     - name: Download all Python wheels and source distribution
       uses: actions/download-artifact@v8
       with:
@@ -194,6 +237,7 @@ jobs:
       # with the same names when rerunning a release job.
       run: |
         shopt -s failglob
+        uv run --no-project --python 3.13 python scripts/sync_versions.py --tag "$RELEASE_TAG" --artifacts release-assets
         gh release upload "$RELEASE_TAG" --clobber \
           release-assets/*.whl release-assets/*.tar.gz \
           release-assets/*.crate release-assets/*.tgz
