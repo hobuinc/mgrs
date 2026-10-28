@@ -61,6 +61,20 @@ After installing the WebAssembly toolchain described in the TypeScript guide::
 ChangeLog
 ------------------------------------------------------------------------------
 
+# mgrs 1.7.0 release notes
+
+Changes since [1.6.0](https://github.com/hobuinc/mgrs/releases/tag/1.6.0).
+
+**Cell-center decoding is unchanged from 1.6.0.** The Rust backend preserves GEOTRANS 3.10 behavior; inverse coordinates can differ in their final floating-point digits, with no additional half-cell shift.
+
+- **Rust-backed Python:** Replace the C++ conversion engine while retaining the pybind11 API. Recorded macOS ARM64 benchmarks show 29–53% lower conversion time; see the [performance comparison](https://github.com/hobuinc/mgrs/blob/main/benchmarks/python-rust.rst). Source builds now require Rust/Cargo 1.85+ alongside a C++17 compiler; wheels require no Rust installation. [#62](https://github.com/hobuinc/mgrs/pull/62)
+- **Rust and TypeScript libraries:** Add native Rust and Node.js/browser WebAssembly APIs, including batch conversions, documentation, conformance tests, and performance benchmarks. [#60](https://github.com/hobuinc/mgrs/pull/60)
+- **Cell geometries:** Add `toWKT` and `toGeoJSON` across all three languages (`to_wkt` and `to_geojson` in Rust). They return full grid-cell footprints in WGS84 longitude/latitude, from 100 km to 1 m precision. Python GeoJSON uses dependency-free `__geo_interface__`-compatible mappings. GeoJSON splits antimeridian crossings into `MultiPolygon`; WKT keeps a single polygon with unwrapped longitudes. [#67](https://github.com/hobuinc/mgrs/pull/67)
+- **Release artifacts:** Attach Rust `.crate` and TypeScript/WebAssembly `.tgz` packages alongside the Python source distribution and wheels. Python publication to PyPI continues; Rust and TypeScript packages are available through GitHub releases. [#62](https://github.com/hobuinc/mgrs/pull/62)
+- **Build and CI updates:** Add Windows Rust/WebAssembly coverage and update setup-uv, uv, and cibuildwheel. [#60](https://github.com/hobuinc/mgrs/pull/60), [#61](https://github.com/hobuinc/mgrs/pull/61), [#63](https://github.com/hobuinc/mgrs/pull/63), [#64](https://github.com/hobuinc/mgrs/pull/64), [#65](https://github.com/hobuinc/mgrs/pull/65), [#66](https://github.com/hobuinc/mgrs/pull/66)
+
+[Full changes since 1.6.0](https://github.com/hobuinc/mgrs/compare/1.6.0...1c42f77)
+
 1.6.0
 
 Changes since `1.5.4 <https://github.com/hobuinc/mgrs/releases/tag/1.5.4>`_.
