@@ -22,6 +22,13 @@ std::uint32_t mgrs_rust_forward(const double *, std::size_t, bool, std::int32_t,
 std::uint32_t mgrs_rust_inverse_array(const std::uint8_t *, std::size_t,
                                       std::size_t, bool, double *, std::size_t *);
 std::uint32_t mgrs_rust_inverse(const std::uint8_t *, std::size_t, double *, double *);
+// UTF-8 WKT, no terminator: reports required length and writes only if capacity
+// suffices. A null target with zero capacity may be used to query the size.
+std::uint32_t mgrs_rust_to_wkt(const std::uint8_t *, std::size_t, std::uint8_t *,
+                             std::size_t, std::size_t *);
+// Same buffer contract, producing GeoJSON geometry text.
+std::uint32_t mgrs_rust_to_geojson(const std::uint8_t *, std::size_t, std::uint8_t *,
+                                 std::size_t, std::size_t *);
 std::uint32_t mgrs_rust_to_utm(const std::uint8_t *, std::size_t, std::int32_t *,
                              std::uint8_t *, double *, double *);
 std::uint32_t mgrs_rust_from_utm(std::int64_t, std::uint8_t, double, double,

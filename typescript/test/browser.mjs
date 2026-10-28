@@ -33,8 +33,9 @@ try {
     await api.init();
     const {scenarios} = await import("/typescript/test/conformance.mjs");
     const fixtures = await (await fetch("/rust/tests/fixtures/geotrans310.json")).json();
+    const wktFixture = await (await fetch("/rust/tests/fixtures/wkt.json")).json();
     const passed = [];
-    for (const [name, run] of Object.entries(scenarios(api, fixtures))) { run(); passed.push(name); }
+    for (const [name, run] of Object.entries(scenarios(api, fixtures, wktFixture))) { run(); passed.push(name); }
     await Promise.all(Array.from({length: 4}, () => new Promise((resolve, reject) => {
       const worker = new Worker("/typescript/test/browser-worker.mjs", {type: "module"});
       worker.onmessage = ({data}) => { worker.terminate(); data === "15TWG0000049776" ? resolve() : reject(new Error(String(data))); };

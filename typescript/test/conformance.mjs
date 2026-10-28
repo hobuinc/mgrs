@@ -19,8 +19,114 @@ function pack(codes, width = 15) {
   return output;
 }
 
-export function scenarios({MGRS, MGRSError}, fixture) {
+export function scenarios({MGRS, MGRSError}, fixture, wktFixture) {
   return {
+    "GeoJSON objects preserve cell footprints and split the antimeridian"() {
+      const warnings = [];
+      const m = new MGRS(w => warnings.push(w));
+      const area = ring => {
+        const [ox, oy] = ring[0];
+        return ring.slice(1).reduce((sum, b, i) => {
+          const a = ring[i];
+          return sum + (a[0] - ox) * (b[1] - oy) - (b[0] - ox) * (a[1] - oy);
+        }, 0) / 2;
+      };
+      try {
+        for (const {code, corners} of wktFixture.cases) {
+          const geometry = m.toGeoJSON(code);
+          equal(Object.keys(geometry).sort(), ["coordinates", "type"]);
+          equal(JSON.parse(JSON.stringify(geometry)), geometry);
+          if (!["Polygon", "MultiPolygon"].includes(geometry.type)) throw new Error(code);
+          const polygons = geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates;
+          if (!polygons.length) throw new Error("Empty geometry");
+          for (const polygon of polygons) {
+            equal(polygon.length, 1);
+            const ring = polygon[0];
+            equal(ring[0], ring.at(-1));
+            if (ring.length < 4 || area(ring) <= 0) throw new Error("Invalid ring");
+            for (const p of ring) {
+              equal(p.length, 2);
+              if (!p.every(Number.isFinite) || Math.abs(p[0]) > 180 || Math.abs(p[1]) > 90) throw new Error(code);
+            }
+            if (ring.slice(1).some((p, i) => Math.abs(p[0] - ring[i][0]) > 180)) throw new Error("Unsplit edge");
+          }
+          const wkt = m.toWKT(code).slice(10, -2).split(", ").map(p => p.split(" ").map(Number));
+          if (wkt.every(([x]) => Math.abs(x) <= 180)) equal(geometry, {type: "Polygon", coordinates: [wkt]});
+          near(polygons.reduce((sum, p) => sum + area(p[0]), 0), area(wkt), Math.max(1e-15, area(wkt) * 1e-6));
+          const points = polygons.flat(2);
+          for (const [lon, lat] of corners) {
+            if (!points.some(([x, y]) => Math.abs(y - lat) < 1e-9 &&
+              (Math.abs(lat) === 90 || Math.abs(x - lon - 360 * Math.round((x - lon) / 360)) < 1e-9))) throw new Error(`Missing corner: ${code}`);
+          }
+        }
+        for (const code of ["01NAA", "60NZF", "01NAA6602100000"]) {
+          equal(m.toGeoJSON(code).type, "MultiPolygon");
+        }
+        for (const code of ["ZAH", "ZAG", "YZH", "YZG", "BAN", "BAM", "AZN", "AZM"]) {
+          equal(m.toGeoJSON(code).type, "Polygon");
+        }
+        equal(m.toGeoJSON(encoder.encode(" 15twg 00000 49776 ")), m.toGeoJSON("15TWG0000049776"));
+        for (const code of ["", "invalid", "15TWG1", "32XJA", "15TWG\0", new Uint8Array([255])]) {
+          if (!(throws(() => m.toGeoJSON(code), "String Error") instanceof MGRSError)) throw new Error("Wrong error type");
+        }
+        throws(() => m.toGeoJSON(123), "string or Uint8Array");
+        const result = m.toGeoJSON("15TWG0000049776");
+        result.coordinates[0][0][0] = 0;
+        equal(m.toGeoJSON("15TWG0000049776").coordinates[0][0][0], -93);
+        m.toGeoJSON("50TMK5045027900"); equal(warnings.length, 1);
+      } finally { m.free(); }
+      throws(() => m.toGeoJSON("15TWG"), "freed");
+      const strict = new MGRS(() => { throw new Error("warning promoted"); });
+      try {
+        throws(() => strict.toGeoJSON("50TMK5045027900"), "warning promoted");
+        equal(strict.toGeoJSON("15TWG").type, "Polygon");
+      } finally { strict.free(); }
+    },
+    "WKT full cells, independent PROJ corners, poles and antimeridian"() {
+      const warnings = [];
+      const m = new MGRS(w => warnings.push(w));
+      function ring(code) {
+        const wkt = m.toWKT(code);
+        if (!wkt.startsWith("POLYGON ((") || !wkt.endsWith("))")) throw new Error(wkt);
+        const points = wkt.slice(10, -2).split(", ").map(p => p.split(" ").map(Number));
+        equal(points[0], points.at(-1));
+        const [ox, oy] = points[0];
+        let area = 0;
+        for (let i = 0; i < points.length - 1; i++) {
+          const [x, y] = points[i], [xx, yy] = points[i + 1];
+          if (!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(y) > 90 || Math.abs(x - xx) > 180) throw new Error(code);
+          area += (x - ox) * (yy - oy) - (xx - ox) * (y - oy);
+        }
+        if (points.length < 5 || area <= 0) throw new Error(`Invalid ring: ${code}`);
+        return points;
+      }
+      try {
+        for (const {code, corners} of wktFixture.cases) {
+          const points = ring(code);
+          for (const [lon, lat] of corners) {
+            if (!points.some(([x, y]) => Math.abs(y - lat) < 1e-9 &&
+              (Math.abs(lat) === 90 || Math.abs(x - lon - 360 * Math.round((x - lon) / 360)) < 1e-9))) {
+              throw new Error(`Missing PROJ corner: ${code} ${lon},${lat}`);
+            }
+          }
+        }
+        equal(ring("15TWG0000049776").length, 5);
+        for (const code of ["01NAA", "60NZF", "01NAA6602100000"]) {
+          if (!ring(code).some(([x]) => Math.abs(x) > 180)) throw new Error("Expected unwrapped longitudes");
+        }
+        for (const code of ["ZAH", "ZAG", "YZH", "YZG", "BAN", "BAM", "AZN", "AZM"]) {
+          const lons = [...new Set(ring(code).filter(([, y]) => Math.abs(y) === 90).map(([x]) => x))];
+          equal(lons.length, 2); near(Math.abs(lons[0] - lons[1]), 90);
+        }
+        equal(m.toWKT(encoder.encode(" \t04qej 97987\n90670\r ")), m.toWKT("04QEJ9798790670"));
+        for (const code of ["", "invalid", "15TWG1", "32XJA", "15TWG\0", "15TWG\u00a0", new Uint8Array([255])]) {
+          if (!(throws(() => m.toWKT(code), "String Error") instanceof MGRSError)) throw new Error("Wrong error type");
+        }
+        throws(() => m.toWKT(123), "string or Uint8Array");
+        ring("50TMK5045027900"); equal(warnings.length, 1);
+      } finally { m.free(); }
+      throws(() => m.toWKT("15TWG"), "freed");
+    },
     "all upstream forward strings, precisions, units and batch equivalents"() {
       const m = new MGRS();
       for (const {point: [lat, lon], codes} of fixture.forward) {

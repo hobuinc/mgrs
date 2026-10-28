@@ -1,4 +1,10 @@
-# Python conformance oracle
+# Conversion and geometry oracles
+
+`wkt.json` freezes 78 independent PROJ cell-corner cases across all six precisions: ordinary UTM, southern UTM, Norway/Svalbard, the antimeridian, the UTM latitude cutoff and UPS cells including both poles. The IDs come from the existing C++ oracle; the projected grid bounds and geographic corners are calculated by PROJ, without importing the Rust engine. Rust, Python and the shared Node/browser suite consume these same expected corners. Additional tests cover adaptive sampling, full cells beyond projection cutoffs, pole wedges, input validation, warnings and Python output-buffer ownership. To regenerate explicitly with `pyproj` installed, run `python scripts/export_wkt_fixtures.py` and review the numerical changes.
+
+## Python conformance oracle
+
+The GeoJSON tests reuse `wkt.json` to verify corners, ring orientation, coordinate order, precision and preservation of the WKT footprint. They also check antimeridian splitting, pole cells, JSON serialization, independent output storage, error/warning propagation and Python's `__geo_interface__` mapping structure. Rust checks GeoJSON against every valid inverse input in `geotrans310.json`; Node and browser conformance use the same geometry scenarios. No geospatial package is needed to run these tests.
 
 `geotrans310.json` freezes the current Python GEOTRANS 3.10 results at main commit `1b12e14`. Tests consume this checked-in file; they never derive expected coordinates from the Rust implementation. It is included in the Rust crate so packaged tests can run without the repository's Python files.
 

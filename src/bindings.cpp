@@ -164,6 +164,40 @@ struct MGRS {
         return py::make_tuple(latitude, longitude);
     }
 
+    std::string geometry_text(py::handle code, bool geojson) const {
+        auto text = code_bytes(code);
+        std::string output(1024, '\0');
+        std::size_t required = 0;
+        const long status = convert([&] {
+            auto call = [&] {
+                auto function = geojson ? mgrs_rust_to_geojson : mgrs_rust_to_wkt;
+                return function(
+                    reinterpret_cast<const std::uint8_t *>(text.data()), text.size(),
+                    reinterpret_cast<std::uint8_t *>(output.data()), output.size(), &required);
+            };
+            auto result = call();
+            if (required > output.size()) {
+                output.resize(required);
+                result = call();
+            }
+            return result;
+        });
+        check_result(status, geojson ? "Convert_MGRS_To_GeoJSON" : "Convert_MGRS_To_WKT");
+        output.resize(required);
+        return output;
+    }
+
+    std::string to_wkt(py::handle code) const {
+        return geometry_text(code, false);
+    }
+
+    py::dict to_geojson(py::handle code) const {
+        // Standard-library JSON constructs only built-in dict/list/str/float
+        // values, suitable as the value of an object's __geo_interface__.
+        auto text = geometry_text(code, true);
+        return py::module_::import("json").attr("loads")(text).cast<py::dict>();
+    }
+
     py::tuple mgrs_to_utm(py::handle code, const std::string &encoding) const {
         auto text = code_bytes(code, encoding.c_str());
         std::int32_t zone = 0;
@@ -297,6 +331,13 @@ PYBIND11_MODULE(_native, module) {
         .def("toMGRS", &MGRS::to_mgrs, py::arg("latitude"), py::arg("longitude"),
              py::arg("inDegrees") = true, py::arg("MGRSPrecision") = 5)
         .def("toLatLon", &MGRS::to_latlon, py::arg("MGRS"), py::arg("inDegrees") = true)
+        .def("toWKT", &MGRS::to_wkt, py::arg("MGRS"),
+             "Return the full cell as a WGS84 longitude/latitude WKT POLYGON. "
+             "Curved edges are sampled; antimeridian longitudes may exceed +/-180.")
+        .def("toGeoJSON", &MGRS::to_geojson, py::arg("MGRS"),
+             "Return a __geo_interface__ geometry mapping using built-in types. "
+             "Coordinates are WGS84 longitude/latitude. Antimeridian crossings "
+             "produce a MultiPolygon; other cells produce a Polygon.")
         .def("MGRSToUTM", &MGRS::mgrs_to_utm, py::arg("MGRS"), py::arg("encoding") = "utf-8")
         .def("UTMToMGRS", &MGRS::utm_to_mgrs, py::arg("zone"), py::arg("hemisphere"),
              py::arg("easting"), py::arg("northing"), py::arg("MGRSPrecision") = 5)
