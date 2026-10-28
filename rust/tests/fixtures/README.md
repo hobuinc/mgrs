@@ -4,6 +4,8 @@
 
 ## Python conformance oracle
 
+The GeoJSON tests reuse `wkt.json` to verify corners, ring orientation, coordinate order, precision and preservation of the WKT footprint. They also check antimeridian splitting, pole cells, JSON serialization, independent output storage, error/warning propagation and Python's `__geo_interface__` mapping structure. Rust checks GeoJSON against every valid inverse input in `geotrans310.json`; Node and browser conformance use the same geometry scenarios. No geospatial package is needed to run these tests.
+
 `geotrans310.json` freezes the current Python GEOTRANS 3.10 results at main commit `1b12e14`. Tests consume this checked-in file; they never derive expected coordinates from the Rust implementation. It is included in the Rust crate so packaged tests can run without the repository's Python files.
 
 It contains 6,876 forward strings (1,146 points at six precisions), five UTM boundary sets, and 6,595 inverse inputs with coordinates, radians, UTM results, errors and warnings. Points include the original forward regression cases, Norway/Svalbard, antimeridian, latitude-band/UTM/UPS boundaries, the issue 40 example, issue 46's latitude, doctest cities, and all 1,000 seeded global points used by Python's array tests.

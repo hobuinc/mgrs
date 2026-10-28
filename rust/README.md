@@ -34,6 +34,7 @@ Rust uses snake_case and explicit parameters in place of Python defaults. `Mgrs`
 | `toMGRS(lat, lon, inDegrees=True, MGRSPrecision=5)` | `to_mgrs(lat, lon, true, 5)` | `String` |
 | `toLatLon(code, inDegrees=True)` | `to_lat_lon(code, true)` | `(f64, f64)` latitude, longitude |
 | `toWKT(code)` | `to_wkt(code)` | `String` WKT polygon, longitude latitude |
+| `toGeoJSON(code)` | `to_geojson(code)` | `String` GeoJSON geometry text |
 | `MGRSToUTM(code)` | `mgrs_to_utm(code)` | `Utm { zone, hemisphere, easting, northing }` |
 | `UTMToMGRS(zone, hemisphere, easting, northing, MGRSPrecision=5)` | `utm_to_mgrs(zone, hemisphere, easting, northing, 5)` | `String` |
 | `toMGRSArray(points, inDegrees=True, MGRSPrecision=5)` | `to_mgrs_array(points, true, 5)` | `Vec<u8>` |
@@ -45,7 +46,7 @@ Use `false` for radians. Precision is an integer from 0 through 5: cell widths a
 
 **Inverse conversions return the center of the grid cell**, including `mgrs_to_utm`. At precision 5 this adds 0.5 m to both projected grid axes; at precision 0 it adds 50 km. Forward conversions truncate to the containing cell. Norway, Svalbard, polar and latitude-band boundary behavior follows GEOTRANS 3.10. Inverse floating-point values are compared to Python within 1e-9 degrees, not promised bit-identical across native and WebAssembly math implementations.
 
-`to_lat_lon`, `to_wkt` and `mgrs_to_utm` accept strings or byte slices. They remove leading, trailing and internal **ASCII whitespace**, accept lowercase letters, and reject non-ASCII characters, trailing junk, invalid layouts and embedded NUL bytes. Only trailing NUL padding in batch records is accepted.
+`to_lat_lon`, `to_wkt`, `to_geojson` and `mgrs_to_utm` accept strings or byte slices. They remove leading, trailing and internal **ASCII whitespace**, accept lowercase letters, and reject non-ASCII characters, trailing junk, invalid layouts and embedded NUL bytes. Only trailing NUL padding in batch records is accepted.
 
 `ddtodms(32.328414)` returns approximately `(32.0, 19.0, 42.2904)`. For negative coordinates, only the first nonzero component carries the sign. `dmstodd("321942.29N")` returns approximately `32.328414`; `dmstodd("671328.35W")` returns approximately `-67.224542`. Compact DMS supports N/S/E/W suffixes or a leading sign; arbitrary formatted degree/minute/second text is not supported.
 
@@ -56,6 +57,8 @@ fn main() -> Result<(), mgrs::Error> {
 let m = mgrs::MGRS::new();
 let polygon = m.to_wkt("15TWG0000049776")?.value;
 assert!(polygon.starts_with("POLYGON (("));
+let geometry = m.to_geojson("15TWG0000049776")?.value;
+assert!(geometry.starts_with("{\"type\":\"Polygon\""));
 Ok(())
 }
 ```
@@ -63,6 +66,8 @@ Ok(())
 `to_wkt` returns the full UTM/UPS square at the ID's precision (100 km through 1 m), in WGS84 **longitude latitude degrees**, without an embedded SRID. It preserves the existing inverse decoder's validation and `Conversion.warning`. The footprint is not clipped to zone or latitude-band limits. The closed counterclockwise ring samples curved grid edges adaptively, targeting 0.1 m midpoint error, and writes coordinates to 12 decimal places. It is an approximation; vertex count varies with cell size and location.
 
 Antimeridian longitudes are unwrapped and may exceed ±180° to keep one continuous polygon. Consumers requiring normalized longitudes should split the polygon at the antimeridian instead of wrapping individual vertices. At a pole, two vertices with different longitudes at ±90° close the cell's wedge. See the [Python geometry documentation](../README.rst#cell-polygons) for the shared conventions.
+
+`to_geojson` returns GeoJSON geometry text without adding a serialization dependency. It shares WKT's full-cell geometry, precision, edge sampling and warnings. Antimeridian crossings are cut into a `MultiPolygon` with longitudes in [-180, 180]; other cells produce a `Polygon`. Rings are closed and counterclockwise, with WGS84 longitude/latitude coordinates. Python and TypeScript decode this text using their built-in JSON facilities and return plain geometry mappings/objects. Python's mapping is suitable as a `__geo_interface__` value.
 
 ## Arrays and ownership
 

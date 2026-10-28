@@ -61,6 +61,9 @@ impl Engine {
     pub fn to_wkt(&mut self, code: &[u8]) -> std::result::Result<String, JsValue> {
         self.finish(self.core.to_wkt(code))
     }
+    pub fn to_geojson(&mut self, code: &[u8]) -> std::result::Result<String, JsValue> {
+        self.finish(self.core.to_geojson(code))
+    }
     pub fn mgrs_to_utm(&mut self, code: &[u8]) -> std::result::Result<Vec<f64>, JsValue> {
         let p = self.finish(self.core.mgrs_to_utm(code))?;
         Ok(vec![

@@ -30,6 +30,8 @@ for (const Engine of [MGRS, BrowserMGRS]) {
   try {
     assert.equal(m.toMGRS(42, -93), "15TWG0000049776");
     assert.ok(m.toWKT("15TWG0000049776").startsWith("POLYGON ((-93.000000000000 "));
+    assert.equal(m.toGeoJSON("15TWG0000049776").type, "Polygon");
+    assert.equal(m.toGeoJSON("01NAA").type, "MultiPolygon");
     assert.deepEqual(m.toLatLonArray(m.toMGRSArray(new Float64Array([42, -93]))), new Float64Array(m.toLatLon("15TWG0000049776")));
     assert.deepEqual(m.toLatLon(" 04QEJ 97987 90670 "), m.toLatLon("04QEJ9798790670"));
     m.toLatLon("50TMK5045027900");
@@ -40,13 +42,22 @@ console.log("Packed Node and browser engines passed standalone checks");
 `);
   run(["check.mjs"]);
   writeFileSync(join(consumer, "check.mts"), `
-import {MGRS, type LatLon, type Warning} from "mgrs-geotrans";
-import {init, MGRS as BrowserMGRS} from "mgrs-geotrans/browser";
+import {MGRS, type LatLon, type Warning, type CellGeometry} from "mgrs-geotrans";
+import {init, MGRS as BrowserMGRS, type CellGeometry as BrowserGeometry} from "mgrs-geotrans/browser";
 const warnings: Warning[] = [];
 const m = new MGRS(w => warnings.push(w));
 const point: LatLon = m.toLatLon(m.toMGRS(42, -93));
 const polygon: string = m.toWKT("15TWG0000049776");
 const polygonBytes: string = m.toWKT(new TextEncoder().encode("15TWG"));
+const geometry: CellGeometry = m.toGeoJSON("15TWG0000049776");
+const browserGeometry: BrowserGeometry = geometry;
+if (geometry.type === "Polygon") {
+  const point: [number, number] = geometry.coordinates[0][0];
+} else {
+  const point: [number, number] = geometry.coordinates[0][0][0];
+}
+// @ts-expect-error GeoJSON is an object, not serialized text.
+const text: string = m.toGeoJSON("15TWG");
 // @ts-expect-error WKT requires an MGRS string or bytes, not a point.
 m.toWKT([42, -93]);
 const codes: Uint8Array = m.toMGRSArray(new Float64Array(point));

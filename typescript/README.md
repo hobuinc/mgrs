@@ -63,6 +63,7 @@ Names, positional arguments and defaults follow Python. All latitude/longitude t
 | `toMGRS(lat, lon, inDegrees=true, MGRSPrecision=5)` | `string` |
 | `toLatLon(code, inDegrees=true)` | `[latitude, longitude]` |
 | `toWKT(code)` | `string` WKT polygon, longitude latitude |
+| `toGeoJSON(code)` | `CellGeometry` GeoJSON `Polygon` or `MultiPolygon` object |
 | `MGRSToUTM(code, encoding="utf-8")` | `[zone, hemisphere, easting, northing]` |
 | `UTMToMGRS(zone, hemisphere, easting, northing, MGRSPrecision=5)` | `string` |
 | `toMGRSArray(points, inDegrees=true, MGRSPrecision=5)` | `Uint8Array` |
@@ -81,11 +82,16 @@ ASCII whitespace before, after and between MGRS groups is removed; lowercase is 
 ```ts
 const polygon: string = m.toWKT("15TWG0000049776");
 console.assert(polygon.startsWith("POLYGON (("));
+const geometry = m.toGeoJSON("15TWG0000049776");
+console.assert(geometry.type === "Polygon");
+const json = JSON.stringify(geometry);
 ```
 
 `toWKT` accepts a string or `Uint8Array` and returns the full UTM/UPS grid square at the ID's precision (100 km through 1 m). WKT coordinates are WGS84 **longitude latitude degrees**, with no embedded SRID. The footprint is not clipped to zone or latitude-band boundaries. Its closed counterclockwise ring samples curved grid edges adaptively, targeting 0.1 m midpoint error, and writes coordinates to 12 decimal places. It is an approximation; coarse cells generally have more than four vertices. Validation, warning callbacks and disposal behavior match `toLatLon`.
 
 Antimeridian longitudes are unwrapped and may exceed ±180° to preserve one continuous polygon. Split at the antimeridian when a consumer requires normalized longitudes; do not wrap individual vertices. Cells touching a pole include two vertices at latitude ±90° with different longitudes to close the cell's wedge. Node.js and browsers expose the same API.
+
+`toGeoJSON` returns a plain geometry object using only JavaScript objects, arrays and numbers. It accepts the same inputs and shares WKT's full-cell boundaries, precision, edge sampling and warnings. Antimeridian crossings are cut into a `MultiPolygon`, keeping longitudes within [-180, 180]; other cells produce a `Polygon`, including cells touching a pole. Each result owns its nested arrays. `CellGeometry` is exported from both the Node and browser entry points; its `type` field narrows the coordinate nesting. No GeoJSON package or additional runtime dependency is required.
 
 ## Typed arrays
 

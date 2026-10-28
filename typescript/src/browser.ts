@@ -1,7 +1,7 @@
 import initWasm, {Engine} from "../wasm/web/mgrs.js";
 import {BaseMGRS, type WarningHandler} from "./common.js";
 export {MGRSError} from "./common.js";
-export type {LatLon, UTM, DMS, Warning, WarningHandler, MGRSInput} from "./common.js";
+export type {LatLon, UTM, DMS, Warning, WarningHandler, MGRSInput, CellGeometry} from "./common.js";
 let initialized = false;
 // Keep the public declarations independent of the generated Engine and its
 // optional Symbol.dispose support. Browser consumers need only standard DOM types.

@@ -5,6 +5,10 @@ export type DMS = [number, number, number];
 export type Warning = {message: string; row?: number};
 export type WarningHandler = (warning: Warning) => void;
 export type MGRSInput = string | Uint8Array;
+/** WGS84 longitude/latitude geometry; antimeridian crossings are split. */
+export type CellGeometry =
+  | {type: "Polygon"; coordinates: [number, number][][]}
+  | {type: "MultiPolygon"; coordinates: [number, number][][][]};
 
 export interface EngineInterface {
   free(): void;
@@ -12,6 +16,7 @@ export interface EngineInterface {
   to_mgrs(lat: number, lon: number, degrees: boolean, precision: number): string;
   to_lat_lon(code: Uint8Array, degrees: boolean): Float64Array;
   to_wkt(code: Uint8Array): string;
+  to_geojson(code: Uint8Array): string;
   mgrs_to_utm(code: Uint8Array): Float64Array;
   utm_to_mgrs(zone: number, hemisphere: string, e: number, n: number, precision: number): string;
   to_mgrs_array(points: Float64Array, degrees: boolean, precision: number): Uint8Array;
@@ -83,6 +88,11 @@ export class BaseMGRS {
   toWKT(MGRS: MGRSInput): string {
     const input = bytes(MGRS);
     return this.invoke(e => e.to_wkt(input));
+  }
+  /** Full cell as a plain GeoJSON geometry object, ready for JSON.stringify. */
+  toGeoJSON(MGRS: MGRSInput): CellGeometry {
+    const input = bytes(MGRS);
+    return JSON.parse(this.invoke(e => e.to_geojson(input))) as CellGeometry;
   }
   MGRSToUTM(MGRS: MGRSInput, encoding = "utf-8"): UTM {
     if (typeof MGRS === "string" && !["utf-8", "utf8", "ascii", "us-ascii"].includes(encoding.toLowerCase())) {

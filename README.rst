@@ -188,9 +188,9 @@ You can also control the precision of the MGRS grid with the MGRSPrecision
 arguments in .toMGRS().  Other than that, there isn't too much to it.
 
 MGRS input accepts ASCII whitespace (spaces, tabs, and line breaks) before,
-after, or between coordinate groups. ``toLatLon``, ``toWKT`` and ``MGRSToUTM`` remove
-this whitespace before validating the complete coordinate and passing it
-to GEOTRANS. Both ``str`` and ``bytes`` inputs are supported::
+after, or between coordinate groups. ``toLatLon``, ``toWKT``, ``toGeoJSON`` and
+``MGRSToUTM`` remove this whitespace before validating the complete coordinate
+and passing it to GEOTRANS. Both ``str`` and ``bytes`` inputs are supported::
 
     >>> m = mgrs.MGRS()
     >>> lat, lon = m.toLatLon("  04QEJ 97987 90670  ")
@@ -230,6 +230,44 @@ different longitudes to represent the cell's wedge.
 The method accepts ``str`` or ``bytes`` with the same whitespace, validation and
 latitude-band warnings as ``toLatLon``. Rust exposes ``to_wkt(code)`` and
 TypeScript exposes ``toWKT(code)`` with the same geometry conventions.
+
+``toGeoJSON(MGRS)`` returns the same cell footprint as a plain Python geometry
+mapping, using only built-in ``dict``, ``list``, ``str`` and ``float`` values.
+It requires no additional dependencies and can be serialized with the standard
+library's ``json`` module::
+
+    >>> import json
+    >>> geometry = m.toGeoJSON("15TWG0000049776")
+    >>> geometry["type"]
+    'Polygon'
+    >>> geometry["coordinates"][0][0]
+    [-93.0, 41.999997975128]
+    >>> json.loads(json.dumps(geometry)) == geometry
+    True
+
+The mapping follows the `__geo_interface__ convention
+<https://gist.github.com/sgillies/2217756>`_ and can be returned directly from
+that property on a cell object::
+
+    >>> class Cell:
+    ...     def __init__(self, code):
+    ...         self.code = code
+    ...     @property
+    ...     def __geo_interface__(self):
+    ...         return mgrs.MGRS().toGeoJSON(self.code)
+    >>> Cell("15TWG0000049776").__geo_interface__ == geometry
+    True
+
+GeoJSON uses WGS84 longitude/latitude degrees and the same full-cell boundaries,
+precision, edge sampling and warnings as WKT. Antimeridian-crossing cells are
+split into a ``MultiPolygon``, keeping longitudes within -180 to +180 degrees
+as recommended by `RFC 7946 <https://www.rfc-editor.org/rfc/rfc7946#section-3.1.9>`_.
+Other cells return a ``Polygon``, including cells touching a pole. Each result
+owns its nested lists; modifying it does not affect subsequent calls.
+
+TypeScript's ``toGeoJSON(code)`` returns a plain geometry object. Rust's
+``to_geojson(code)`` returns GeoJSON text in ``Conversion.value`` without
+requiring a serialization crate.
 
 Building from source
 ------------------------------------------------------------------------------

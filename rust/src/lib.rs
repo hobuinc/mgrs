@@ -10,6 +10,8 @@
 //! assert!((point.value.0 - 42.0).abs() < 0.00001);
 //! let polygon = m.to_wkt(&code.value)?;
 //! assert!(polygon.value.starts_with("POLYGON (("));
+//! let geometry = m.to_geojson(&code.value)?;
+//! assert!(geometry.value.starts_with("{\"type\":\"Polygon\""));
 //! let codes = m.to_mgrs_array(&[42.0, -93.0, 90.0, 0.0], true, 5)?;
 //! assert_eq!(codes.value.len(), 30);
 //! assert_eq!(m.to_lat_lon_array(&codes.value, true, 15)?.value.len(), 4);
@@ -198,6 +200,18 @@ impl Mgrs {
         let cell = grid::cell(&self.projection, &grid::parse(code.as_ref())?)?;
         Ok(Conversion {
             value: cell.value.wkt(&self.projection)?,
+            warning: cell.warning,
+        })
+    }
+
+    /// The full cell as GeoJSON geometry text, using the same sampled boundary
+    /// as `to_wkt`. Returns a Polygon or, across the antimeridian, a MultiPolygon
+    /// with longitudes in [-180, 180]. Coordinates are longitude, latitude in
+    /// WGS84 degrees. No serialization dependency is required.
+    pub fn to_geojson(&self, code: impl AsRef<[u8]>) -> Result<Conversion<String>> {
+        let cell = grid::cell(&self.projection, &grid::parse(code.as_ref())?)?;
+        Ok(Conversion {
+            value: cell.value.geojson(&self.projection)?,
             warning: cell.warning,
         })
     }

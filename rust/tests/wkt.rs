@@ -50,6 +50,46 @@ fn independent_proj_corners_at_every_precision() {
 }
 
 #[test]
+fn geojson_matches_wkt_and_has_valid_rings() {
+    let m = MGRS::new();
+    let fixture: Value = serde_json::from_str(include_str!("fixtures/geotrans310.json")).unwrap();
+    for case in fixture["inverse"].as_array().unwrap() {
+        let code = case["code"].as_str().unwrap();
+        let result = m.to_geojson(code);
+        let Ok(wkt) = m.to_wkt(code) else {
+            assert_eq!(result.unwrap_err(), m.to_wkt(code).unwrap_err());
+            continue;
+        };
+        let json = result.unwrap();
+        assert_eq!(wkt.warning, json.warning);
+        let geometry: Value = serde_json::from_str(&json.value).unwrap();
+        let coordinates = geometry["coordinates"].as_array().unwrap();
+        let parts = match geometry["type"].as_str().unwrap() {
+            "Polygon" => vec![&geometry["coordinates"]],
+            "MultiPolygon" => coordinates.iter().collect(),
+            other => panic!("unexpected geometry {other}"),
+        };
+        assert!(!parts.is_empty());
+        let points = ring(&wkt.value);
+        if points.iter().all(|p| (-180.0..=180.0).contains(&p.0)) {
+            assert_eq!(geometry["type"], "Polygon");
+            assert_eq!(geometry["coordinates"], serde_json::json!([points]));
+        }
+        for polygon in parts {
+            assert_eq!(polygon.as_array().unwrap().len(), 1);
+            let points = polygon[0].as_array().unwrap();
+            assert!(points.len() >= 4);
+            assert_eq!(points.first(), points.last());
+            for point in points {
+                assert_eq!(point.as_array().unwrap().len(), 2);
+                assert!((-180.0..=180.0).contains(&point[0].as_f64().unwrap()));
+                assert!((-90.0..=90.0).contains(&point[1].as_f64().unwrap()));
+            }
+        }
+    }
+}
+
+#[test]
 fn complete_cells_curved_edges_and_longitude_wrap() {
     let m = MGRS::new();
     let ordinary = ring(&m.to_wkt("15TWG0000049776").unwrap().value);
