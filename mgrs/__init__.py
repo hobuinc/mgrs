@@ -1,7 +1,7 @@
 from . import core
 from ._native import MGRS as _NativeMGRS
 
-__version__ = "1.6.0"
+__version__ = "1.7.0"
 
 
 class MGRS(_NativeMGRS):
