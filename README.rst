@@ -44,6 +44,15 @@ alongside the Python source distribution and all Python wheels. The workflow
 publishes the Python packages to PyPI; Rust and TypeScript packages are
 distributed as release downloads without publishing to crates.io or npm.
 
+``mgrs/__init__.py`` is the release version source. Python builds (including
+``uv build`` and editable installs) automatically synchronize Cargo/npm
+manifests and lockfiles through the build backend's version metadata hook.
+This also keeps the Rust versions inside Python source distributions aligned.
+Before packaging Rust or TypeScript directly, run
+``python scripts/sync_versions.py`` from the repository root. The release
+workflow runs this automatically and validates the release tag and archive
+metadata.
+
 Run native tests from the repository root::
 
     cargo test --workspace --all-features --locked

@@ -82,7 +82,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "mgrs-geotrans"
-version = "1.6.0"
+version = "1.7.1"
 dependencies = [
  "serde_json",
  "sha2",
@@ -91,7 +91,7 @@ dependencies = [
 
 [[package]]
 name = "mgrs-python"
-version = "1.6.0"
+version = "1.7.1"
 dependencies = [
  "mgrs-geotrans",
 ]

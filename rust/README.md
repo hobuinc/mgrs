@@ -4,6 +4,8 @@ A native Rust translation of the WGS84 MGRS, UTM, UPS, Transverse Mercator and P
 
 The crate is `mgrs-geotrans`; its Rust library name is `mgrs`. GitHub releases include a `mgrs-geotrans-<version>.crate` source archive. Extract it with `tar -xzf mgrs-geotrans-<version>.crate`, then add a path dependency pointing to the extracted directory. The release workflow does not publish to crates.io.
 
+Release versions come from `mgrs/__init__.py`. In a repository checkout, run `python scripts/sync_versions.py` before packaging to synchronize the Cargo/npm manifests and lockfiles. CI does this automatically and rejects release-tag or archive-version mismatches. Python prereleases such as `1.8.0rc1` become SemVer `1.8.0-rc.1` in Cargo and npm.
+
 To use this checkout instead, add a path dependency:
 
 ```toml
