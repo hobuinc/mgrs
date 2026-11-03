@@ -1,7 +1,7 @@
 # Both revisions use these exact build/test dependencies in one environment.
 packaging==26.3
 setuptools==84.2.1
-pytest==9.1.1
+pytest==9.2.0
 wheel==0.48.0
 scikit-build-core==1.1.1
 pybind11==3.1.0
