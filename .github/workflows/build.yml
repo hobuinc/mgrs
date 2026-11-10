@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, windows-11-arm, macos-14]
+        os: [ubuntu-latest, windows-latest, windows-11-arm, macos-16]
         python-version: ['3.11', '3.12', '3.13', '3.14', '3.15']
         include:
           - os: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
           - os: windows-11-arm
             platform: Windows ARM64
             python-arch: aarch64
-          - os: macos-14
+          - os: macos-16
             platform: macOS ARM64
             python-arch: aarch64
 
