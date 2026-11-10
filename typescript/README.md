@@ -19,7 +19,9 @@ npm run build
 npm pack
 ```
 
-Install the resulting `mgrs-geotrans-1.6.0.tgz` into an application with `npm install /path/to/mgrs-geotrans-1.6.0.tgz`. `npm pack` must follow `npm run build`; no compiler is needed when installing a built package.
+Install the resulting `mgrs-geotrans-<version>.tgz` into an application with `npm install /path/to/mgrs-geotrans-<version>.tgz`. `npm pack` must follow `npm run build`; no compiler is needed when installing a built package.
+
+Release versions come from `mgrs/__init__.py`. From the repository root, run `python scripts/sync_versions.py` before packaging to synchronize Cargo/npm manifests and lockfiles. CI runs it automatically and checks both archive filenames and embedded versions before upload. Python prereleases such as `1.8.0rc1` become SemVer `1.8.0-rc.1` in Cargo and npm.
 
 ## Node.js
 
@@ -133,7 +135,7 @@ npx playwright install chromium
 npm run test:browser
 npm run check
 npm pack
-npm run test:package -- ./mgrs-geotrans-1.6.0.tgz
+npm run test:package -- ./mgrs-geotrans-*.tgz
 npm run bench -- --points 1000000 --repeats 5
 npm run bench:browser -- --points 1000000 --repeats 5
 ```

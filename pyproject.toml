@@ -55,6 +55,7 @@ sdist.include = [
     "/libmgrs/geotrans3.10/**/*.h", "/libmgrs/geotrans3.10/README.rst",
     "/libmgrs/geotrans3.10/SOURCE.json",
     "/tests/*.py", "/tests/*.txt", "/benchmarks/*.py", "/benchmarks/*.rst",
+    "/scripts/sync_versions.py",
     "/benchmarks/geotrans310-forward-dataset.json",
     "/benchmarks/geotrans310-forward-results.json",
     "/benchmarks/python-rust-results.json",
@@ -63,15 +64,13 @@ sdist.include = [
 sdist.exclude = ["*"]
 
 [[tool.dynamic-metadata]]
-provider = "scikit_build_core.metadata.regex"
-field = "version"
-input = "mgrs/__init__.py"
+provider = {path = "scripts", module = "sync_versions"}
 
 [tool.cibuildwheel]
 build-frontend = "build[uv]"
 test-requires = "pytest"
 test-command = "python -m pytest tests --doctest-glob='*.txt'"
-test-sources = ["tests", "benchmarks", "rust/tests/fixtures"]
+test-sources = ["tests", "benchmarks", "rust/tests/fixtures", "scripts/sync_versions.py"]
 
 [tool.cibuildwheel.linux]
 before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.90.0"

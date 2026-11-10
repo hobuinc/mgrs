@@ -1,6 +1,6 @@
 [package]
 name = "mgrs-geotrans"
-version = "1.6.0"
+version = "1.7.1"
 edition = "2021"
 rust-version = "1.85"
 description = "Rust translation of the WGS84 GEOTRANS 3.10 MGRS conversion engine"
