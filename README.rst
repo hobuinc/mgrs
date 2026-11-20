@@ -70,7 +70,7 @@ After installing the WebAssembly toolchain described in the TypeScript guide::
 ChangeLog
 ------------------------------------------------------------------------------
 
-1.7.2
+1.7.1
 
 * **Windows source builds:** Link the Windows SDK's ``Synchronization.lib``
   required by the Rust backend. This fixes unresolved ``WaitOnAddress``,
@@ -82,9 +82,13 @@ ChangeLog
   on Linux x86_64, Windows x86_64/ARM64, and macOS ARM64.
 * **Conda regression coverage:** Build and test with conda's Rust toolchain on
   Windows x86_64 and ARM64 using both regular and free-threaded Python 3.15.
+* **No-GIL support:** Import and use ``mgrs`` on free-threaded CPython without
+  enabling the GIL. Concurrent tests cover shared converters, scalar and batch
+  conversions, cell geometries, errors, and warnings.
 
-On free-threaded CPython, importing ``mgrs`` currently enables the GIL. Native
-coordinate conversions continue to release the GIL while they execute.
+On regular CPython, native coordinate conversions continue to release the GIL
+while they execute. Keep shared input buffers unchanged during a conversion,
+or synchronize readers and writers with an application lock.
 
 # mgrs 1.7.0 release notes
 
@@ -422,22 +426,27 @@ must still fit the selected width. NUL bytes are allowed only as trailing
 padding, and any non-NUL data after the first NUL raises an error.
 
 Inputs must be C-contiguous, and numeric inputs must be aligned for doubles.
-They are read without copying and may be read-only. Use ``memoryview`` for
+They may be read-only. Use ``memoryview`` for
 views and slices of existing buffers; materialize strided numeric data with
 ``array('d', values)`` before conversion. Lists, Unicode strings, and buffers
 with the wrong element type or layout are rejected. Empty inputs work. Buffer
 exports retain the input storage throughout conversion and are released on
-success or failure. The binding copies input storage while holding the GIL,
-then Rust reads that snapshot. As with other Python buffers, external native
-code must not write concurrently while the snapshot is being taken.
+success or failure. The binding copies input storage into a private snapshot
+before calling Rust. On free-threaded CPython, it locks the exporting Python
+object during the copy. The buffer protocol does not provide a shared lock for
+all views and native aliases of the same storage: keep input buffers unchanged
+until the call returns, or synchronize readers and writers with an application
+lock. A read-only view does not prevent writes through another alias.
 
 Invalid values raise ``mgrs.core.MGRSError`` with the first failing zero-based
 row. No partial output is returned. NaN and infinite coordinates are rejected.
 Latitude warnings are emitted once per batch, identifying the first affected
-row. Rust projection state is immutable and shared safely across calls. The
-extension releases the GIL during conversion, so independent calls from Python
-threads can run concurrently without a global projection mutex. Output is
-written directly into the returned Python buffer. Snapshot storage adds
+row. Rust projection state is immutable and shared safely across calls. A single
+``MGRS`` instance and unchanged input buffers can be shared by concurrent callers.
+On free-threaded CPython, importing and using ``mgrs`` leaves the GIL disabled.
+On regular CPython, the extension releases the GIL during native conversion.
+Output belongs exclusively to its caller and is written directly into the
+returned Python buffer. Snapshot storage adds
 16 bytes per input point for forward batches or ``width`` bytes per inverse
 record, released when the call finishes.
 The batch adapter needs no additional dependencies or third-party array ABI.

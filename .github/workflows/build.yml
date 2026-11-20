@@ -95,6 +95,9 @@ jobs:
         fi
     - name: Build and install test dependencies
       run: uv pip install -e . pytest
+    - name: Verify free-threaded import
+      if: matrix.python-version == '3.15t'
+      run: python -I -W error -c "import sys, sysconfig; assert sysconfig.get_config_var('Py_GIL_DISABLED'); assert not sys._is_gil_enabled(); import mgrs; assert not sys._is_gil_enabled()"
     - name: Test with pytest
       run: python -m pytest tests --doctest-glob='*.txt'
 
@@ -131,5 +134,8 @@ jobs:
         conda run -n mgrs-test --no-capture-output python -c "import sysconfig; assert bool(sysconfig.get_config_var('Py_GIL_DISABLED')) == ('${{ matrix.python-variant }}' == 'python-freethreading')"
     - name: Build with conda dependencies
       run: conda run -n mgrs-test --no-capture-output python -m pip install -e . -v --no-deps --no-build-isolation
+    - name: Verify free-threaded import
+      if: matrix.python-variant == 'python-freethreading'
+      run: conda run -n mgrs-test --no-capture-output python -I -W error -c "import sys; assert not sys._is_gil_enabled(); import mgrs; assert not sys._is_gil_enabled()"
     - name: Test with pytest
       run: conda run -n mgrs-test --no-capture-output python -m pytest tests --doctest-glob='*.txt'
