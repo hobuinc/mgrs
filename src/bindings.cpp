@@ -1,9 +1,11 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/critical_section.h>
 
 #include <cmath>
 #include <cstdint>
 #include <limits>
 #include <cstring>
+#include <optional>
 #include <vector>
 #include <stdexcept>
 #include <string>
@@ -71,8 +73,9 @@ void check_result(long status, const char *function, bool batch = false,
     }
 }
 
-// Rust projection state is immutable and shareable. Only owned native inputs
-// and unpublished output storage may be accessed while the GIL is released.
+// Rust's OnceLock publishes immutable projection state. Detach the Python
+// thread state during native work (also needed for GC on free-threaded builds).
+// Only owned inputs and unpublished output storage are accessed here.
 template <typename Function>
 long convert(Function &&function) {
     py::gil_scoped_release release;
@@ -133,6 +136,42 @@ bool native_double(const py::buffer_info &info) {
         (info.format == "d" || info.format == "@d" ||
          info.format == "=d" || info.format == native);
 }
+
+template <typename T>
+std::vector<T> snapshot_buffer(const py::buffer_info &info) {
+    std::vector<T> input(info.size);
+    if (info.size) {
+        // The buffer export pins the storage. Lock its exporter while copying
+        // to synchronize with operations that use its Python object lock.
+        // No Python calls or thread-state detachment occur under this lock.
+        // Writes through other views/native aliases still need caller locking:
+        // the buffer protocol has no shared lock for arbitrary aliased storage.
+        py::scoped_critical_section lock(info.view()->obj);
+        std::memcpy(input.data(), info.ptr, info.size * sizeof(T));
+    }
+    return input;
+}
+
+// Some exporters also need their export counts protected when multiple calls
+// share an input. Destroy buffer_info under the same lock used to acquire it.
+// The strong reference keeps the exporter alive until after the lock exits.
+class buffer_request {
+    py::buffer exporter;
+    std::optional<py::buffer_info> view;
+
+public:
+    explicit buffer_request(py::buffer value) : exporter(std::move(value)) {
+        py::scoped_critical_section lock(exporter);
+        view.emplace(exporter.request());
+    }
+
+    ~buffer_request() {
+        py::scoped_critical_section lock(exporter);
+        view.reset();
+    }
+
+    const py::buffer_info &info() const { return *view; }
+};
 
 struct MGRS {
     std::string to_mgrs(double latitude, double longitude, bool degrees,
@@ -236,7 +275,8 @@ struct MGRS {
 
     py::bytearray to_mgrs_array(py::buffer points, bool degrees,
                                 py::handle requested_precision) const {
-        auto info = points.request();
+        buffer_request request(points);
+        const auto &info = request.info();
         if (!native_double(info)) {
             throw py::type_error("points must contain native-endian doubles (array('d'))");
         }
@@ -260,11 +300,7 @@ struct MGRS {
         if (!output) {
             throw py::error_already_set();
         }
-        // Snapshot mutable Python storage before releasing the GIL.
-        std::vector<double> input(info.size);
-        if (info.size) {
-            std::memcpy(input.data(), info.ptr, info.size * sizeof(double));
-        }
+        auto input = snapshot_buffer<double>(info);
         char *target = PyByteArray_AS_STRING(output.ptr());
         size_t index = 0;
         const long status = convert([&] {
@@ -279,7 +315,8 @@ struct MGRS {
     py::object to_latlon_array(py::buffer codes, bool degrees,
                                py::handle requested_width) const {
         const long width = bounded_index(requested_width, mgrs_width, false);
-        auto info = codes.request();
+        buffer_request request(codes);
+        const auto &info = request.info();
         auto format = info.format;
         if (format.size() == 2 && std::string("@=<>!").find(format[0]) != std::string::npos) {
             format.erase(0, 1);
@@ -306,10 +343,7 @@ struct MGRS {
             throw py::error_already_set();
         }
         auto target = py::reinterpret_borrow<py::buffer>(output).request(true);
-        std::vector<std::uint8_t> input(info.size);
-        if (info.size) {
-            std::memcpy(input.data(), info.ptr, info.size);
-        }
+        auto input = snapshot_buffer<std::uint8_t>(info);
         auto *coordinates = static_cast<double *>(target.ptr);
         size_t index = 0;
         const long status = convert([&] {
@@ -322,7 +356,7 @@ struct MGRS {
 };
 } // namespace
 
-PYBIND11_MODULE(_native, module) {
+PYBIND11_MODULE(_native, module, py::mod_gil_not_used()) {
     module.doc() = "MGRS conversions with the statically linked Rust GEOTRANS 3.10 translation.";
     module.attr("backend") = "rust";
     py::register_exception<MGRSError>(module, "MGRSError", PyExc_Exception);

@@ -5,6 +5,7 @@ import math
 import sys
 from array import array
 from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier, Event
 
 import pytest
 
@@ -262,3 +263,35 @@ def test_buffer_owners_are_not_leaked():
     assert before == (sys.getrefcount(points), sys.getrefcount(codes))
     points.append(0)
     codes.append(0)
+
+
+def test_snapshot_synchronizes_with_direct_bytearray_assignment():
+    converter = mgrs.MGRS()
+    batches = [array("d", point * 4096) for point in [(42, -93), (0, 3)]]
+    values = [converter.toMGRSArray(batch) for batch in batches]
+    convert = converter.toLatLonArray
+    expected = [convert(value) for value in values]
+    shared = values[0][:]
+    start = Barrier(2, timeout=30)
+    stop = Event()
+
+    def write():
+        start.wait()
+        # Direct bytearray assignments use the exporter's object lock.
+        # Other exporters and writes through aliases need application locking.
+        for _ in range(10000):
+            if stop.is_set():
+                break
+            shared[:] = values[0]
+            shared[:] = values[1]
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        writer = pool.submit(write)
+        try:
+            start.wait()
+            for _ in range(30):
+                result = convert(shared)
+                assert result == expected[0] or result == expected[1]
+        finally:
+            stop.set()
+        writer.result(timeout=30)
