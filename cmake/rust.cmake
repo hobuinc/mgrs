@@ -47,8 +47,11 @@ add_library(mgrs_rust STATIC IMPORTED)
 set_target_properties(mgrs_rust PROPERTIES IMPORTED_LOCATION "${rust_archive}")
 add_dependencies(mgrs_rust mgrs_rust_build)
 if(MSVC)
+    # Rust's Windows synchronization primitives use WaitOnAddress and
+    # WakeByAddress{Single,All}. Conda's Rust static libraries require the
+    # Windows SDK import library explicitly when linked by CMake/MSVC.
     set_property(TARGET mgrs_rust PROPERTY INTERFACE_LINK_LIBRARIES
-        "ws2_32;userenv;bcrypt;ntdll;advapi32")
+        "ws2_32;userenv;bcrypt;ntdll;advapi32;synchronization")
 elseif(UNIX)
     set_property(TARGET mgrs_rust PROPERTY INTERFACE_LINK_LIBRARIES "${CMAKE_DL_LIBS};m")
     if(NOT APPLE)

@@ -62,7 +62,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, windows-11-arm, macos-latest]
-        python-version: ['3.11', '3.12', '3.13', '3.14', '3.15']
+        python-version: ['3.11', '3.12', '3.13', '3.14', '3.15', '3.15t']
         include:
           - os: ubuntu-latest
             platform: Ubuntu
@@ -97,3 +97,39 @@ jobs:
       run: uv pip install -e . pytest
     - name: Test with pytest
       run: python -m pytest tests --doctest-glob='*.txt'
+
+  test_windows_conda:
+    name: Conda ${{ matrix.os }} Python 3.15 (${{ matrix.python-variant }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, windows-11-arm]
+        python-variant: [python-gil, python-freethreading]
+    steps:
+    - uses: actions/checkout@v7.0.1
+    - uses: conda-incubator/setup-miniconda@v4.1.0
+      with:
+        miniforge-version: latest
+        activate-environment: ''
+        auto-activate: false
+    # Exercise the feedstock's toolchain independently of the pinned Rust
+    # version used by our wheel builds, including its Windows system imports.
+    - name: Install conda build and test dependencies
+      run: >-
+        conda create -y -n mgrs-test --override-channels -c conda-forge
+        python=3.15 ${{ matrix.python-variant }} rust cxx-compiler
+        cmake ninja pip scikit-build-core pybind11 pytest
+    - name: Verify Python variant and Rust toolchain
+      run: |
+        conda run -n mgrs-test --no-capture-output rustc -vV
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        conda run -n mgrs-test --no-capture-output python -c "import sysconfig; assert bool(sysconfig.get_config_var('Py_GIL_DISABLED')) == ('${{ matrix.python-variant }}' == 'python-freethreading')"
+    - name: Build with conda dependencies
+      run: conda run -n mgrs-test --no-capture-output python -m pip install -e . -v --no-deps --no-build-isolation
+    - name: Test with pytest
+      run: conda run -n mgrs-test --no-capture-output python -m pytest tests --doctest-glob='*.txt'

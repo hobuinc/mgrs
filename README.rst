@@ -70,6 +70,14 @@ After installing the WebAssembly toolchain described in the TypeScript guide::
 ChangeLog
 ------------------------------------------------------------------------------
 
+Unreleased
+
+* Fix Windows source builds with conda's Rust toolchain by linking the Windows
+  synchronization library required by the Rust backend. This fixes unresolved
+  ``WaitOnAddress`` and ``WakeByAddress*`` symbols on x86_64 and ARM64, including
+  Python 3.15 free-threaded builds.
+* Test Windows conda builds with both regular and free-threaded Python 3.15.
+
 # mgrs 1.7.0 release notes
 
 Changes since [1.6.0](https://github.com/hobuinc/mgrs/releases/tag/1.6.0).
