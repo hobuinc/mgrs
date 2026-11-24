@@ -5,5 +5,5 @@ pytest==9.2.0
 wheel==0.48.0
 scikit-build-core==1.1.2
 pybind11==3.1.0
-cmake==4.4.4
+cmake==4.4.5
 ninja==1.13.2
